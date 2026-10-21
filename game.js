@@ -39,10 +39,13 @@
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
   const DEFAULT_SETTINGS = { lang: 'en', teams: 'two', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, belowZero: 'debt', categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
-  // One-team mode: a fixed number of words, then a rating from the final score. The bands are for 5 words and a 200 bank
-  // (more than 600 is Excellent, 500-600 Good, 400-500 Alright...); they scale with the number of words and the starting bank.
-  const RATINGS = [[400, 'Excellent!', 'You really know what each other means.'], [300, 'Good', 'Solid teamwork.'],
-    [200, 'Alright', 'Not bad. Try squeezing your clues a little more.'], [100, 'Not bad', 'A decent start.'], [-Infinity, 'Keep practicing', "You'll get in sync."]];
+  // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the
+  // starting bank, so with the default 200 bank: more than 600 is Excellent, then 500, 400 and 275 (they scale with the number of
+  // words and the bank). Worked out for a 1 + 2 team: solving all 5 words with ~4 letters a clue scores ~620, with ~5 letters ~550,
+  // with ~6 ~480; solving 4 of 5 ~420-440; 3 of 5 ~285; 2 of 5 ~175.
+  const RATING_CUTS = [75, 200, 300, 400];
+  const RATINGS = [[RATING_CUTS[3], 'Excellent!', 'You really know what each other means.'], [RATING_CUTS[2], 'Good', "You're on the same wavelength."],
+    [RATING_CUTS[1], 'Alright', 'Getting there, one clue at a time.'], [RATING_CUTS[0], 'Not bad', 'Some great hits, some near misses.'], [-Infinity, 'Keep practicing', 'Not quite on the same page yet.']];
   function rating(score, bank, words) {
     const net = (score - bank) * 5 / words, r = RATINGS.find(x => net > x[0]);
     return { label: r[1], note: r[2], score, words };
@@ -86,7 +89,7 @@
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
       scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, winner: null,
-      solo: false,
+      solo: false, history: [],   // one-team mode: how each word went, for the graph at the end
       pass: null, passUsed: [false, false], passNote: null   // a request to pass the word: { from, to, expires, timer }; each team may ask once per word
     };
     const change = () => onChange();
@@ -229,6 +232,7 @@
       const [a, b] = G.scores, s = G.settings;
       // "score" mode: first to the target. "words" mode: after a fixed number of words. A tie plays on (sudden death).
       const finished = s.mode === 'words' ? G.round + 1 >= s.words : (a >= s.target || b >= s.target);
+      if (G.solo) G.history.push({ n: G.round, word: G.card.word, result: G.teams[0].result, net: G.teams[0].earned - G.teams[0].spent, total: G.scores[0] });
       if (G.solo) { if (finished) { G.phase = 'over'; G.winner = 0; } else G.phase = 'roundEnd'; }
       else if (finished && a !== b) { G.phase = 'over'; G.winner = a > b ? 0 : 1; }
       else G.phase = 'roundEnd';
@@ -351,7 +355,7 @@
           if (!isHost || G.phase !== 'lobby') return {};
           G.solo = G.settings.teams === 'one';
           if ((G.solo ? [G.seats[0]] : G.seats).some(t => t.some(s => !s))) return { error: 'Fill every seat first.' };
-          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.used = new Set(); G.winner = null; G.passUsed = [false, false]; G.passNote = null; startRound(); change(); return {};
+          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.used = new Set(); G.winner = null; G.passUsed = [false, false]; G.passNote = null; G.history = []; startRound(); change(); return {};
         }
         case 'next': {
           if (!isHost || G.phase !== 'roundEnd') return {};
@@ -424,7 +428,7 @@
       const reveal = G.phase === 'roundEnd' || G.phase === 'over';
       const v = {
         phase: G.phase, me: id, isHost: id === hostId, hostId, settings: G.settings, names: G.names, scores: G.scores,
-        winner: G.winner, rating: G.solo && G.phase === 'over' && G.bankrupt === null ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, bankrupt: G.phase === 'over' ? G.bankrupt : null, costs: { start: START_COST, step: STEP, symbol: SYMBOL_COST },
+        winner: G.winner, history: G.solo && G.phase === 'over' ? G.history : null, rating: G.solo && G.phase === 'over' && G.bankrupt === null ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, bankrupt: G.phase === 'over' ? G.bankrupt : null, costs: { start: START_COST, step: STEP, symbol: SYMBOL_COST },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
         myTeam: actTeam(id) < 0 ? null : actTeam(id),
@@ -480,6 +484,6 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { CATEGORIES, TIERS, tierWords, createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP };
+  const api = { rating, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);
