@@ -409,7 +409,6 @@ function lobbyScreen() {
     <div class="well"><div class="settings">
       <div><label>Players per team</label>${sel('teamSize', [[3, '3 per team (6 players)'], [2, '2 per team (4 players)']], st.teamSize)}</div>
       <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
-      <div><label>Language</label>${sel('lang', [['en', 'English'], ['fr', 'Français']], st.lang)}</div>
       <div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'After a set number of words']], st.mode)}</div>
       <div>${st.mode === 'words'
         ? `<label>Number of words</label>${sel('words', [5, 10, 15], st.words, x => x + ' words')}`
