@@ -560,11 +560,17 @@ function roundScreen() {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
       const oDone = r.teams[1 - mt].stage === 'done' && V.settings.sequential;
-      if (multi && S.shownRole !== key) {
+      const guesserWaiting = stageRole === 'guesser' && T.awaitReady;   // the quick-guess clock hasn't started: wait for the tap
+      if (guesserWaiting && !multi) {
+        handoff = true;
+        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">Your clues are in!</h2>
+          <p class="sub">Tap when you're ready to see them. The quick-guess bonus starts counting down when you do.</p>
+          <button class="big" data-act="ready" data-key="${key}" data-guess="1">I'm ready</button></div>`;
+      } else if (guesserWaiting || (multi && S.shownRole !== key)) {
         handoff = true;
         body = `<div class="well center">${oDone ? `<p class="sub" style="margin:0 0 6px">${esc(V.names[1 - mt])}: ${esc(statusLine(1 - mt))}</p>` : ''}
           <h2 style="color:${TEAM_TEXT[mt]}">${esc(V.names[mt])}</h2><h2>Pass the device to ${esc(r.roleNames[stageRole])}</h2>
-          <p class="sub">${stageRole === 'guesser' ? 'Clue-givers: look away!' : stageRole === 'giver2' ? 'The guesser must look away!' : 'Everyone else, look away!'}</p>
+          <p class="sub">${stageRole === 'guesser' ? 'Clue-givers: look away! The quick-guess bonus starts when they tap.' : stageRole === 'giver2' ? 'The guesser must look away!' : 'Everyone else, look away!'}</p>
           <button class="big" data-act="ready" data-key="${key}"${stageRole === 'guesser' ? ' data-guess="1"' : ''}>I'm ready</button></div>`;
       } else {
         role = stageRole;
@@ -638,7 +644,7 @@ function guesserPanel(T, theme, blanks) {
     <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Write the keyword…" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
     <div class="preview">Wrong guess −${V.settings.penalty}${T.speedLeft ? ` · <b>⚡ quick bonus +<span data-bonus>${Math.ceil(T.speedLeft / 1000)}</span></b>` : ''} · <button class="linkbtn" data-act="giveup">give up</button></div>
     <div class="keys">${keyboard([], 'guess', seen)}</div>
-    ${seen.length ? `<div class="keyhint"><b>Dimmed</b> consonants appear in the clues, so they can't be among the keyword's first ${V.settings.banCount} consonants.</div>` : ''}
+    ${seen.length ? `<div class="keyhint"><b>Dimmed</b> consonants appear in the clues, so they're unlikely to be in the keyword (they can't be its first ${V.settings.banCount} consonants).</div>` : ''}
     ${logHtml(T)}`;
 }
 
@@ -711,7 +717,7 @@ function updatePreview() {
 }
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
-const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['lastchance', 'Guesser: last 10s'],
+const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['ready', 'Guesser: ready screen'], ['lastchance', 'Guesser: last 10s'],
   ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over']];
 function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
@@ -730,6 +736,7 @@ function mockView(kind) {
     case 'giver1': v.myRoles = ['giver1']; v.round = { ...round, ...secret, teams: [team('giver1', { remaining: 24000, spent: 0, used: 0 }), other] }; return v;
     case 'giver2': v.myRoles = ['giver2']; v.round = { ...round, ...secret, usedLetters: 'A E', teams: [team('giver2', { remaining: 21000, spent: 22, used: 0 }), other] }; return v;
     case 'guesser': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 9000, log: [{ text: 'HORSE', ok: false, cost: 5 }] }), other] }; return v;
+    case 'ready': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 15000, awaitReady: true, log: [] }), other] }; return v;
     case 'lastchance': v.myRoles = ['guesser']; v.scores = [130, 95]; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, remaining: 7000, log: [] }), team('done', { result: 'correct', earned: 131 })] }; return v;
     case 'waiting': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('giver1', { remaining: 18000, spent: 0, used: 0 }), other] }; return v;
     case 'roundEnd': v.phase = 'roundEnd'; v.round = { ...round, word: 'ZEBRA', teams: [

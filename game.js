@@ -145,12 +145,14 @@
       change();
       return {};
     }
-    // When the guesser shares a device with other people, they see a "pass the device" screen first.
-    // The quick-guess clock (and any last-chance timer) must only start once they tap "I'm ready".
-    const needsReady = t => { const id = holder(t, 'guesser'); return G.seats[t].filter(s => s === id).length > 1; };
+    // The guesser always gets an "I'm ready" screen before the clues appear, and the quick-guess clock (and any
+    // last-chance timer) only starts once they tap it. On a shared device it's the "pass the device" screen.
+    // The one exception: a guesser on their own phone isn't held back once the other team has already got it,
+    // otherwise they could stall the round by never tapping.
+    const sharedGuesser = t => { const id = holder(t, 'guesser'); return G.seats[t].filter(s => s === id).length > 1; };
     function enterGuess(t) {
       const T = G.teams[t]; T.stage = 'guess';
-      T.awaitReady = needsReady(t); T.guessStart = T.awaitReady ? null : now();
+      T.awaitReady = sharedGuesser(t) || G.firstCorrect === null; T.guessStart = T.awaitReady ? null : now();
       if (!T.awaitReady && G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
     }
     function startFinal(t) {
@@ -187,7 +189,9 @@
         finishTeam(t, 'correct', T.breakdown.base + T.breakdown.first + T.breakdown.speed);
         if (first) {
           G.firstCorrect = t;
-          const o = 1 - t; if (G.teams[o].stage === 'guess' && !G.teams[o].awaitReady) startFinal(o);
+          const o = 1 - t, O = G.teams[o];
+          if (O.stage === 'guess' && O.awaitReady && !sharedGuesser(o)) { O.awaitReady = false; O.guessStart = now(); }   // late team on their own phone: clock starts now
+          if (O.stage === 'guess' && !O.awaitReady) startFinal(o);
         }
       } else {
         spend(t, G.settings.penalty); T.log.push({ text, ok: false, cost: G.settings.penalty });
