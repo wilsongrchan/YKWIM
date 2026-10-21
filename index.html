@@ -301,6 +301,7 @@
   /* lobby */
   .code { font-family: var(--display); font-size: 3.2rem; letter-spacing: .25em; text-align: center; color: var(--accent-text); line-height: 1.1; }
   .seatgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .gauge { display: block; width: min(320px, 88%); margin: 8px auto 0; overflow: visible; } .gauge .gl { font: 500 9px var(--body); fill: var(--soft); letter-spacing: .04em; text-transform: uppercase; }
   .seatgrid.solo { grid-template-columns: 1fr !important; }
   .seatcol h3 { margin: 0 0 8px; font-family: var(--display); font-style: normal; font-weight: 500; font-size: 1.15rem;  }
   .seat { display: block; width: 100%; margin-bottom: 6px; text-align: left; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); padding: 11px 14px; }
@@ -874,6 +875,22 @@ function roundEndScreen() {
   </div>${SOLO() ? '' : vbar(1 - left)}</div></div>`;
 }
 
+// A dial for the co-op rating: five equal bands (Keep practicing .. Excellent!) and a needle at the team's score.
+// The bands are by points gained per 5 words, so they hold for any number of words and any starting bank.
+function gauge(score) {
+  const bank = V.settings.bank, words = V.settings.words, net = (score - bank) * 5 / words, f = Math.max(0, Math.min(1, net / 500));
+  const cx = 110, cy = 108, r = 88, COL = ['#f2766b', '#f29a5b', '#f5c84a', '#9fd77a', '#4fc08a'];
+  const band = Math.min(4, Math.floor(f * 5)), cut = i => Math.round(bank + 100 * i * words / 5);   // points where each band starts
+  const pt = (deg, rad = r) => [cx + rad * Math.cos(deg * Math.PI / 180), cy - rad * Math.sin(deg * Math.PI / 180)].map(n => n.toFixed(1));
+  const arcs = COL.map((c, i) => { const a0 = 180 - i * 36 - 1.2, a1 = 180 - (i + 1) * 36 + 1.2, [x0, y0] = pt(a0), [x1, y1] = pt(a1);
+    return `<path d="M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}" stroke="${c}" stroke-width="18" fill="none" opacity="${i === band ? 1 : .4}"/>`; }).join('');
+  const ticks = [1, 2, 3, 4].map(i => { const [x, y] = pt(180 - i * 36, r + 17); return `<text x="${x}" y="${(+y + 3).toFixed(1)}" class="gl" text-anchor="middle">${cut(i)}</text>`; }).join('');
+  const [nx, ny] = pt(180 - 180 * f, 70);
+  return `<svg class="gauge" viewBox="0 0 220 134" role="img" aria-label="Rating dial">${arcs}${ticks}
+    <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="8" fill="var(--text)"/>
+    <text x="8" y="126" class="gl">Keep practicing</text><text x="212" y="126" class="gl" text-anchor="end">Excellent!</text></svg>`;
+}
+
 function overScreen() {
   const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">Back to lobby</button>` : `<p class="sub">Waiting for the host…</p>`;
   if (SOLO()) {
@@ -883,7 +900,8 @@ function overScreen() {
       <div class="sub">${esc(V.names[0])} went bankrupt before the last word.</div>${back}</div>`;
     return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0]).toUpperCase()} · ${V.settings.words} WORDS</div>
       <div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--accent-text)">${esc(R.label)}</div>
-      <div class="big-score" style="font:500 2.4rem var(--display);margin:2px 0">${R.score}</div><div class="sub">points</div>
+      ${gauge(R.score)}
+      <div class="big-score" style="font:500 2.4rem var(--display);margin:0">${R.score}</div><div class="sub">points</div>
       <p class="sub" style="margin-top:6px">${esc(R.note)}</p>${back}</div>`;
   }
   return `<div class="stage center">
