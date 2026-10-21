@@ -45,10 +45,12 @@
   // all 5 solved with 4 letters a word ~510 gained, 5 letters ~460, 6 letters ~410; 4 of 5 solved ~330-370; 3 of 5 ~250-275; 2 of 5 ~165-185.
   const RATING_CUTS = [260, 350, 430, 490];
   // The five grades are YKWIM > KWIM > WIM > IM > M, each with its own little quote, from confident down to a shrug.
-  const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!'], [RATING_CUTS[2], 'KWIM', 'Kinda what I meant :)'],
-    [RATING_CUTS[1], 'WIM', 'Wait, I meant…'], [RATING_CUTS[0], 'IM', 'I mean…'], [-Infinity, 'M', 'Meh…']];
+  const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!'], [RATING_CUTS[2], 'KWIM', 'Kinda wild, I\'m mind-reading!'],
+    [RATING_CUTS[1], 'WIM', 'Wait, I meant…'], [RATING_CUTS[0], 'IM', 'Interesting misunderstandings…'], [-Infinity, 'M', 'Muddled…']];
+  // Points gained that a grade needs over this many words: the per-5-words cutoff scaled up, to a round number (so 8 words reads 415, not 416)
+  const gradeNeed = (cut, words) => Math.round(cut * words / 25) * 5;
   function rating(score, bank, words) {
-    const net = (score - bank) * 5 / words, r = RATINGS.find(x => net > x[0]);
+    const gained = score - bank, r = RATINGS.find(x => x[0] === -Infinity || gained > gradeNeed(x[0], words));
     return { label: r[1], quote: r[2], rank: RATINGS.length - 1 - RATINGS.indexOf(r), score, words };   // rank 4 = best, 0 = worst
   }
   const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
@@ -56,6 +58,7 @@
   const FIRST_COST = 5, START_COST = 6, STEP = 2;   // a clue-giver's letters cost 5, 8, 10, 12, 14...: the first is a gentle 5, then START + STEP * index
   const priceOf = i => i === 0 ? FIRST_COST : START_COST + STEP * i;   // price of the letter at index i (0 = the first one that clue-giver types)
   const PASS_MS = 20000;              // how long the other team's Clue-giver 1 has to answer a request to pass a word
+  const FEEDBACK_MS = 4000;          // pass-and-play: how long the guesser's result screen shows before the device is passed on
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   // A team is some clue-givers (1, 2 or 3) who write one after another, then a guesser: team sizes 2, 3 and 4.
   const rolesFor = size => [...Array(size - 1)].map((_, i) => 'giver' + (i + 1)).concat('guesser');
@@ -176,10 +179,10 @@
         beginWriting(first, 'giver1');
       } else [0, 1].forEach(t => beginWriting(t, 'giver1'));
     }
-    function beginWriting(t, stage) {
+    function beginWriting(t, stage, extraMs = 0) {   // extraMs: breathing room before the clock starts (the pass-and-play feedback screen)
       const T = G.teams[t], ms = G.settings.writeSecs * 1000;
-      T.stage = stage; T.used = 0; T.deadline = now() + ms;
-      arm(t, ms + GRACE_MS, () => { if (T.stage === stage) submitClue(t, '', true); }); // client's own auto-submit normally wins
+      T.stage = stage; T.used = 0; T.deadline = now() + extraMs + ms;
+      arm(t, extraMs + ms + GRACE_MS, () => { if (T.stage === stage) submitClue(t, '', true); }); // client's own auto-submit normally wins
     }
     function submitClue(t, raw, auto) {
       const T = G.teams[t];
@@ -225,7 +228,7 @@
       if (result !== 'correct') { G.scores[t] += T.clueSpent; T.spent -= T.clueSpent; T.clueSpent = 0; }   // didn't get it: the letters are paid back
       T.stage = 'done'; T.result = result; T.earned = earned; T.deadline = T.guessDeadline = null;
       const o = G.teams[1 - t];
-      if (G.settings.sequential && o.stage === 'waiting') beginWriting(1 - t, 'giver1');
+      if (G.settings.sequential && o.stage === 'waiting') beginWriting(1 - t, 'giver1', FEEDBACK_MS);   // the next team's clock waits out the guesser's feedback screen
       if (G.teams[0].stage === 'done' && G.teams[1].stage === 'done') endRound();
     }
     function endRound() {
@@ -451,7 +454,8 @@
       const reveal = G.phase === 'roundEnd' || G.phase === 'over';
       const v = {
         phase: G.phase, me: id, isHost: id === hostId, hostId, settings: G.settings, names: G.names, scores: G.scores,
-        winner: G.winner, history: G.solo && G.phase === 'over' ? G.history : null, record: G.phase === 'over' ? G.record : null, rating: G.solo && G.phase === 'over' ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, costs: { first: FIRST_COST, start: START_COST, step: STEP, symbol: SYMBOL_COST },
+        winner: G.winner, ratings: !G.solo && G.phase === 'over' ? [0, 1].map(t => rating(G.scores[t], G.settings.bank, Math.max(1, G.record.length))) : null,   // VS: every team gets a grade too, over the words actually played
+        history: G.solo && G.phase === 'over' ? G.history : null, record: G.phase === 'over' ? G.record : null, rating: G.solo && G.phase === 'over' ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, costs: { first: FIRST_COST, start: START_COST, step: STEP, symbol: SYMBOL_COST },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
         myTeam: actTeam(id) < 0 ? null : actTeam(id),
@@ -507,6 +511,6 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { rating, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, norm, costOf, priceOf, SYMBOLS, SYMBOL_COST, FIRST_COST, START_COST, STEP };
+  const api = { rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, norm, costOf, priceOf, SYMBOLS, SYMBOL_COST, FIRST_COST, START_COST, STEP };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);

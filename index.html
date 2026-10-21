@@ -149,7 +149,7 @@
   .seg { display: flex; gap: 8px; }
   .seg button { flex: 1; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; padding: 9px 6px; font-size: .95rem; }
   .seg button.on { border-color: var(--ink); }
-  #seg-help { gap: 5px; } #seg-help button { font-size: .8rem; padding: 8px 2px; }
+  #seg-help { gap: 4px; } #seg-help button { font-size: .74rem; padding: 8px 0; }
   .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 4px; }
   .sw { display: block; width: 100%; text-align: left; padding: 10px; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; font-size: .9rem; }
   .sw.on { border-color: var(--ink); }
@@ -356,6 +356,17 @@
   .rv-team .line { display: flex; justify-content: space-between; gap: 10px; font-size: .88rem; padding: 3px 0; color: var(--soft); } .rv-team .line > span:last-child { text-align: right; color: var(--text); }
   .rv-team .mono { font-family: ui-monospace, Menlo, monospace; letter-spacing: .1em; } .rv-team small { color: var(--bad); } .rv-team .ok { color: var(--good); } .rv-team .no { color: var(--bad); }
   .rv-sum { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: .82rem; color: var(--soft); margin-top: 4px; border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); padding-top: 4px; } .rv-sum b { color: var(--text); font-weight: 500; } .rv-sum .tot { margin-left: auto; color: var(--accent-text); }
+  .feedback { padding: 36px 16px 28px; } .fb-emoji { font-size: 4rem; line-height: 1; animation: popin .5s cubic-bezier(.2,1.4,.4,1) both; }
+  .gr { display: flex; align-items: center; gap: 10px; padding: 5px 0; } .gchip { flex: none; min-width: 58px; text-align: center; padding: 3px 8px; border-radius: 8px; color: #123f43; font: 600 .85rem var(--body); }
+  table.gt th:first-child { width: 36%; } table.gt td { white-space: nowrap; } table.gt .gq { display: block; margin-top: 3px; font: italic 400 .72rem var(--body); color: var(--ink); line-height: 1.25; }
+  table.gt tr + tr th, table.gt tr + tr td { padding-top: 6px; padding-bottom: 6px; } table.gt td { vertical-align: top; padding-top: 9px; }
+  table.gt { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; } table.gt caption { text-align: left; font-weight: 500; font-size: .85rem; padding-bottom: 4px; }
+  table.gt th { font-weight: 500; color: #6b6b78; text-align: right; padding: 3px 4px; } table.gt th:first-child { text-align: left; } table.gt td { text-align: right; padding: 3px 4px; font-variant-numeric: tabular-nums; } table.gt tr + tr th, table.gt tr + tr td { border-top: 1px solid rgba(0,0,0,.08); }
+  .vsgrades { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 8px; }
+  .vsg { background: var(--well); border-radius: 16px; padding: 12px 8px; border: 2px solid transparent; } .vsg.won { border-color: var(--lime); }
+  .vsg .n { font: 500 1rem var(--display); } .vsg .s { font-size: .8rem; color: var(--soft); margin-bottom: 4px; }
+  .vsg .g { font: 400 2.4rem var(--brand); font-style: italic; letter-spacing: .04em; line-height: 1.1; text-shadow: 2px 2px 0 var(--navy); } .vsg .q { font: italic 500 .85rem var(--display); margin-top: 4px; }
+  #help .big { margin-top: 16px; }   /* breathing room above Got it on every page */
   .tip { position: fixed; z-index: 40; max-width: 230px; pointer-events: none; background: var(--field); color: var(--ink); border-radius: 10px; padding: 7px 10px; font-size: .8rem; line-height: 1.3; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
   [data-tip] { cursor: help; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--navy); border: 2px solid var(--bad); color: var(--text);
@@ -408,6 +419,7 @@
     <h2>Display</h2>
     <div class="dlabel">Mode</div><div class="seg" id="seg-mode"></div>
     <div class="dlabel">Text size</div><div class="seg" id="seg-size"></div>
+    <div class="dlabel">Keyboard</div><div class="seg" id="seg-keys"></div>
     <div class="dlabel">Colours</div><div class="swatches" id="swatches"></div>
   </div>
 </div>
@@ -415,7 +427,7 @@
   <div class="sheet">
     <button class="x" data-act="closeHelp" aria-label="Close">✕</button>
     <h2>How to play</h2>
-    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">Rules</button><button data-act="helpTab" data-tab="cost">Clues</button><button data-act="helpTab" data-tab="flow">Example</button><button data-act="helpTab" data-tab="bar">Score bar</button></div>
+    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">Rules</button><button data-act="helpTab" data-tab="cost">Clues</button><button data-act="helpTab" data-tab="flow">Example</button><button data-act="helpTab" data-tab="bar">Score bar</button><button data-act="helpTab" data-tab="result">Results</button></div>
     <div id="help-rules">
     <p>Two teams race to guess one keyword from <b>letters, not words</b>.</p>
     <h3>Clues</h3>
@@ -433,7 +445,7 @@
       <li>A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the faster one also gets a first-to-guess bonus.</li>
       <li>You can only write a clue you can afford. A wrong guess costs points; giving up is free. If your team doesn't get the word, the letters are refunded.</li>
       <li>When one team guesses or gives up, the other gets a last-chance timer. Giving up is final.</li>
-      <li>Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a rating.</li>
+      <li>Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a grade. In VS, both teams get one too.</li>
     </ul>
     </div>
     <div id="help-cost" class="hide">
@@ -445,6 +457,16 @@
       <h3>What a clue costs</h3>
       <div id="costdiag"></div></div>
     <div id="help-flow" class="hide"><div id="flowdiag"></div></div>
+    <div id="help-result" class="hide">
+      <h3>Winning</h3>
+      <ul>
+        <li><b>VS:</b> play to a target score or a set number of words. Most points wins, and a tie plays one more word.</li>
+        <li><b>Co-op:</b> one team plays a set number of words and gets a grade.</li>
+      </ul>
+    <h3>Grades</h3>
+    <p>At the end, every team gets a grade, from M up to YKWIM. The more points you gain over your starting points, the better the grade. In VS the winner is still whoever has more points.</p>
+    <div id="gradediag"></div>
+    </div>
     <div id="help-bar" class="hide"><p>The bar beside the game shows your team's points and what you could still win.</p><div id="bardiag" style="--lime:var(--t0)"></div><p style="font-size:.85rem">Hover over (or tap) a part of the real bar to see its name.</p></div>
     <button class="big" data-act="closeHelp">Got it</button>
   </div>
@@ -532,8 +554,18 @@ function fail(msg) { S.busy = false; S.err = msg; V = null; render(); }
 let toastTimer;
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.remove('hide'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add('hide'), 2600); }
 
+const FEEDBACK_MS = 3500;   // pass-and-play: how long the guesser's result screen stays up before the "pass the device" screen
 function onView(v) {
+  const prev = V;
   V = v;
+  // Pass-and-play: the moment a guesser's turn ends, the device already belongs to the next team, so remember to show them how it went first
+  if (prev && prev.round && v.round && prev.round.n === v.round.n && v.settings.sequential && prev.myTeam !== null && (prev.myRoles || []).includes('guesser')) {
+    const t = prev.myTeam, was = prev.round.teams[t], now = v.round.teams[t];
+    if (was.stage === 'guess' && now.stage === 'done') {
+      S.feedback = { team: t, result: now.result, earned: now.earned, until: Date.now() + FEEDBACK_MS };
+      setTimeout(render, FEEDBACK_MS + 50);
+    }
+  }
   if (v.round) {
     const now = Date.now();
     S.dl = v.round.teams.map(t => t.remaining === null ? null : now + t.remaining);
@@ -560,7 +592,7 @@ const THEMES = {
   cobalt:    { name: 'Cobalt',   colors: ['#12204f', '#2c55c4', '#f5806b', '#f2c46e', '#6fe0d0'] }
 };
 // light / dark / follow-the-device, text size, and palette: remembered per device
-const DISPLAY = { mode: safeGet('ykwim-mode') || 'dark', size: safeGet('ykwim-size') || 'm', theme: safeGet('ykwim-theme') || 'citrus' };
+const DISPLAY = { mode: safeGet('ykwim-mode') || 'dark', size: safeGet('ykwim-size') || 'm', keys: safeGet('ykwim-keys') || 'qwerty', theme: safeGet('ykwim-theme') || 'citrus' };
 const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 function applyDisplay() {
   const D = DISPLAY, el = document.documentElement;
@@ -570,6 +602,7 @@ function applyDisplay() {
   const seg = (name, opts) => opts.map(([v, label]) => `<button class="${D[name] === v ? 'on' : ''}" data-act="${name}" data-v="${v}">${label}</button>`).join('');
   $('seg-mode').innerHTML = seg('mode', [['light', '☀ Light'], ['dark', '☾ Dark'], ['auto', 'Auto']]);
   $('seg-size').innerHTML = seg('size', [['s', 'S'], ['m', 'M'], ['l', 'L']]);
+  $('seg-keys').innerHTML = seg('keys', [['qwerty', 'QWERTY'], ['abc', 'ABC']]);
   $('swatches').innerHTML = Object.entries(THEMES).map(([k, t]) =>
     `<button class="sw ${k === D.theme ? 'on' : ''}" data-act="theme" data-theme="${k}"><i>${t.colors.map(c => `<b style="background:${c}"></b>`).join('')}</i>${t.name}</button>`).join('');
 }
@@ -644,11 +677,14 @@ const priceOf = i => i === 0 ? V.costs.first : V.costs.start + V.costs.step * i;
 const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += priceOf(used + i); return c; };
 const clueCost = (text, used) => { const n = lettersOnly(text); return costOf(n, used) + V.costs.symbol * ([...text].length - n); };
 // ban: keys that can't be used (disabled). seen: keys to flag but leave usable (guesser's hint).
-const KEY_ROWS = [['QWERTYUIOP', 1], ['ASDFGHJKL', 2], ['ZXCVBNM', 4]];   // [letters, first column]: a 22-column grid, two columns a key, so the rows stagger like a real keyboard
-const keyboard = (ban = [], target, seen = []) =>
-  KEY_ROWS.map(([row, col], r) => [...row].map((c, i) => `<button data-act="key" data-target="${target}" data-k="${c}" style="grid-column:${col + 2 * i} / span 2;grid-row:${r + 1}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')).join('')
-  + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:20 / span 3;grid-row:2" aria-label="Clear all">Clear</button>`
-  + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:20 / span 3;grid-row:3" aria-label="Backspace">⌫</button>`
+const KEY_LAYOUTS = {   // rows are [letters, first column] on a 22-column grid, two columns a key; fn = where Clear and backspace sit
+  qwerty: { rows: [['QWERTYUIOP', 1], ['ASDFGHJKL', 2], ['ZXCVBNM', 4]], fn: '20 / span 3' },
+  abc: { rows: [['ABCDEFGHI', 1], ['JKLMNOPQR', 1], ['STUVWXYZ', 1]], fn: '19 / span 4' }
+};
+const keyboard = (ban = [], target, seen = [], L = KEY_LAYOUTS[DISPLAY.keys] || KEY_LAYOUTS.qwerty) =>
+  L.rows.map(([row, col], r) => [...row].map((c, i) => `<button data-act="key" data-target="${target}" data-k="${c}" style="grid-column:${col + 2 * i} / span 2;grid-row:${r + 1}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')).join('')
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:${L.fn};grid-row:2" aria-label="Clear all">Clear</button>`
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:${L.fn};grid-row:3" aria-label="Backspace">⌫</button>`
   // symbols cost a flat 5 each in clues, so only the clue keyboard gets them
   + (target === 'clue' ? `<div class="symrow" style="grid-row:4">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
 // Settings dropdown. Closed, it shows just the short value; the open list can carry a faint hint (easy / hard).
@@ -669,9 +705,11 @@ function render() {
   const start = active && active.selectionStart;
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
   $('wrap').classList.toggle('landing', !V);
+  const fb = !!V && V.phase !== 'lobby' && S.feedback && S.feedback.until > Date.now() ? S.feedback : null;
   // while a word is being played, the accent colour (keyword, buttons, outlines) is the colour of the team on this screen
-  if (V && V.phase === 'round' && V.myTeam !== null) $('app').dataset.team = V.myTeam; else delete $('app').dataset.team;
-  $('app').innerHTML = !V ? homeScreen() : { lobby: lobbyScreen, round: roundScreen, roundEnd: roundScreen, over: overScreen }[V.phase]();
+  const teamColour = fb ? fb.team : V && V.phase === 'round' ? V.myTeam : null;
+  if (teamColour !== null) $('app').dataset.team = teamColour; else delete $('app').dataset.team;
+  $('app').innerHTML = !V ? homeScreen() : fb ? feedbackScreen(fb) : { lobby: lobbyScreen, round: roundScreen, roundEnd: roundScreen, over: overScreen }[V.phase]();
   const f = focus && $(focus);
   if (f) { f.focus(); try { f.setSelectionRange(start, start); } catch {} }
   const pv = $('previewbar');
@@ -792,6 +830,18 @@ function timerPill(inline) {
   return `<span class="timer${inline ? ' inl' : ''}" data-timer="speed">∞<small>no time limit</small></span>`;
 }
 
+// Pass-and-play: shown to the guesser for a few seconds when their turn ends, before the device is passed on
+function feedbackScreen(fb) {
+  const won = fb.result === 'correct';
+  return `<div class="stage center feedback">
+    <div class="fb-emoji">${won ? '🎉' : fb.result === 'gaveup' ? '🤝' : '⏰'}</div>
+    <h2 style="font-size:2rem">${won ? 'Yay, you got it!' : fb.result === 'gaveup' ? 'You gave up on this one' : "Time's up"}</h2>
+    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">points for the word</p>` : `<p class="sub">Your letters are refunded.</p>`}
+    <p class="sub" style="margin-top:18px">Get ready to pass the device…</p>
+    <button class="ghost" data-act="skipFeedback">Continue now</button>
+  </div>`;
+}
+
 function roundScreen() {
   if (V.phase === 'roundEnd') return roundEndScreen();
   const r = V.round, mt = V.myTeam;
@@ -807,7 +857,7 @@ function roundScreen() {
     if (T.stage === 'waiting') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])} is playing</h2><p class="sub">You're up next.</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
@@ -988,7 +1038,7 @@ function roundEndScreen() {
 // The co-op result as a graph: the total after each word, over coloured bands for the five grades. The grades are by points
 // gained per 5 words (see RATING_CUTS in game.js), so they hold for any number of words and any starting bank.
 function climb(history) {
-  const bank = V.settings.bank, words = V.settings.words, cut = i => bank + YKWIM.RATING_CUTS[i - 1] * words / 5;   // where each grade starts
+  const bank = V.settings.bank, words = V.settings.words, cut = i => bank + YKWIM.gradeNeed(YKWIM.RATING_CUTS[i - 1], words);   // where each grade starts
   const COL = ['#f2766b', '#f29a5b', '#f5c84a', '#9fd77a', '#4fc08a'], GRADE = ['M', 'IM', 'WIM', 'KWIM', 'YKWIM'];
   const pts = [{ total: bank, word: 'start' }].concat(history);
   const lo = Math.min(0, ...pts.map(p => p.total)), hi = Math.max(cut(4) + 70 * words / 5, ...pts.map(p => p.total));
@@ -1021,7 +1071,7 @@ function overScreen() {
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">GAME OVER</div>
     <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]}">${esc(V.names[V.winner])} wins!</div>
-    <div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>
+    ${V.ratings ? `<div class="vsgrades">${[0, 1].map(t => { const R = V.ratings[t]; return `<div class="vsg${t === V.winner ? ' won' : ''}"><div class="n" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</div><div class="s">${V.scores[t]} points</div><div class="g" style="color:var(--g${R.rank})">${esc(R.label)}</div><div class="q">“${esc(R.quote)}”</div></div>`; }).join('')}</div>` : `<div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>`}
     ${gameReviewHtml([0, 1])}${back}
   </div>`;
 }
@@ -1126,7 +1176,7 @@ function mockView(kind) {
       const history = nets.map((net, i) => ({ n: i, word: words[i], result: net <= 0 ? 'gaveup' : 'correct', net, total: total += net }));
       v.phase = 'over'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [total, 200]; v.winner = 0; v.history = history;
       v.record = mockRecord(); v.rating = YKWIM.rating(total, 200, 5); v.round = { ...round, teams: [team('done'), team('done')] }; return v; }
-    case 'over': v.phase = 'over'; v.winner = 0; v.scores = [512, 431]; v.round = { ...round, teams: [team('done'), team('done')] }; v.record = mockRecord(); return v;
+    case 'over': v.phase = 'over'; v.winner = 0; v.scores = [512, 431]; v.round = { ...round, teams: [team('done'), team('done')] }; v.record = mockRecord(); v.ratings = [YKWIM.rating(512, 200, 5), YKWIM.rating(431, 200, 5)]; return v;
   }
 }
 function showPreview(kind) {
@@ -1157,10 +1207,12 @@ document.addEventListener('click', e => {
     case 'closeThemes': $('themes').classList.add('hide'); return;
     case 'theme': return setDisplay({ theme: d.theme });
     case 'mode': return setDisplay({ mode: d.v });
+    case 'skipFeedback': S.feedback = null; return render();
     case 'size': return setDisplay({ size: d.v });
+    case 'keys': setDisplay({ keys: d.v }); if (V) render(); return;
     case 'passPlay': return send({ type: 'passAndPlay' });
     case 'help': $('help').classList.remove('hide'); return;
-    case 'helpTab': ['rules', 'cost', 'flow', 'bar'].forEach(t => $('help-' + t).classList.toggle('hide', d.tab !== t)); document.querySelectorAll('#seg-help button').forEach(b => b.classList.toggle('on', b.dataset.tab === d.tab)); if (d.tab === 'bar') $('bardiag').innerHTML = barDiagram(); return;
+    case 'helpTab': ['rules', 'cost', 'flow', 'bar', 'result'].forEach(t => $('help-' + t).classList.toggle('hide', d.tab !== t)); document.querySelectorAll('#seg-help button').forEach(b => b.classList.toggle('on', b.dataset.tab === d.tab)); if (d.tab === 'bar') $('bardiag').innerHTML = barDiagram(); return;
     case 'closeHelp': $('help').classList.add('hide'); return;
     case 'cat': return send({ type: 'settings', key: 'toggleCategory', value: d.c });
     case 'ddopen': S.ddOpen = S.ddOpen === d.key ? null : d.key; return render();
@@ -1254,6 +1306,12 @@ function barDiagram() {
   document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (!el) return; show(el, e.clientX, e.clientY); clearTimeout(hideT); hideT = setTimeout(hide, 2500); });
 })();
 
+// The co-op grades for the How to play page, straight from the game's own table so the numbers never drift
+const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
+const need = YKWIM.gradeNeed;   // points gained to reach a grade over this many words
+$('gradediag').innerHTML = `<table class="gt"><caption>Points you need to gain</caption><tr><th>Grade</th>${GRADE_WORDS.map(w => `<th>${w} words</th>`).join('')}</tr>`
+  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr><th><b class="gchip" style="background:var(--g${YKWIM.RATINGS.length - 1 - i})">${label}</b><span class="gq">“${quote}”</span></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? 'under ' + need(YKWIM.RATING_CUTS[0], w) : 'over ' + need(cut, w)}</td>`).join('')}</tr>`).join('')
+  + '</table><p style="font-size:.8rem;margin:4px 0 0">Points gained = your final points minus your starting points. The more words you play, the more points each grade needs.</p>';
 render();
 if (IS_LOCAL && new URLSearchParams(location.search).has('preview')) showPreview('giver1');
 </script>
