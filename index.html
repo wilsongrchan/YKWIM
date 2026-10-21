@@ -327,8 +327,10 @@
   #app[data-team="0"] { --lime: var(--t0); --accent-text: var(--t0t); } #app[data-team="1"] { --lime: var(--t1); --accent-text: var(--t1t); }
   .teamhead { display: flex; align-items: center; gap: 8px; }
   .tdot { flex: none; width: 20px; height: 20px; border-radius: 50%; box-shadow: 0 0 0 2px color-mix(in srgb, var(--ov) 35%, transparent); }
-  .teamhead input { flex: 1; min-width: 0; }
-  .seatname { margin-bottom: 6px; background: var(--lime); color: var(--ink); font-weight: 500; }
+  .editfield { position: relative; display: block; } .editfield input { padding-right: 34px; }
+  .editfield .pen { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: var(--ink); opacity: .55; pointer-events: none; }
+  .editfield.seatname { margin-bottom: 6px; } .editfield.seatname input { background: var(--lime); color: var(--ink); font-weight: 500; }
+  .teamhead .editfield { flex: 1; min-width: 0; }
   .seatcol .ghost { width: 100%; font-size: .85rem; padding: 8px; }
   .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
   .chip { background: color-mix(in srgb, var(--ov) 12%, transparent); border-radius: 999px; padding: 4px 12px; font-size: .85rem; font-weight: 500; }
@@ -687,7 +689,7 @@ function lobbyScreen() {
     const s = V.seats[t][i];
     if (!s) return `<button class="seat empty" data-act="sit" data-team="${t}" data-seat="${i}">Sit here</button>`;
     if (s.id === V.me && V.seats[t].filter(x => x && x.id === V.me).length > 1)   // one device holding several seats: each player gets a name box
-      return `<input class="seatname" data-seatname="${t}:${i}" value="${esc(s.name)}" maxlength="14" aria-label="Player name">`;
+      return `<span class="editfield seatname">${PEN}<input data-seatname="${t}:${i}" value="${esc(s.name)}" maxlength="14" aria-label="Player name"></span>`;
     return `<button class="seat ${s.id === V.me ? 'mine' : ''}" ${s.id === V.me ? 'data-act="stand"' : 'disabled'}>${esc(s.name)}${s.id === V.me ? ' (you)' : ''}</button>`;
   };
   const full = (V.settings.teams === 'one' ? [V.seats[0]] : V.seats).every(t => t.every(Boolean));
@@ -699,7 +701,7 @@ function lobbyScreen() {
     <p class="sub center">Share this link: <b style="color:var(--text)">${esc(link)}</b> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">Copy</button></p>
     ${V.isHost ? `<div class="center" style="margin:-4px 0 8px"><button class="linkbtn" data-act="newCode">↻ New room code</button></div>` : ''}
     <div class="seatgrid${st.teams === 'one' ? ' solo' : ''}">${(st.teams === 'one' ? [0] : [0, 1]).map(t => `<div class="seatcol">
-      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem">` : esc(V.names[t])}</h3>
+      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<span class="editfield">${PEN}<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem"></span>` : esc(V.names[t])}</h3>
       ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
       ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">Leave: stop playing this team on this device</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? 'Pass-and-play on this device' : 'Pass-and-play this team on this device'}</button>`}
     </div>`).join('')}</div>
@@ -834,6 +836,7 @@ function roundScreen() {
 // Solid fill = the team's bank. Letters are paid from it right away, so for my own team the striped shadow
 // inside it is what the clue being typed would cost. The segments stacked above are what a correct guess
 // could still win: the reward, the first-to-guess bonus, and the quick-guess bonus (shrinks every second, see tick()).
+const PEN = '<svg class="pen" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';   // marks a box as editable
 const TIP = { score: 'Bank: the points the team has now', shadow: "What the clue you are typing will cost (comes out of the bank)", reward: 'Reward for a correct guess',
   long: 'Long-word bonus: longer words pay extra', first: 'First-to-guess bonus: paid only if the other team gets it too, but slower than you', quick: 'Quick-guess bonus: shrinks every second once the clues appear' };
 // little marks along a bar, one every 100 points (the bar is `scale` points tall)
