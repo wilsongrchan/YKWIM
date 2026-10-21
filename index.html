@@ -19,7 +19,7 @@
     --brand: "Lilita One", "Arial Black", system-ui, sans-serif;   /* chunky face: only for the logo and the keyword */
     --body: "Fredoka", system-ui, -apple-system, sans-serif;
   }
-  :root[data-theme="bubblegum"] { --navy: #38142c; --indigo: #b83a68; --deep: #962f55; --well: #78243f; --lime: #f5d27a; --ink: #38142c; --soft: #f5bfd5; --t0: #f5d27a; --t1: #7ed0ea; }
+  :root[data-theme="bubblegum"] { --navy: #38142c; --indigo: #b83a68; --deep: #962f55; --well: #78243f; --lime: #f5d27a; --ink: #38142c; --soft: #f5bfd5; --t0: #9ee3b4; --t1: #7ed0ea; }
   :root[data-theme="mint"]      { --navy: #0c1424; --indigo: #1f4274; --deep: #17325a; --well: #112746; --lime: #6fe0be; --ink: #0c1424; --soft: #a3bbe0; --t0: #f291ab; --t1: #f0c978; }
   :root[data-theme="cobalt"]    { --navy: #12204f; --indigo: #2c55c4; --deep: #23449d; --well: #1b3680; --lime: #f5806b; --ink: #12204f; --soft: #b8ccf5; --t0: #f2c46e; --t1: #6fe0d0; }
   /* light mode: every palette gets a pale background and darker text/accent-text; fills keep the brand colours */
@@ -27,7 +27,7 @@
   :root[data-mode="light"] { color-scheme: light; --navy: #e6f1f0; --indigo: #d3e9e7; --deep: #c3e0de; --well: #b5d6d3; --soft: #4f716f;
     --text: #123f43; --field: #fff; --ov: #000; --track: rgba(0,0,0,.10); --bad: #c2392b; --good: #2e8b57;
     --accent-text: #9a6700; --t0: #f28b6e; --t1: #e8c94a; --t0t: #b5472b; --t1t: #8a6d00; }
-  :root[data-theme="bubblegum"][data-mode="light"] { --navy: #f8e6ee; --indigo: #f2d3e1; --deep: #ecc3d6; --well: #e3b3ca; --soft: #8a4a66; --text: #38142c; --accent-text: #8a5a00; --t0: #e8b84a; --t1: #5bb8d9; --t0t: #8a5a00; --t1t: #1f6f8f; }
+  :root[data-theme="bubblegum"][data-mode="light"] { --navy: #f8e6ee; --indigo: #f2d3e1; --deep: #ecc3d6; --well: #e3b3ca; --soft: #8a4a66; --text: #38142c; --accent-text: #8a5a00; --t0: #4fbf86; --t1: #5bb8d9; --t0t: #1f7a50; --t1t: #1f6f8f; }
   :root[data-theme="mint"][data-mode="light"] { --navy: #e8eef8; --indigo: #d5e0f2; --deep: #c5d4ec; --well: #b6c8e6; --soft: #4b6285; --text: #0c1424; --accent-text: #1b7a5e; --t0: #f291ab; --t1: #f0c978; --t0t: #b0345a; --t1t: #8a6200; }
   :root[data-theme="cobalt"][data-mode="light"] { --navy: #e7edfa; --indigo: #d3def5; --deep: #c3d2f0; --well: #b3c5ea; --soft: #4a5f93; --text: #12204f; --accent-text: #b0381f; --t0: #e8b04a; --t1: #4fc4b4; --t0t: #8a5a00; --t1t: #1a7a6e; }
   html { font-size: 16px; } html[data-size="s"] { font-size: 14px; } html[data-size="l"] { font-size: 18px; }
@@ -150,6 +150,7 @@
   .seg { display: flex; gap: 8px; }
   .seg button { flex: 1; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; padding: 9px 6px; font-size: .95rem; }
   .seg button.on { border-color: var(--ink); }
+  #seg-help { gap: 5px; } #seg-help button { font-size: .8rem; padding: 8px 2px; }
   .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 4px; }
   .sw { display: block; width: 100%; text-align: left; padding: 10px; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; font-size: .9rem; }
   .sw.on { border-color: var(--ink); }
@@ -195,13 +196,14 @@
     box-shadow: 0 10px 34px rgba(0,0,0,.28); }
   h1, h2, .display { font-family: var(--display); font-weight: 500; font-style: normal; margin: 0; letter-spacing: .02em; }
   .logo { font-size: clamp(3rem, 14vw, 5.5rem); text-align: center; line-height: 1; margin: 18px 0 4px; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
-  /* landing page only: one set of dots, all the same size, drifting one way. It moves with transform (GPU-composited),
+  /* landing page only: one set of ? marks, all the same size, drifting one way. It moves with transform (GPU-composited),
      not background-position, so there is no per-frame repaint. The loop travels exactly one tile, so it never jumps. */
   .stage.home { overflow: hidden; background: linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%); }
   .stage.home > * { position: relative; z-index: 1; }
-  .stage.home::before { content: ""; position: absolute; inset: -60px; pointer-events: none; will-change: transform; }
-  .stage.home::before { background: radial-gradient(circle at 3px 3px, color-mix(in srgb, var(--ov) 14%, transparent) 2.5px, transparent 3px) 0 0 / 40px 40px; animation: dots 2s linear infinite; }
-  @keyframes dots { to { transform: translate3d(-40px, 40px, 0); } }
+  .stage.home::before { content: ""; position: absolute; inset: -80px; pointer-events: none; will-change: transform; }
+  .stage.home::before { background: color-mix(in srgb, var(--ov) 12%, transparent); animation: dots 4s linear infinite;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='22' text-anchor='middle'%3E%3Ctext x='20' y='30' transform='rotate(-14 20 30)'%3E%3F%3C/text%3E%3Ctext x='60' y='70' transform='rotate(12 60 70)'%3E%3F%3C/text%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='22' text-anchor='middle'%3E%3Ctext x='20' y='30' transform='rotate(-14 20 30)'%3E%3F%3C/text%3E%3Ctext x='60' y='70' transform='rotate(12 60 70)'%3E%3F%3C/text%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; }
+  @keyframes dots { to { transform: translate3d(-80px, 80px, 0); } }
   @media (prefers-reduced-motion: reduce) { .stage.home::before { animation: none; } }
   .logo, .masthead .mark, .secret .w, .brand { font-family: var(--brand); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .05em; }
   .logo { text-shadow: 3px 3px 0 var(--navy); }
@@ -320,6 +322,10 @@
   .seat { display: block; width: 100%; margin-bottom: 6px; text-align: left; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); padding: 11px 14px; }
   .seat.empty { background: transparent; border: 2px dashed color-mix(in srgb, var(--ov) 30%, transparent); color: var(--soft); }
   .seat.mine { background: var(--lime); color: var(--ink); }
+  #app[data-team="0"] { --lime: var(--t0); --accent-text: var(--t0t); } #app[data-team="1"] { --lime: var(--t1); --accent-text: var(--t1t); }
+  .teamhead { display: flex; align-items: center; gap: 8px; }
+  .tdot { flex: none; width: 20px; height: 20px; border-radius: 50%; box-shadow: 0 0 0 2px color-mix(in srgb, var(--ov) 35%, transparent); }
+  .teamhead input { flex: 1; min-width: 0; }
   .seatname { margin-bottom: 6px; background: var(--lime); color: var(--ink); font-weight: 500; }
   .seatcol .ghost { width: 100%; font-size: .85rem; padding: 8px; }
   .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
@@ -328,6 +334,11 @@
   .res h3 { margin: 0; font-family: var(--display); font-style: normal; font-weight: 500;  font-size: 1.2rem; }
   .res .line { display: flex; justify-content: space-between; font-size: .95rem; color: var(--soft); font-weight: 500; }
   .res .line.tot { color: var(--accent-text); font-weight: 500; font-size: 1.1rem; border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); margin-top: 4px; padding-top: 4px; }
+  .ticks { position: absolute; inset: 0; pointer-events: none; --tk: color-mix(in srgb, var(--ov) 60%, transparent);
+    background: repeating-linear-gradient(to top, var(--tk) 0 2px, transparent 2px var(--M)) right top / 60% 100% no-repeat; }
+  .hb-track .ticks { background: repeating-linear-gradient(to right, var(--tk) 0 2px, transparent 2px var(--M)) left bottom / 100% 60% no-repeat; }
+  .tip { position: fixed; z-index: 40; max-width: 230px; pointer-events: none; background: var(--field); color: var(--ink); border-radius: 10px; padding: 7px 10px; font-size: .8rem; line-height: 1.3; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+  [data-tip] { cursor: help; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--navy); border: 2px solid var(--bad); color: var(--text);
     padding: 10px 18px; border-radius: 999px; font-weight: 500; z-index: 9; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
   .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
@@ -377,6 +388,8 @@
   <div class="sheet">
     <button class="x" data-act="closeHelp" aria-label="Close">✕</button>
     <h2>How to play</h2>
+    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">Rules</button><button data-act="helpTab" data-tab="cost">Clue cost</button><button data-act="helpTab" data-tab="flow">Example</button><button data-act="helpTab" data-tab="bar">Score bar</button></div>
+    <div id="help-rules">
     <p>Two teams race to guess one keyword from <b>letters, not words</b>.</p>
     <h3>Clues</h3>
     <ul>
@@ -395,12 +408,15 @@
       <li>When one team guesses or gives up, the other gets a last-chance timer. Giving up is final.</li>
       <li>Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a rating.</li>
     </ul>
-    <details class="costs"><summary>See what a clue costs</summary><div id="costdiag"></div></details>
-    <details class="costs"><summary>See an example round</summary><div id="flowdiag"></div></details>
+    </div>
+    <div id="help-cost" class="hide"><div id="costdiag"></div></div>
+    <div id="help-flow" class="hide"><div id="flowdiag"></div></div>
+    <div id="help-bar" class="hide"><p>The bar beside the game shows your team's points and what you could still win.</p><div id="bardiag" style="--lime:var(--t0)"></div><p style="font-size:.85rem">Hover over (or tap) a part of the real bar to see its name.</p></div>
     <button class="big" data-act="closeHelp">Got it</button>
   </div>
 </div>
 <div id="toast" class="toast hide"></div>
+<div id="tip" class="tip hide" role="tooltip"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="game.js"></script>
@@ -504,7 +520,7 @@ function onView(v) {
 // ---------- colour themes ----------
 const THEMES = {
   citrus:    { name: 'Lagoon',   colors: ['#123f43', '#1f8083', '#f5b942', '#f28b6e', '#f2d96b'] },
-  bubblegum: { name: 'Rose',     colors: ['#38142c', '#b83a68', '#f5d27a', '#f5d27a', '#7ed0ea'] },
+  bubblegum: { name: 'Rose',     colors: ['#38142c', '#b83a68', '#f5d27a', '#9ee3b4', '#7ed0ea'] },
   mint:      { name: 'Midnight', colors: ['#0c1424', '#1f4274', '#6fe0be', '#f291ab', '#f0c978'] },
   cobalt:    { name: 'Cobalt',   colors: ['#12204f', '#2c55c4', '#f5806b', '#f2c46e', '#6fe0d0'] }
 };
@@ -614,6 +630,8 @@ function render() {
   const active = document.activeElement, focus = active && active.id;
   const start = active && active.selectionStart;
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
+  // while a word is being played, the accent colour (keyword, buttons, outlines) is the colour of the team on this screen
+  if (V && V.phase === 'round' && V.myTeam !== null) $('app').dataset.team = V.myTeam; else delete $('app').dataset.team;
   $('app').innerHTML = !V ? homeScreen() : { lobby: lobbyScreen, round: roundScreen, roundEnd: roundScreen, over: overScreen }[V.phase]();
   const f = focus && $(focus);
   if (f) { f.focus(); try { f.setSelectionRange(start, start); } catch {} }
@@ -657,7 +675,7 @@ function lobbyScreen() {
     <p class="sub center">Share this link: <b style="color:var(--text)">${esc(link)}</b> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">Copy</button></p>
     ${V.isHost ? `<div class="center" style="margin:-4px 0 8px"><button class="linkbtn" data-act="newCode">↻ New room code</button></div>` : ''}
     <div class="seatgrid${st.teams === 'one' ? ' solo' : ''}">${(st.teams === 'one' ? [0] : [0, 1]).map(t => `<div class="seatcol">
-      <h3 style="color:${TEAM_TEXT[t]}">${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem">` : esc(V.names[t])}</h3>
+      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem">` : esc(V.names[t])}</h3>
       ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
       ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">Leave: stop playing this team on this device</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? 'Pass-and-play on this device' : 'Pass-and-play this team on this device'}</button>`}
     </div>`).join('')}</div>
@@ -789,6 +807,10 @@ function roundScreen() {
 // Solid fill = the team's bank. Letters are paid from it right away, so for my own team the striped shadow
 // inside it is what the clue being typed would cost. The segments stacked above are what a correct guess
 // could still win: the reward, the first-to-guess bonus, and the quick-guess bonus (shrinks every second, see tick()).
+const TIP = { score: 'Bank: the points the team has now', shadow: "Cost of the clue being typed (comes out of the bank)", reward: 'Reward for a correct guess',
+  long: 'Long-word bonus: longer words pay extra', first: 'First-to-guess bonus: paid only if the other team gets it too (faster team in pass-and-play)', quick: 'Quick-guess bonus: shrinks every second once the clues appear' };
+// little marks along a bar, one every 100 points (the bar is `scale` points tall)
+const ticks = scale => `<b class="ticks" style="--M:${100 / scale * 100}%"></b>`;
 function vbar(t) {
   const st = V.settings, byWords = st.mode === 'words', own = V.round && V.myTeam === t;
   const T = V.round && V.round.teams[t], other = V.round && V.round.teams[1 - t];
@@ -805,11 +827,12 @@ function vbar(t) {
   return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' && !hush ? ': ' + esc(statusLine(t)) : ''}">
     <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t].slice(0, 8))}</div>
     <div class="vb-track">
-      <i class="vb-score" style="height:${score}%;background:${TEAM_COLORS[t]}">${active ? '<b class="vb-shadow" id="tubeShadow"></b>' : ''}</i>
-      ${active ? `<i class="vb-reward" style="bottom:${score}%;height:${pct(reward)}%"></i>
-        ${longWord ? `<i class="vb-long" style="bottom:${score + pct(reward)}%;height:${pct(longWord)}%"></i>` : ''}
-        ${firstLeft ? `<i class="vb-first" style="bottom:${score + pct(reward + longWord)}%;height:${pct(firstLeft)}%"></i>` : ''}
-        <i class="vb-quick" data-qb style="bottom:${score + pct(reward + longWord + firstLeft)}%;height:${pct(quick)}%"></i>` : ''}
+      <i class="vb-score" data-tip="${TIP.score}" style="height:${score}%;background:${TEAM_COLORS[t]}">${active ? `<b class="vb-shadow" id="tubeShadow" data-tip="${TIP.shadow}"></b>` : ''}</i>
+      ${active ? `<i class="vb-reward" data-tip="${TIP.reward}" style="bottom:${score}%;height:${pct(reward)}%"></i>
+        ${longWord ? `<i class="vb-long" data-tip="${TIP.long}" style="bottom:${score + pct(reward)}%;height:${pct(longWord)}%"></i>` : ''}
+        ${firstLeft ? `<i class="vb-first" data-tip="${TIP.first}" style="bottom:${score + pct(reward + longWord)}%;height:${pct(firstLeft)}%"></i>` : ''}
+        <i class="vb-quick" data-qb data-tip="${TIP.quick}" style="bottom:${score + pct(reward + longWord + firstLeft)}%;height:${pct(quick)}%"></i>` : ''}
+      ${ticks(scale)}
     </div>
     <div class="vb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</div>
     <div class="vb-sub">${active ? `up to <b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</div>
@@ -832,8 +855,9 @@ function hbar(t) {
   return `<div class="hb${own ? ' me' : ''}"${dataAttrs}>
     <span class="hb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</span>
     <div class="hb-track">
-      <i class="hb-score" style="width:${pct(Math.max(0, V.scores[t]))}%;background:${TEAM_COLORS[t]}">${active ? '<b class="hb-shadow" id="tubeShadowH"></b>' : ''}</i>
-      ${active ? `<i class="hb-reward" style="width:${pct(reward)}%"></i>${longWord ? `<i class="hb-long" style="width:${pct(longWord)}%"></i>` : ''}${firstLeft ? `<i class="hb-first" style="width:${pct(firstLeft)}%"></i>` : ''}<i class="hb-quick" data-qbh style="width:${pct(quick)}%"></i>` : ''}
+      <i class="hb-score" data-tip="${TIP.score}" style="width:${pct(Math.max(0, V.scores[t]))}%;background:${TEAM_COLORS[t]}">${active ? `<b class="hb-shadow" id="tubeShadowH" data-tip="${TIP.shadow}"></b>` : ''}</i>
+      ${active ? `<i class="hb-reward" data-tip="${TIP.reward}" style="width:${pct(reward)}%"></i>${longWord ? `<i class="hb-long" data-tip="${TIP.long}" style="width:${pct(longWord)}%"></i>` : ''}${firstLeft ? `<i class="hb-first" data-tip="${TIP.first}" style="width:${pct(firstLeft)}%"></i>` : ''}<i class="hb-quick" data-qbh data-tip="${TIP.quick}" style="width:${pct(quick)}%"></i>` : ''}
+      ${ticks(scale)}
     </div>
     <b class="hb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</b>
     <span class="hb-sub">${active ? `up to <b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</span>
@@ -1052,6 +1076,7 @@ document.addEventListener('click', e => {
     case 'size': return setDisplay({ size: d.v });
     case 'passPlay': return send({ type: 'passAndPlay' });
     case 'help': $('help').classList.remove('hide'); return;
+    case 'helpTab': ['rules', 'cost', 'flow', 'bar'].forEach(t => $('help-' + t).classList.toggle('hide', d.tab !== t)); document.querySelectorAll('#seg-help button').forEach(b => b.classList.toggle('on', b.dataset.tab === d.tab)); if (d.tab === 'bar') $('bardiag').innerHTML = barDiagram(); return;
     case 'closeHelp': $('help').classList.add('hide'); return;
     case 'cat': return send({ type: 'settings', key: 'toggleCategory', value: d.c });
     case 'ddopen': S.ddOpen = S.ddOpen === d.key ? null : d.key; return render();
@@ -1062,7 +1087,7 @@ document.addEventListener('click', e => {
     case 'resetSettings': return send({ type: 'resetSettings' });
     case 'proposePass': return send({ type: 'proposePass' });
     case 'answerPass': return send({ type: 'answerPass', yes: d.yes === '1' });
-    case 'giveup': if (!confirm("Give up on this word? You can't guess again, and the other team gets a last-chance timer.")) return; return send({ type: 'giveup' });
+    case 'giveup': if (!confirm("Give up on this word? You can't guess again." + (V.settings.sequential || SOLO() ? '' : ' The other team gets a last-chance timer.'))) return; return send({ type: 'giveup' });
     case 'start': case 'next': case 'toLobby': case 'skip': return send({ type: d.act });
     case 'newCode': if (V && V.phase === 'lobby' && room && confirm('Make a new room code? Anyone who already joined will need to join again with the new code.')) hostRoom(S.name, 0, true); return;
     case 'flow': return renderFlow(d.v);
@@ -1097,6 +1122,52 @@ document.addEventListener('keydown', e => {
   else if (e.target.id === 'guess') document.querySelector('[data-act="sendGuess"]').click();
   else if (e.target.id === 'name' || e.target.id === 'code') document.querySelector(($('code') && $('code').value) ? '[data-act="join"]' : '[data-act="create"]').click();
 });
+
+// A picture of the score bar for the How to play page: an example bar with every part labelled.
+function barDiagram() {
+  const y = p => 280 - p * 0.65, X0 = 40, W = 30, TOP = y(400);   // the bar is a tall pill, 400 points high, like the real one
+  const seg = (from, to, fill) => `<rect x="${X0}" y="${y(to)}" width="${W}" height="${y(from) - y(to)}" style="fill:${fill}"/>`;
+  const parts = [   // [from, to, fill, label, description], top of the bar first
+    [345, 360, 'color-mix(in srgb, var(--lime) 30%, white)', 'Quick-guess bonus', 'shrinks every second'],
+    [325, 345, 'url(#lgFirst)', 'First-to-guess bonus', 'paid if the other team gets it too'],
+    [300, 325, 'color-mix(in srgb, var(--lime) 62%, white)', 'Long-word bonus', 'longer words pay extra'],
+    [200, 300, 'var(--lime)', 'Reward', 'for a correct guess'],
+    [160, 200, 'url(#lgShadow)', 'Clue cost (striped)', 'what the clue you type costs'],
+    [0, 160, 'var(--t0)', 'Bank', "your team's points"]];
+  const labelY = [34, 70, 106, 142, 186, 236];
+  let svg = `<svg viewBox="0 0 340 300" width="100%" role="img" aria-label="Parts of the score bar" style="max-width:380px;display:block;margin:6px auto">
+    <defs><pattern id="lgShadow" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" style="fill:var(--t0)"/><rect width="5" height="10" fill="rgba(0,0,0,.45)"/></pattern>
+    <clipPath id="lgPill"><rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}"/></clipPath>
+    <linearGradient id="lgShine" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <pattern id="lgFirst" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" style="fill:color-mix(in srgb, var(--lime) 40%, white)"/><rect width="4" height="8" style="fill:color-mix(in srgb, var(--lime) 55%, white)"/></pattern></defs>
+    <rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}" style="fill:var(--track)"/><g clip-path="url(#lgPill)">`;
+  // the bank is drawn as one block, the shadow sits on top of its upper end
+  svg += parts.map(([f, t, fill]) => seg(f, t, fill)).join('');
+  [100, 200, 300].forEach(p => svg += `<line x1="${X0 + W - 18}" x2="${X0 + W}" y1="${y(p)}" y2="${y(p)}" style="stroke:color-mix(in srgb, var(--ov) 60%, transparent)" stroke-width="2"/>`);
+  svg += `<rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" fill="url(#lgShine)"/></g>
+    <rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}" fill="none" style="stroke:color-mix(in srgb, var(--ov) 28%, transparent)" stroke-width="2"/>`;
+  [100, 200, 300].forEach(p => svg += `<text x="${X0 - 6}" y="${y(p) + 4}" text-anchor="end" font-size="10" fill="currentColor" opacity=".7">${p}</text>`);
+  parts.forEach(([f, t, , name, desc], i) => {
+    const my = y((f + t) / 2), ly = labelY[i], x1 = X0 + W + 4;
+    svg += `<polyline points="${x1},${my} ${x1 + 22},${ly} ${x1 + 30},${ly}" fill="none" stroke="currentColor" stroke-opacity=".5"/>
+      <text x="${x1 + 36}" y="${ly - 1}" font-size="13" font-weight="600" fill="currentColor">${name}</text><text x="${x1 + 36}" y="${ly + 13}" font-size="11" fill="currentColor" opacity=".75">${desc}</text>`;
+  });
+  return svg + '</svg>';
+}
+
+// tooltips for the score bars: instant on hover, and on tap for touch screens (native title="" tooltips are slow and vanish when the page redraws)
+(() => {
+  const tip = $('tip'); let hideT;
+  const show = (el, x, y) => {
+    tip.textContent = el.dataset.tip; tip.classList.remove('hide');
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, x + 14)) + 'px'; tip.style.top = Math.max(8, Math.min(innerHeight - h - 8, y + 14)) + 'px';
+  };
+  const hide = () => tip.classList.add('hide');
+  document.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) show(el, e.clientX, e.clientY); else hide(); });
+  document.addEventListener('mousemove', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) show(el, e.clientX, e.clientY); });
+  document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (!el) return; show(el, e.clientX, e.clientY); clearTimeout(hideT); hideT = setTimeout(hide, 2500); });
+})();
 
 render();
 if (IS_LOCAL && new URLSearchParams(location.search).has('preview')) showPreview('giver1');
