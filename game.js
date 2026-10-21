@@ -91,7 +91,7 @@
       settings: { ...DEFAULT_SETTINGS },
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
-      names: ['Team Gold', 'Team Blue'],
+      names: ['Team 1', 'Team 2'],
       scores: [0, 0], round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, gaveUp: null, winner: null,
       solo: false, history: [], record: [],   // record: every finished word with who wrote what, for the game-over review
          // one-team mode: how each word went, for the graph at the end

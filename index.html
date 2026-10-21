@@ -331,6 +331,7 @@
   .editfield .pen { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: var(--ink); opacity: .55; pointer-events: none; }
   .editfield.seatname { margin-bottom: 6px; } .editfield.seatname input { background: var(--lime); color: var(--ink); font-weight: 500; }
   .teamhead .editfield { flex: 1; min-width: 0; }
+  .teamhead .editfield input { padding: 6px 30px 6px 10px; font-size: 1rem; }
   .seatcol .ghost { width: 100%; font-size: .85rem; padding: 8px; }
   .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
   .chip { background: color-mix(in srgb, var(--ov) 12%, transparent); border-radius: 999px; padding: 4px 12px; font-size: .85rem; font-weight: 500; }
@@ -361,6 +362,10 @@
     padding: 10px 18px; border-radius: 999px; font-weight: 500; z-index: 9; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
   .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
   @media (max-width: 480px) {
+    /* landing page: the coloured card fills the rest of the phone screen */
+    #wrap.landing { min-height: calc(100vh - 16px); min-height: calc(100dvh - 16px); display: flex; flex-direction: column; }
+    #wrap.landing #app { flex: 1; display: flex; flex-direction: column; }
+    #wrap.landing .stage.home { flex: 1; display: flex; flex-direction: column; justify-content: center; }
     body { padding: 8px; } .stage { padding: 10px; border-radius: 18px; }
     .masthead { grid-template-columns: 84px 1fr 84px; margin-bottom: 8px; } .icon { width: 36px; height: 36px; }
     .top { margin-bottom: 8px; gap: 8px; } .pill { padding: 5px 12px; } .pill b { font-size: 1rem; } .lvname { font-size: .78rem; }
@@ -663,6 +668,7 @@ function render() {
   const active = document.activeElement, focus = active && active.id;
   const start = active && active.selectionStart;
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
+  $('wrap').classList.toggle('landing', !V);
   // while a word is being played, the accent colour (keyword, buttons, outlines) is the colour of the team on this screen
   if (V && V.phase === 'round' && V.myTeam !== null) $('app').dataset.team = V.myTeam; else delete $('app').dataset.team;
   $('app').innerHTML = !V ? homeScreen() : { lobby: lobbyScreen, round: roundScreen, roundEnd: roundScreen, over: overScreen }[V.phase]();
@@ -708,7 +714,7 @@ function lobbyScreen() {
     <p class="sub center">Share this link: <b style="color:var(--text)">${esc(link)}</b> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">Copy</button></p>
     ${V.isHost ? `<div class="center" style="margin:-4px 0 8px"><button class="linkbtn" data-act="newCode">↻ New room code</button></div>` : ''}
     <div class="seatgrid${st.teams === 'one' ? ' solo' : ''}">${(st.teams === 'one' ? [0] : [0, 1]).map(t => `<div class="seatcol">
-      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<span class="editfield">${PEN}<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem"></span>` : esc(V.names[t])}</h3>
+      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<span class="editfield">${PEN}<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16"></span>` : esc(V.names[t])}</h3>
       ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
       ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">Leave: stop playing this team on this device</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? 'Pass-and-play on this device' : 'Pass-and-play this team on this device'}</button>`}
     </div>`).join('')}</div>
@@ -1089,7 +1095,7 @@ function mockRecord() {   // two fake words for the game review in the preview t
 }
 function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
-  const names = ['Team Gold', 'Team Blue'];
+  const names = ['Team 1', 'Team 2'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { first: YKWIM.FIRST_COST, start: YKWIM.START_COST, step: YKWIM.STEP, symbol: YKWIM.SYMBOL_COST }, myTeam: 0, myRoles: [],
     settings: { lang: 'en', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
