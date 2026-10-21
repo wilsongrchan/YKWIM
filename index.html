@@ -200,17 +200,18 @@
   .themebar div small { font-weight: 500; opacity: .6; margin-right: 4px; }
   .blanks { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 2px 0 10px; }
   .blanks span { width: 30px; height: 38px; border-radius: 9px; background: color-mix(in srgb, var(--ov) 14%, transparent); border-bottom: 4px solid var(--lime); }
+  .blanks.long { gap: 4px; } .blanks.long span { width: 19px; height: 28px; border-radius: 6px; }
   .blanks span.gap { background: none; border: 0; width: 10px; }
   .secret { text-align: center; background: var(--lime); color: var(--ink); border-radius: 14px; padding: 8px 12px 10px; margin-bottom: 10px; }
   .secret .w { font-size: 2rem; line-height: 1.15; letter-spacing: .08em; }
-  .secret { display: flex; align-items: center; gap: 12px; text-align: left; }
-  .sec-theme { flex: 0 0 auto; text-align: center; padding-right: 12px; border-right: 2px solid rgba(0,0,0,.18); min-width: 76px; }
-  .sec-theme b { display: block; font-weight: 500; font-size: 1.05rem; }
-  .sec-key { flex: 1; text-align: center; min-width: 0; }
-  .sec-key .kw { font-size: .95rem; font-weight: 500; opacity: .75; }
+  .secret { text-align: center; }
+  .sec-theme { font-size: .85rem; font-weight: 500; opacity: .8; }
+  .sec-theme b { font-weight: 500; opacity: 1; }
+  .sec-key .kw { font-size: .85rem; font-weight: 500; opacity: .75; display: block; }
+  .sec-key .w { display: block; overflow-wrap: anywhere; }
   .secret small { display: block; font-weight: 500; opacity: .75; font-size: .8rem; }
   .giverhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-  .rolechip { background: var(--navy); border-radius: 999px; padding: 6px 14px; font-weight: 500; font-size: .95rem; }
+  .rolechip { white-space: nowrap; background: var(--navy); border-radius: 999px; padding: 6px 14px; font-weight: 500; font-size: .95rem; }
   .timer.inl { margin: 0; width: 6.2rem; border-radius: 999px; padding: 4px 8px; font-size: 1.4rem; }
   .linkbtn { background: none; padding: 0; color: var(--soft); text-decoration: underline; font-size: .9rem; font-weight: 400; }
   .used { text-align: center; background: var(--well); border-radius: 12px; padding: 6px 10px; margin-bottom: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 1.15rem; letter-spacing: .3em; font-weight: 500; }
@@ -264,7 +265,7 @@
     .slots { padding: 22px 8px 8px; margin-bottom: 8px; gap: 8px; } .slot { min-height: 52px; padding: 5px 4px; } .slot .txt { font-size: 1.15rem; }
     .timer { padding: 5px 20px 7px; font-size: 1.6rem; margin-bottom: -16px; }
     .themebar div { padding: 5px; font-size: .92rem; } .blanks { margin: 0 0 8px; gap: 5px; } .blanks span { width: 26px; height: 30px; }
-    .secret { padding: 6px 10px 8px; margin-bottom: 8px; } .secret .w { font-size: 1.6rem; } .sec-theme { min-width: 64px; padding-right: 8px; }
+    .secret { padding: 5px 10px 7px; margin-bottom: 8px; } .secret .w { font-size: 1.7rem; }
     .giverhead { margin-bottom: 8px; } .rolechip { padding: 4px 12px; font-size: .88rem; } .used { padding: 4px 8px; margin-bottom: 8px; font-size: 1rem; }
     input { padding: 10px 12px; } .bar button { padding: 0 16px; }
     .settings, .seatgrid { gap: 0 8px; } .seatgrid { gap: 8px; } .seat { padding: 9px 10px; font-size: .92rem; } .dd-btn { padding: 10px 11px; font-size: .95rem; }
@@ -573,7 +574,7 @@ function timerPill(inline) {
 function roundScreen() {
   if (V.phase === 'roundEnd') return roundEndScreen();
   const r = V.round, mt = V.myTeam;
-  const blanks = `<div class="blanks">${r.blanks.map(b => b ? '<span></span>' : '<span class="gap"></span>').join('')}</div>`;
+  const blanks = `<div class="blanks${r.blanks.length > 12 ? ' long' : ''}">${r.blanks.map(b => b ? '<span></span>' : '<span class="gap"></span>').join('')}</div>`;
   const theme = `<div class="themebar"><div><small>Theme:</small>${esc(r.cat)}</div></div>`;
   let body, role = null, handoff = false;
 
@@ -659,13 +660,13 @@ function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = T.stage === 'giver2' ? 2 : 1;
   const used = r.usedLetters !== undefined ? `<div class="used">${esc(r.usedLetters) || '(none)'}${r.usedSymbols ? ` <span class="usym">${esc(r.usedSymbols)}</span>` : ''}<small>Clue-giver 1 used${r.usedSymbols ? ' (letters and symbols)' : ''}, A–Z</small></div>` : '';
   const count = r.blanks.filter(Boolean).length;
-  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `You're the clue-giver` : `You're Clue-giver ${n}`}</span>${timerPill(true)}</div>
+  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}</span>${timerPill(true)}</div>
     <div class="secret">
-      <div class="sec-theme"><small>Theme</small><b>${esc(r.cat)}</b></div>
-      <div class="sec-key"><div><span class="kw">Keyword:</span> <span class="w">${esc(r.word)}</span></div><small>banned: ${ban.join(' ') || 'none'}</small></div>
+      <div class="sec-theme">Theme: <b>${esc(r.cat)}</b></div>
+      <div class="sec-key"><span class="kw">Keyword</span><span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span><small>banned: ${ban.join(' ') || 'none'}</small></div>
     </div>
     ${used}
-    <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Letters cost more each time · symbols 5 each" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
+    <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your clue" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
     <div class="preview" id="preview"></div>`;
   return [top, `<div class="keys">${keyboard(ban, 'clue')}</div>`];   // [beside the tubes, full width underneath]
 }
