@@ -303,6 +303,7 @@
   /* lobby */
   .code { font-family: var(--display); font-size: 3.2rem; letter-spacing: .25em; text-align: center; color: var(--accent-text); line-height: 1.1; }
   .seatgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .quote { font: italic 500 1.35rem var(--display); margin-top: 8px; }
   .climb { display: block; width: 100%; max-width: 460px; margin: 10px auto 0; overflow: visible; } .climb .cg { font: 500 7.5px var(--body); fill: var(--soft); } .climb .cg.miss { fill: var(--bad); } .climb .cn { font: 600 9px var(--body); fill: var(--text); } .climb .cn.miss { fill: var(--bad); }
   .seatgrid.solo { grid-template-columns: 1fr !important; }
   .seatcol h3 { margin: 0 0 8px; font-family: var(--display); font-style: normal; font-weight: 500; font-size: 1.15rem;  }
@@ -883,7 +884,7 @@ function roundEndScreen() {
 // gained per 5 words (see RATING_CUTS in game.js), so they hold for any number of words and any starting bank.
 function climb(history) {
   const bank = V.settings.bank, words = V.settings.words, cut = i => bank + YKWIM.RATING_CUTS[i - 1] * words / 5;   // where each grade starts
-  const COL = ['#f2766b', '#f29a5b', '#f5c84a', '#9fd77a', '#4fc08a'], GRADE = ['Keep practicing', 'Not bad', 'Alright', 'Good', 'Excellent!'];
+  const COL = ['#f2766b', '#f29a5b', '#f5c84a', '#9fd77a', '#4fc08a'], GRADE = ['M', 'IM', 'WIM', 'KWIM', 'YKWIM'];
   const pts = [{ total: bank, word: 'start' }].concat(history);
   const lo = Math.min(0, ...pts.map(p => p.total)), hi = Math.max(cut(4) + 70 * words / 5, ...pts.map(p => p.total));
   const W = 320, H = 182, L = 36, R = 74, T = 24, B = 34, X = i => L + (W - L - R) * i / (pts.length - 1), Y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
@@ -912,7 +913,8 @@ function overScreen() {
       <div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--accent-text)">${esc(R.label)}</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
       <div class="big-score" style="font:500 2.4rem var(--display);margin:0">${R.score}</div><div class="sub">points</div>
-      <p class="sub" style="margin-top:6px">${esc(R.note)}</p>${back}</div>`;
+      <div class="quote">“${esc(R.quote)}”</div>
+      <p class="sub" style="margin-top:4px">${esc(R.note)}</p>${back}</div>`;
   }
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">GAME OVER</div>
@@ -974,7 +976,7 @@ function updatePreview() {
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
 const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['passask', 'Pass request'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['ready', 'Guesser: ready screen'], ['lastchance', 'Guesser: last 10s'],
-  ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over'], ['coopEnd', 'Co-op: round end'], ['grade4', 'Co-op: Excellent!'], ['grade3', 'Co-op: Good'], ['grade2', 'Co-op: Alright'], ['grade1', 'Co-op: Not bad'], ['grade0', 'Co-op: Keep practicing']];
+  ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over'], ['coopEnd', 'Co-op: round end'], ['grade4', 'Co-op: YKWIM'], ['grade3', 'Co-op: KWIM'], ['grade2', 'Co-op: WIM'], ['grade1', 'Co-op: IM'], ['grade0', 'Co-op: M']];
 function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
   const names = ['Team Gold', 'Team Blue'];
