@@ -475,6 +475,17 @@
     .codebox .sub { text-align: left; } .codebox .code { text-align: left; font-size: 2.3rem; }
     .codeside { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; } .codeside p, .newcode { margin: 0 !important; }
     .linktxt { display: none; }
+    .stage.lobby .dev { display: none; }   /* "on this device" is clear from the button's place */
+    .stage.lobby { padding: 10px; } .coderow { margin-bottom: 2px; }
+    .stage.lobby .seatgrid { margin: 6px 0 4px; gap: 4px 8px; } .stage.lobby .seatcol h3 { margin: 0 0 4px; }
+    .stage.lobby .seat { padding: 6px 10px; margin-bottom: 4px; font-size: .9rem; } .stage.lobby .seatcol .ghost { padding: 5px; font-size: .76rem; }
+    .stage.lobby > .sub { margin: 3px 0; font-size: .78rem; line-height: 1.25; }
+    .stage.lobby .lobbystart { margin: 2px 0 4px !important; } .stage.lobby .lobbystart button.big { padding: 11px; font-size: 1.05rem; }
+    .stage.lobby .lobbystart .ghost { padding: 7px; font-size: .8rem; margin-top: 6px !important; }
+    .stage.lobby .settingshead { margin: 0 0 4px; } .stage.lobby .settingshead h2 { font-size: 1.05rem; }
+    .stage.lobby .well { padding: 10px; } .stage.lobby .modes { gap: 8px; }
+    .stage.lobby .modebtn { padding: 8px 10px; border-radius: 12px; border-width: 2px; gap: 2px; } .stage.lobby .modebtn b { font-size: 1.15rem; } .stage.lobby .modebtn span { font-size: .7rem; }
+    .stage.lobby .settings label { font-size: .68rem; margin: 6px 0 2px; }
     .code { font-size: 2.6rem; } .res { padding: 10px 12px; } .bc-txt { font-size: clamp(1.4rem, 6.5vw, 2.2rem); } .bigclue { padding: 12px 4px 8px; }
   }
   /* last chance: the timer sits above the clue boxes instead of tucking into them */
@@ -899,7 +910,7 @@ function lobbyScreen() {
     <div class="seatgrid${st.teams === 'one' ? ' solo' : ''}">${(st.teams === 'one' ? [0] : [0, 1]).map(t => `<div class="seatcol">
       <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<span class="editfield">${PEN}<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16"></span>` : esc(V.names[t])}</h3>
       ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
-      ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">Leave: stop playing this team on this device</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? 'Pass-and-play on this device' : 'Pass-and-play this team on this device'}</button>`}
+      ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">Leave: stop playing this team on this device</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? 'Pass-and-play<span class="dev"> on this device</span>' : 'Pass-and-play this team<span class="dev"> on this device</span>'}</button>`}
     </div>`).join('')}</div>
     ${unseated.length ? `<p class="sub">Waiting to sit: ${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
     <p class="sub">${{ 2: 'One player writes a clue and the other guesses. You swap every word.', 3: 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.', 4: 'Roles (three clue-givers and a guesser) rotate between the 4 seats every word.' }[st.teamSize]}</p>
@@ -1403,21 +1414,23 @@ document.addEventListener('input', e => {
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
-// iOS leaves the page shifted up after the keyboard closes: ease it back once the keyboard has finished moving
-// (debounced: the viewport fires resize events all through the keyboard's slide, and jumping mid-slide looks choppy)
-let unshiftTimer;
+// iOS can leave the landing page shifted up after the keyboard closes: ease it back, once, after typing there.
+// (never anywhere else, and never just because the viewport resized: that fires while you scroll, as the browser bar collapses)
+let unshiftTimer, typedOnLanding = false;
 const unshift = () => {
   clearTimeout(unshiftTimer);
   unshiftTimer = setTimeout(() => {
     const a = document.activeElement;
-    if (a && a.matches && a.matches('input, textarea')) return;
-    const s = document.querySelector('.stage.home'), vv = window.visualViewport;
-    if (window.scrollY > 0 || (vv && vv.offsetTop > 0)) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!typedOnLanding || (a && a.matches && a.matches('input, textarea'))) return;
+    typedOnLanding = false;
+    const s = document.querySelector('.stage.home');
+    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
     if (s && s.scrollTop > 0) s.scrollTo({ top: 0, behavior: 'smooth' });
   }, 160);
 };
-document.addEventListener('focusout', unshift);
-if (window.visualViewport) visualViewport.addEventListener('resize', unshift);
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea') && document.documentElement.classList.contains('landing')) typedOnLanding = true; });
+document.addEventListener('focusout', () => { if (typedOnLanding) unshift(); });
+if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (typedOnLanding) unshift(); });
 // landing page: freeze the drifting background while a text box has focus (the phone keyboard is up)
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('typing'); });
 document.addEventListener('focusout', () => document.documentElement.classList.remove('typing'));
