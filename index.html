@@ -37,9 +37,10 @@
   #wrap { width: 100%; max-width: 760px; }
   #app { width: 100%; }
   /* NYT-Games-style masthead: centered title, thin rule, icon buttons at the edges */
-  .masthead { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding: 0 2px 8px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--ov) 18%, transparent); }
+  .masthead { display: grid; grid-template-columns: 92px 1fr 92px; align-items: center; padding: 0 2px 8px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--ov) 18%, transparent); }
   .masthead .mark { text-align: center; font-family: var(--display); font-style: normal; font-size: 1.7rem; letter-spacing: .06em; line-height: 1; }
   .masthead .mark small { display: block; font-family: var(--body); font-style: normal; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--soft); margin-top: 3px; }
+  .icons { display: flex; gap: 8px; justify-content: flex-end; }
   .icon { width: 40px; height: 40px; padding: 0; border-radius: 50%; background: transparent; color: var(--text); border: 2px solid color-mix(in srgb, var(--ov) 35%, transparent); font-size: 1.1rem; }
   .icon:hover { background: color-mix(in srgb, var(--ov) 12%, transparent); }
   .modal { position: fixed; inset: 0; background: rgba(15,12,50,.72); display: grid; place-items: center; padding: 16px; z-index: 20; }
@@ -230,9 +231,12 @@
 <div id="wrap">
   <div id="previewbar" class="pvbar hide"></div>
   <header class="masthead">
-    <button class="icon" data-act="themes" aria-label="Display settings">Aa</button>
+    <span></span>
     <div class="mark">YKWIM<small>you know what i mean</small></div>
-    <button class="icon" data-act="help" aria-label="How to play">?</button>
+    <div class="icons">
+      <button class="icon" data-act="themes" aria-label="Display settings">&#9881;&#xFE0E;</button>
+      <button class="icon" data-act="help" aria-label="How to play">?</button>
+    </div>
   </header>
   <div id="app"></div>
 </div>
