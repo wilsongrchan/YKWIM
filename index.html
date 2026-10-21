@@ -166,7 +166,7 @@
   .fs-row { display: flex; gap: 2px; align-items: flex-end; flex-wrap: wrap; margin-top: 4px; } .fs-row .cd-t { background: #fff; }
   .fs-clue { background: #fff; border-radius: 8px; padding: 4px 14px; font: 600 1.05rem ui-monospace, Menlo, monospace; letter-spacing: .15em; }
   .fs-say { font-size: .8rem; font-style: italic; margin-top: 5px; opacity: .85; }
-  .fs-used { font: 600 1rem ui-monospace, Menlo, monospace; letter-spacing: .3em; }
+  .fs-used { font: 600 1rem ui-monospace, Menlo, monospace; letter-spacing: .3em; margin-top: 4px; } .fs-not { font: 400 .75rem var(--body); letter-spacing: 0; color: #6b6b78; margin-left: 8px; }
   .fs-blank { display: inline-block; width: 18px; height: 22px; border-radius: 5px; background: #fff; border-bottom: 3px solid var(--lime); margin-right: 3px; }
   .fs-ok { color: #2e8b57; font-weight: 600; }
   .modal .ex { background: #f2f2f5; border-radius: 12px; padding: 10px 14px; margin: 8px 0 14px; font-size: .92rem; }
@@ -496,21 +496,22 @@ applyDisplay();
   $('flowdiag').innerHTML =
     box(1, 'Clue-giver 1 sees the keyword', `<span class="fs-kw">PANDA</span><span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>
       <div class="fs-row">${tiles('BAM')}</div><div class="fs-say">Bam… bamboo! Hope Clue-giver 2 gets it. (−${sum(3)})</div>`) +
-    box(2, 'Clue-giver 2 sees the keyword and the letters used', `<span class="fs-kw">PANDA</span><div class="fs-used">A B M</div>
-      <div class="fs-row">${tiles('BOO')}</div><div class="fs-say">BAM… bam-BOO! I'll add BOO, and my price starts again. (−${sum(3)})</div>`) +
-    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">BAM</div><div class="fs-clue">BOO</div></div>
-      <div>${'<span class="fs-blank"></span>'.repeat(5)}</div><div class="fs-say">Animals, 5 letters… bamboo… PANDA!</div>`) +
-    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${sum(3) * 2} for the letters.`);
+    box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span><span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>
+      <div class="fs-used">A B M <span class="fs-not">not BAM</span></div><div class="fs-say">A, B, M… amber??? No idea what that was. I'll go my own way: kung fu panda! No N allowed, so KUGFU.</div>
+      <div class="fs-row">${tiles('KUGFU', 'two')}</div><div class="fs-say">Price starts again at ${price(0)}. (−${sum(5)})</div>`) +
+    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">BAM</div><div class="fs-clue">KUGFU</div></div>
+      <div>${'<span class="fs-blank"></span>'.repeat(5)}</div><div class="fs-say">Animals, 5 letters… bamboo… kung fu… PANDA!</div>`) +
+    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${sum(3) + sum(5)} for the letters.`);
 })();
 (function costDiagram() {
   const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
   const tiles = (word, cls, from = 0) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(from + i)}</i></div>`).join('');
-  const g1 = 'BAM', g2 = 'BOO';   // PANDA bans P, N and D; none of these letters are in that set
+  const g1 = 'BAM', g2 = 'KUGFU';   // PANDA bans P, N and D; none of these letters are in that set (KUGFU is KUNG FU without the N)
   $('costdiag').innerHTML = `
-    <div class="cd-title">Keyword PANDA, one giver types <b>${g1}</b> then <b>${g2}</b> (bamboo)</div>
+    <div class="cd-title">Keyword PANDA, one giver types <b>${g1}</b> then <b>${g2}</b></div>
     <div class="cd-row">${tiles(g1, '')}<span class="cd-gap"></span>${tiles(g2, '', g1.length)}</div>
     <div class="cd-total">${(g1 + g2).length} letters = <b>${sum((g1 + g2).length)}</b> points</div>
-    <div class="cd-title">PANDA, split: Clue-giver 1 types <b>${g1}</b>. Clue-giver 2 sees B A M and adds <b>${g2}</b></div>
+    <div class="cd-title">PANDA, split: Clue-giver 1 types <b>${g1}</b>. Clue-giver 2 sees A B M and adds <b>${g2}</b></div>
     <div class="cd-row">${tiles(g1, '')}<span class="cd-gap"></span>${tiles(g2, 'two')}</div>
     <div class="cd-total">${sum(g1.length)} + ${sum(g2.length)} = <b>${sum(g1.length) + sum(g2.length)}</b> points</div>
     <div class="cd-note">The price starts again at ${price(0)} for Clue-giver 2, so splitting saves ${sum((g1 + g2).length) - sum(g1.length) - sum(g2.length)}.</div>`;
