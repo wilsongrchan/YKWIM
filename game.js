@@ -2,8 +2,8 @@
 // Clients send intents via handle(); every peer gets its own filtered view() so hidden info
 // (the keyword, the clues) only reaches the people allowed to see it.
 (function (root) {
-  // Word bank. Single words are separated by spaces. "Names" and "Phrases" use | between entries (they contain spaces) and only
-  // appear in the top level. Which level a plain word belongs to is worked out from its length (see TIERS).
+  // Word bank. Single words are separated by spaces. Names, characters, history and phrases use | between entries (they contain
+  // spaces) and only appear in the top level. Which level a plain word belongs to is worked out from its length (see TIERS).
   const BANK = {
     Animals: 'zebra dolphin penguin kangaroo giraffe octopus eagle rabbit spider elephant monkey parrot tiger panda koala otter camel horse sheep goose swan frog crab shark whale lion bear wolf fox deer crocodile chimpanzee hippopotamus flamingo porcupine butterfly grasshopper scorpion hedgehog squirrel cheetah leopard peacock pelican gorilla jaguar turtle lizard donkey beaver walrus ostrich seagull dragonfly caterpillar',
     Food: 'pizza cheese waffle noodle cookie pumpkin lemon honey yogurt ketchup apple orange banana cherry grape mango peach melon bread butter pasta salad soup sushi burger pancake sandwich spaghetti chocolate strawberry watermelon blueberry cucumber mushroom broccoli cinnamon pineapple avocado croissant lasagna pretzel popcorn cupcake pepper tomato potato carrot coconut raspberry marshmallow hamburger',
@@ -13,10 +13,12 @@
     Fantasy: 'dragon wizard unicorn vampire pirate robot snowman rocket mermaid goblin phoenix werewolf spaceship dinosaur astronaut superhero treasure scarecrow giant fairy ghost castle zombie',
     Jobs: 'doctor teacher farmer pilot painter chef nurse dentist firefighter astronaut carpenter plumber electrician photographer journalist librarian detective scientist veterinarian baker waiter singer driver lawyer mechanic engineer',
     Sports: 'soccer tennis hockey cricket boxing karate rugby golf swimming basketball volleyball badminton gymnastics snowboarding marathon archery surfing skiing cycling bowling fencing wrestling',
-    Names: 'sherlock holmes|mickey mouse|harry potter|santa claus|winnie the pooh|peter pan|captain hook|robin hood|snow white|spider man|super mario|pikachu|cleopatra|napoleon|albert einstein|leonardo da vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|cinderella|batman|sleeping beauty|alice in wonderland|king arthur',
+    Names: 'taylor swift|ed sheeran|billie eilish|ariana grande|justin bieber|lady gaga|bruno mars|elvis presley|michael jackson|madonna|rihanna|harry styles|dua lipa|katy perry|shakira|adele|beyonce|drake|tom hanks|leonardo dicaprio|brad pitt|angelina jolie|johnny depp|will smith|meryl streep|keanu reeves|scarlett johansson|dwayne johnson|jennifer lawrence|emma watson|tom cruise|morgan freeman|denzel washington|zendaya|margot robbie|ryan reynolds|chris hemsworth|jackie chan|bruce lee|marilyn monroe|lionel messi|cristiano ronaldo|michael jordan|lebron james|serena williams|usain bolt',
+    Characters: 'sherlock holmes|mickey mouse|harry potter|santa claus|winnie the pooh|peter pan|captain hook|robin hood|snow white|spider man|super mario|pikachu|cinderella|batman|sleeping beauty|alice in wonderland|king arthur|darth vader|donald duck|bugs bunny|sonic the hedgehog|wonder woman',
+    History: 'cleopatra|napoleon|albert einstein|leonardo da vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|julius caesar|christopher columbus|queen victoria|martin luther king|mahatma gandhi|joan of arc|alexander the great|neil armstrong',
     Phrases: 'ice cream|hot dog|birthday party|swimming pool|peanut butter|traffic light|rainy day|board game|fire truck|polar bear|movie theater|bubble bath|scary movie|road trip|pillow fight|piece of cake|break the ice|under the weather|once in a blue moon|cold shoulder|home sweet home|fish out of water|bucket list|cat nap|sleeping bag|water slide|roller coaster|chocolate cake|pizza party|snow angel|treasure map|hot air balloon|time machine|magic carpet|best friends|full moon|day off|big apple|funny bone|sweet tooth|piggy bank'
   };
-  const PHRASE_CATS = ['Names', 'Phrases'];
+  const PHRASE_CATS = ['Names', 'Characters', 'History', 'Phrases'];   // these contain spaces and only appear at the top level
   const ALL_WORDS = Object.entries(BANK).flatMap(([cat, list]) =>
     (PHRASE_CATS.includes(cat) ? list.split('|') : list.split(' ')).map(word => ({ cat, word }))).filter((e, i, all) => all.findIndex(x => x.word === e.word) === i);   // a word listed under two categories counts once
   // Levels: the words get longer, ending with names and phrases. Plain words qualify for a level by their number of letters.
@@ -27,13 +29,16 @@
     { name: '9–12 letters', min: 9, max: 12 },
     { name: 'Names & phrases', phrases: true }
   ];
-  const tierWords = level => {
+  const CATEGORIES = Object.keys(BANK);
+  const tierWords = (level, cats = CATEGORIES) => {
     const t = TIERS[level - 1];
-    return ALL_WORDS.filter(e => t.phrases ? PHRASE_CATS.includes(e.cat)
-      : !PHRASE_CATS.includes(e.cat) && e.word.length >= t.min && e.word.length <= t.max);
+    return ALL_WORDS.filter(e => cats.includes(e.cat) && (t.phrases ? PHRASE_CATS.includes(e.cat)
+      : !PHRASE_CATS.includes(e.cat) && e.word.length >= t.min && e.word.length <= t.max));
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', wordLevel: 'rising', levelEvery: 2, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
+  const levelReward = (base, level) => Math.round(base * (1 + 0.25 * (level - 1)) / 5) * 5;   // longer words pay more: +25% per level
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   const ROLES = ['giver1', 'giver2', 'guesser'];
@@ -67,7 +72,7 @@
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
-      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, card: null, teams: [null, null], firstCorrect: null, winner: null
+      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, roundReward: 0, card: null, teams: [null, null], firstCorrect: null, winner: null
     };
     const change = () => onChange();
 
@@ -128,10 +133,14 @@
     function arm(t, ms, fn) { const T = G.teams[t]; clearT(T.timer); T.timer = setT(fn, ms); }
 
     function startRound() {
-      // "rising": the level goes up every few words; otherwise one fixed level for the whole game
+      // the word level rises as the game goes on; longer words pay a bigger reward
       const s = G.settings;
-      G.level = s.wordLevel === 'rising' ? Math.min(TIERS.length, 1 + Math.floor(G.round / s.levelEvery)) : Number(s.wordLevel);
-      const pool = tierWords(G.level);
+      const want = Math.min(TIERS.length, 1 + Math.floor(G.round / LEVEL_EVERY));
+      // if the ticked categories have no words at that level, use the nearest level that does (lower first)
+      const order = [want, ...Array.from({ length: want - 1 }, (_, i) => want - 1 - i), ...Array.from({ length: TIERS.length - want }, (_, i) => want + 1 + i)];
+      G.level = order.find(l => tierWords(l, s.categories).length) || want;
+      G.roundReward = levelReward(s.reward, G.level);
+      const pool = tierWords(G.level, s.categories);
       let fresh = pool.filter(e => !G.used.has(e.word));
       if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
       G.card = fresh[Math.floor(Math.random() * fresh.length)]; G.used.add(G.card.word);
@@ -210,7 +219,7 @@
         const s = G.settings, first = G.firstCorrect === null && !s.sequential;
         // Quick bonus counts down: speedSecs points at the start, 1 fewer for every full second since the clues appeared.
         const quick = Math.max(0, s.speedSecs - Math.floor((now() - T.guessStart) / 1000));
-        T.breakdown = { base: s.reward, first: first ? s.firstBonus : 0, speed: quick, spent: T.spent };
+        T.breakdown = { base: G.roundReward, first: first ? s.firstBonus : 0, speed: quick, spent: T.spent };
         finishTeam(t, 'correct', T.breakdown.base + T.breakdown.first + T.breakdown.speed);
         if (first) {
           G.firstCorrect = t;
@@ -252,8 +261,11 @@
         case 'settings': {
           if (!isHost || G.phase !== 'lobby') return {};
           const s = G.settings, n = Number(m.value);
-          if (m.key === 'wordLevel' && ['rising', '1', '2', '3', '4', '5'].includes(String(m.value))) s.wordLevel = String(m.value);
-          else if (m.key === 'levelEvery' && [1, 2, 3].includes(n)) s.levelEvery = n;
+          if (m.key === 'toggleCategory' && CATEGORIES.includes(m.value)) {
+            const on = s.categories.includes(m.value), next = on ? s.categories.filter(c => c !== m.value) : CATEGORIES.filter(c => c === m.value || s.categories.includes(c));
+            if (!next.length) return { error: 'Keep at least one category.' };
+            s.categories = next;   // replaced, never edited in place, so the shared default list stays intact
+          }
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value)) s.mode = m.value;
           else if (m.key === 'banCount' && [2, 3, 4].includes(n)) s.banCount = n;
           else if (m.key === 'lastChance' && [5, 10, 15].includes(n)) s.lastChance = n;
@@ -347,7 +359,7 @@
 
       const mt = v.myTeam, roles = rolesOf(id);
       v.myRoles = roles; v.round = {
-        n: G.round, cat: G.card.cat, level: G.level, levelName: TIERS[G.level - 1].name, rising: G.settings.wordLevel === 'rising', blanks: [...G.card.word].map(ch => /\p{L}/u.test(ch) ? 1 : 0),
+        n: G.round, cat: G.card.cat, level: G.level, levelName: TIERS[G.level - 1].name, reward: G.roundReward, blanks: [...G.card.word].map(ch => /\p{L}/u.test(ch) ? 1 : 0),
         teams: [0, 1].map(t => {
           const T = G.teams[t], mine = t === mt;
           const rem = T.deadline ? T.deadline - now() : T.guessDeadline ? T.guessDeadline - now() : null;
@@ -378,6 +390,6 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { TIERS, tierWords, createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP };
+  const api = { CATEGORIES, TIERS, tierWords, createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);
