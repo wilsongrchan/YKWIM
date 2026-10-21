@@ -2,7 +2,7 @@
 // Clients send intents via handle(); every peer gets its own filtered view() so hidden info
 // (the keyword, the clues) only reaches the people allowed to see it.
 (function (root) {
-  // Word bank. Single words are separated by spaces. Names, characters, history and phrases use | between entries (they contain
+  // Word bank. Single words are separated by spaces. Celebrities, characters, historical figures, brands and sayings use | between entries (they contain
   // spaces) and only appear in the top level. Which level a plain word belongs to is worked out from its length (see TIERS).
   const BANK = {
     Animals: 'zebra dolphin penguin kangaroo giraffe octopus eagle rabbit spider elephant monkey parrot tiger panda koala otter camel horse sheep goose swan frog crab shark whale lion bear wolf fox deer crocodile chimpanzee hippopotamus flamingo porcupine butterfly grasshopper scorpion hedgehog squirrel cheetah leopard peacock pelican gorilla jaguar turtle lizard donkey beaver walrus ostrich seagull dragonfly caterpillar',
@@ -13,12 +13,13 @@
     Fantasy: 'dragon wizard unicorn vampire pirate robot snowman rocket mermaid goblin phoenix werewolf spaceship dinosaur astronaut superhero treasure scarecrow giant fairy ghost castle zombie',
     Jobs: 'doctor teacher farmer pilot painter chef nurse dentist firefighter astronaut carpenter plumber electrician photographer journalist librarian detective scientist veterinarian baker waiter singer driver lawyer mechanic engineer',
     Sports: 'soccer tennis hockey cricket boxing karate rugby golf swimming basketball volleyball badminton gymnastics snowboarding marathon archery surfing skiing cycling bowling fencing wrestling',
-    Names: 'taylor swift|ed sheeran|billie eilish|ariana grande|justin bieber|lady gaga|bruno mars|elvis presley|michael jackson|madonna|rihanna|harry styles|dua lipa|katy perry|shakira|adele|beyonce|drake|tom hanks|leonardo dicaprio|brad pitt|angelina jolie|johnny depp|will smith|meryl streep|keanu reeves|scarlett johansson|dwayne johnson|jennifer lawrence|emma watson|tom cruise|morgan freeman|denzel washington|zendaya|margot robbie|ryan reynolds|chris hemsworth|jackie chan|bruce lee|marilyn monroe|lionel messi|cristiano ronaldo|michael jordan|lebron james|serena williams|usain bolt',
+    Celebrities: 'taylor swift|ed sheeran|billie eilish|ariana grande|justin bieber|lady gaga|bruno mars|elvis presley|michael jackson|madonna|rihanna|harry styles|dua lipa|katy perry|shakira|adele|beyonce|drake|tom hanks|leonardo dicaprio|brad pitt|angelina jolie|johnny depp|will smith|meryl streep|keanu reeves|scarlett johansson|dwayne johnson|jennifer lawrence|emma watson|tom cruise|morgan freeman|denzel washington|zendaya|margot robbie|ryan reynolds|chris hemsworth|jackie chan|bruce lee|marilyn monroe|lionel messi|cristiano ronaldo|michael jordan|lebron james|serena williams|usain bolt',
     Characters: 'sherlock holmes|mickey mouse|harry potter|santa claus|winnie the pooh|peter pan|captain hook|robin hood|snow white|spider man|super mario|pikachu|cinderella|batman|sleeping beauty|alice in wonderland|king arthur|darth vader|donald duck|bugs bunny|sonic the hedgehog|wonder woman',
-    History: 'cleopatra|napoleon|albert einstein|leonardo da vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|julius caesar|christopher columbus|queen victoria|martin luther king|mahatma gandhi|joan of arc|alexander the great|neil armstrong',
+    'Historical figures': 'cleopatra|napoleon|albert einstein|leonardo da vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|julius caesar|christopher columbus|queen victoria|martin luther king|mahatma gandhi|joan of arc|alexander the great|neil armstrong',
+    'Brands & companies': 'starbucks|trader joes|amazon|nike|google|netflix|disney|mcdonalds|coca cola|pepsi|ikea|costco|walmart|target|tesla|spotify|youtube|instagram|lego|adidas|samsung|toyota|ferrari|nintendo|playstation|uber|airbnb|whole foods|burger king|kfc|subway|dominos|pizza hut|taco bell|chipotle|dunkin|sephora|zara|uniqlo|lululemon|patagonia|the north face|microsoft|facebook|paypal|ubereats|ebay|tiktok|snapchat|visa|red bull|nutella|oreo|kitkat|lays|doritos|heinz|nestle|colgate|sony|nokia|ford|honda|boeing|ryanair|marriott|hilton',
     Sayings: 'ice cream@Food|hot dog@Food|birthday party@Activities|swimming pool@Places & buildings|peanut butter@Food|traffic light@Objects|rainy day@Nature|board game@Activities|fire truck@Objects|polar bear@Animals|movie theater@Places & buildings|bubble bath@Activities|scary movie@Activities|road trip@Activities|pillow fight@Activities|piece of cake|break the ice|under the weather|once in a blue moon|cold shoulder|home sweet home|fish out of water|bucket list|cat nap@Activities|sleeping bag@Objects|water slide@Objects|roller coaster@Objects|chocolate cake@Food|pizza party@Activities|snow angel@Activities|treasure map@Objects|hot air balloon@Objects|time machine@Objects|magic carpet@Objects|best friends|full moon@Nature|day off@Activities|big apple@Places & buildings|funny bone|sweet tooth|piggy bank@Objects'
   };
-  const PHRASE_CATS = ['Names', 'Characters', 'History', 'Sayings'];   // these lists contain spaces and only appear at the top level (an entry can carry its own category: hot dog@Food)
+  const PHRASE_CATS = ['Celebrities', 'Characters', 'Historical figures', 'Brands & companies', 'Sayings'];   // these lists contain spaces and only appear at the top level (an entry can carry its own category: hot dog@Food)
   const ALL_WORDS = Object.entries(BANK).flatMap(([cat, list]) =>
     (PHRASE_CATS.includes(cat) ? list.split('|').map(x => { const [word, own] = x.split('@'); return { cat: own || cat, word, top: true }; }) : list.split(' ').map(word => ({ cat, word, top: false })))).filter((e, i, all) => all.findIndex(x => x.word === e.word) === i);   // a word listed under two categories counts once
   // Levels: the words get longer, ending with names and phrases. Plain words qualify for a level by their number of letters.
@@ -27,7 +28,7 @@
     { name: '5–7 letters', min: 5, max: 7 },
     { name: '6–8 letters', min: 6, max: 8 },
     { name: '9–12 letters', min: 9, max: 12 },
-    { name: 'Names & phrases', phrases: true }
+    { name: 'Names, brands & phrases', phrases: true }
   ];
   const CATEGORIES = [...Object.keys(BANK).filter(c => c !== 'Sayings'), ...new Set(ALL_WORDS.map(e => e.cat))].filter((c, i, a) => a.indexOf(c) === i);   // every category a word can carry, in a stable order
   const tierWords = (level, cats = CATEGORIES) => {

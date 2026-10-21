@@ -654,7 +654,7 @@ function lobbyScreen() {
     </div>
     <div class="cats"><div class="catshead">Categories</div>
       ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}
-      <div class="cathint">Names, Characters, History and Sayings only appear at the top word level, and so do phrases like hot dog (filed under Food).</div></div>
+      <div class="cathint">Celebrities, Characters, Historical figures, Brands &amp; companies and Sayings only appear at the top word level, and so do phrases like hot dog (filed under Food).</div></div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>Advanced settings</summary>
       <div class="settings">
