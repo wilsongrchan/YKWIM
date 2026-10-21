@@ -50,10 +50,11 @@
   .icons { position: relative; }
   .helpnudge { position: absolute; z-index: 20; top: calc(100% + 10px); right: 0; width: max-content; max-width: 70vw; padding: 7px 12px; border-radius: 12px; background: var(--lime); color: var(--on-lime); font-weight: 600; font-size: .85rem; box-shadow: 0 6px 18px rgba(0,0,0,.3); animation: nudgeBob 1.1s ease-in-out infinite; pointer-events: none; }
   .helpnudge::before { content: ""; position: absolute; top: -6px; right: 14px; width: 12px; height: 12px; background: var(--lime); transform: rotate(45deg); border-radius: 2px; }
-  #helpbtn.nudge { animation: nudgePulse 1.3s ease-out infinite; border-color: var(--lime); }
-  @keyframes nudgePulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--lime) 80%, transparent); } 70%, 100% { box-shadow: 0 0 0 12px transparent; } }
+  #helpbtn { position: relative; } #helpbtn.nudge { border-color: var(--lime); }
+  #helpbtn.nudge::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--lime); pointer-events: none; animation: nudgeRing 1.3s ease-out infinite; }   /* transform + opacity only: no repaint while the page scrolls */
+  @keyframes nudgeRing { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
   @keyframes nudgeBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
-  @media (prefers-reduced-motion: reduce) { .helpnudge, #helpbtn.nudge { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .helpnudge, #helpbtn.nudge::after { animation: none; } }
   .icons { display: flex; gap: 8px; justify-content: flex-end; }
   .icon { display: grid; place-items: center; line-height: 1; width: 40px; height: 40px; padding: 0; border-radius: 50%; background: transparent; color: var(--text); border: 2px solid color-mix(in srgb, var(--ov) 35%, transparent); font-size: 1.1rem; }
   .icon:hover { background: color-mix(in srgb, var(--ov) 12%, transparent); }
@@ -465,6 +466,8 @@
     #clue, #guess { font-size: .95rem; letter-spacing: .06em; } #clue::placeholder, #guess::placeholder { font-size: .8rem; letter-spacing: .04em; } .used { padding: 4px 8px; margin-bottom: 8px; font-size: 1rem; }
     input { padding: 10px 12px; } .bar button { padding: 0 16px; }
     .settings, .seatgrid { gap: 0 8px; } .seatgrid { gap: 8px; } .seat { padding: 9px 10px; font-size: .92rem; } .dd-btn { padding: 10px 11px; font-size: .95rem; }
+    /* scrolling long screens on iOS flickers if the page has to repaint a huge dotted gradient and a wide blurred shadow every frame */
+    .stage { background: linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%); box-shadow: none; }
     /* lobby on a phone: room code with its link buttons beside it, and Start above the settings so you needn't scroll for it */
     .stage.lobby { display: flex; flex-direction: column; }
     .stage.lobby .lobbystart { order: 1; margin: 4px 0 6px !important; } .stage.lobby .settingshead { order: 2; } .stage.lobby .well { order: 3; }
@@ -1400,9 +1403,20 @@ document.addEventListener('input', e => {
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
-// iOS leaves the page shifted up after the keyboard closes: put it back
-const unshift = () => { if (document.activeElement && document.activeElement.matches && document.activeElement.matches('input, textarea')) return; window.scrollTo(0, 0); const s = document.querySelector('.stage.home'); if (s) s.scrollTop = 0; };
-document.addEventListener('focusout', () => { setTimeout(unshift, 60); setTimeout(unshift, 350); });
+// iOS leaves the page shifted up after the keyboard closes: ease it back once the keyboard has finished moving
+// (debounced: the viewport fires resize events all through the keyboard's slide, and jumping mid-slide looks choppy)
+let unshiftTimer;
+const unshift = () => {
+  clearTimeout(unshiftTimer);
+  unshiftTimer = setTimeout(() => {
+    const a = document.activeElement;
+    if (a && a.matches && a.matches('input, textarea')) return;
+    const s = document.querySelector('.stage.home'), vv = window.visualViewport;
+    if (window.scrollY > 0 || (vv && vv.offsetTop > 0)) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (s && s.scrollTop > 0) s.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 160);
+};
+document.addEventListener('focusout', unshift);
 if (window.visualViewport) visualViewport.addEventListener('resize', unshift);
 // landing page: freeze the drifting background while a text box has focus (the phone keyboard is up)
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('typing'); });
