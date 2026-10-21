@@ -539,16 +539,17 @@ function renderFlow(which) {
 renderFlow('a');
 (function costDiagram() {
   const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
-  const tiles = (word, cls, from = 0) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(from + i)}</i></div>`).join('');
-  const g1 = 'BAM', g2 = 'KUGFU';   // PANDA bans P, N and D; none of these letters are in that set (KUGFU is KUNG FU without the N)
+  const tiles = (word, cls) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
+  const all = 'BAMBOO', g1 = 'BAM', g2 = 'BOO';   // PANDA bans P, N and D; none of these letters are in that set
+  const one = sum(all.length), split = sum(g1.length) + sum(g2.length);
   $('costdiag').innerHTML = `
-    <div class="cd-title">Keyword PANDA, one giver types <b>${g1}</b> then <b>${g2}</b></div>
-    <div class="cd-row">${tiles(g1, '')}<span class="cd-gap"></span>${tiles(g2, '', g1.length)}</div>
-    <div class="cd-total">${(g1 + g2).length} letters = <b>${sum((g1 + g2).length)}</b> points</div>
-    <div class="cd-title">PANDA, split: Clue-giver 1 types <b>${g1}</b>. Clue-giver 2 sees A B M and adds <b>${g2}</b></div>
+    <div class="cd-title">Keyword PANDA. One giver types all of it: <b>${all}</b></div>
+    <div class="cd-row">${tiles(all, '')}</div>
+    <div class="cd-total">${all.length} letters = <b>${one}</b> points</div>
+    <div class="cd-title">Split: Clue-giver 1 types <b>${g1}</b>, Clue-giver 2 sees A B M and adds <b>${g2}</b></div>
     <div class="cd-row">${tiles(g1, '')}<span class="cd-gap"></span>${tiles(g2, 'two')}</div>
-    <div class="cd-total">${sum(g1.length)} + ${sum(g2.length)} = <b>${sum(g1.length) + sum(g2.length)}</b> points</div>
-    <div class="cd-note">The price starts again at ${price(0)} for Clue-giver 2, so splitting saves ${sum((g1 + g2).length) - sum(g1.length) - sum(g2.length)}.</div>`;
+    <div class="cd-total">${sum(g1.length)} + ${sum(g2.length)} = <b>${split}</b> points</div>
+    <div class="cd-note">Same letters, but the price starts again at ${price(0)} for Clue-giver 2, so splitting saves ${one - split}. That's why Clue-giver 1 doesn't just finish the word alone, and has to hope Clue-giver 2 gets it.</div>`;
 })();
 
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
