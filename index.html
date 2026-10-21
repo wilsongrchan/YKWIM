@@ -86,6 +86,20 @@
   .breakdown { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; font-size: .85rem; color: var(--soft); }
   .breakdown .tot { color: var(--accent-text); font-weight: 500; }
   @keyframes popin { from { opacity: 0; transform: scale(.7) translateY(8px); } to { opacity: 1; transform: none; } }
+  .dd { position: relative; }
+  .dd-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; padding: 12px 14px; border-radius: 12px;
+    background: var(--field); color: var(--ink); font: 500 1.05rem var(--body); border: 2px solid transparent; }
+  .dd-btn:disabled { opacity: .75; cursor: default; }
+  .dd-btn i { width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); opacity: .6; flex: none; }
+  .dd.open .dd-btn { border-color: var(--lime); }
+  .dd-list { display: none; position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 30; background: var(--field); color: var(--ink);
+    border-radius: 12px; overflow: hidden; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  .dd.open .dd-list { display: block; }
+  .dd-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; padding: 11px 14px; border-radius: 0;
+    background: transparent; color: var(--ink); font: 400 1rem var(--body); }
+  .dd-item:hover { background: rgba(0,0,0,.06); filter: none; }
+  .dd-item.on { font-weight: 500; background: rgba(0,0,0,.05); }
+  .dd-item small { font-size: .78rem; color: #6b6b78; }
   details#adv { margin-top: 12px; border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); padding-top: 10px; }
   details#adv summary { cursor: pointer; color: var(--soft); font-size: .9rem; font-weight: 500; list-style: none; }
   details#adv summary::-webkit-details-marker { display: none; }
@@ -102,7 +116,7 @@
   .sw.on { border-color: var(--ink); }
   .sw i { display: flex; height: 26px; border-radius: 8px; overflow: hidden; margin-bottom: 6px; } .sw i b { flex: 1; }
   .modal .ex { background: #f2f2f5; border-radius: 12px; padding: 10px 14px; margin: 8px 0 14px; font-size: .92rem; }
-  .stage { position: relative; border-radius: 22px; padding: 14px; overflow: hidden;
+  .stage { position: relative; border-radius: 22px; padding: 14px;
     background:
       radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ov) 6%, transparent) 1px, transparent 1.5px) 0 0 / 7px 7px,
       linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%);
@@ -111,7 +125,7 @@
   .logo { font-size: clamp(3rem, 14vw, 5.5rem); text-align: center; line-height: 1; margin: 18px 0 4px; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
   /* landing page only: one set of dots, all the same size, drifting one way. It moves with transform (GPU-composited),
      not background-position, so there is no per-frame repaint. The loop travels exactly one tile, so it never jumps. */
-  .stage.home { background: linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%); }
+  .stage.home { overflow: hidden; background: linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%); }
   .stage.home > * { position: relative; z-index: 1; }
   .stage.home::before { content: ""; position: absolute; inset: -60px; pointer-events: none; will-change: transform; }
   .stage.home::before { background: radial-gradient(circle at 3px 3px, color-mix(in srgb, var(--ov) 14%, transparent) 2.5px, transparent 3px) 0 0 / 40px 40px; animation: dots 2s linear infinite; }
@@ -393,9 +407,17 @@ const keyboard = (ban = [], target) =>
   + `<button class="wide" data-act="key" data-target="${target}" data-k="⌫">⌫</button>`
   // symbols cost a flat 5 each in clues, so only the clue keyboard gets them
   + (target === 'clue' ? `<div class="symrow">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
-const sel = (key, opts, cur, fmtFn = x => x) =>
-  `<select data-set="${key}"${V.isHost ? '' : ' disabled'}>${opts.map(o => { const val = Array.isArray(o) ? o[0] : o, lab = Array.isArray(o) ? o[1] : o;
-    return `<option value="${val}"${String(val) === String(cur) ? ' selected' : ''}>${fmtFn(lab)}</option>`; }).join('')}</select>`;
+// Settings dropdown. Closed, it shows just the short value; the open list can carry a faint hint (easy / hard).
+const sel = (key, opts, cur, fmtFn = x => x, hintFn = () => '') => {
+  const rows = opts.map(o => { const val = Array.isArray(o) ? o[0] : o, lab = Array.isArray(o) ? o[1] : o; return { val, label: fmtFn(lab), hint: hintFn(val) }; });
+  const now = rows.find(r => String(r.val) === String(cur)) || rows[0];
+  const open = V.isHost && S.ddOpen === key;
+  return `<div class="dd${open ? ' open' : ''}" data-key="${key}" data-value="${now.val}">
+    <button type="button" class="dd-btn" data-act="ddopen" data-key="${key}"${V.isHost ? '' : ' disabled'}><span>${now.label}</span><i></i></button>
+    <div class="dd-list">${rows.map(r => `<button type="button" class="dd-item${String(r.val) === String(cur) ? ' on' : ''}" data-act="ddpick" data-key="${key}" data-v="${r.val}"><span>${r.label}</span>${r.hint ? `<small>${r.hint}</small>` : ''}</button>`).join('')}</div>
+  </div>`;
+};
+const EASY_HARD = (easy, hard) => v => v === easy ? 'easy' : v === hard ? 'hard' : '';
 
 // ---------- screens ----------
 function render() {
@@ -461,12 +483,12 @@ function lobbyScreen() {
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>Advanced settings</summary>
       <div class="settings">
-        <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
-        <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x + (x === 0 ? ' (easy)' : x === 10 ? ' (hard)' : ''))}</div>
+        <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2'], [3, 'First 3'], [4, 'First 4']], st.banCount, x => x, EASY_HARD(2, 4))}</div>
+        <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
         <div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
-        <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt (easy)'], ['lose', 'Go bankrupt: lose at once (hard)']], st.belowZero)}</div>
-        <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec' + (x === 5 ? ' (hard)' : x === 15 ? ' (easy)' : ''))}</div>
+        <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt'], ['lose', 'Lose at once']], st.belowZero, x => x, EASY_HARD('debt', 'lose'))}</div>
+        <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec', EASY_HARD(15, 5))}</div>
       </div>
     </details></div>
     <div style="margin-top:14px">${V.isHost
@@ -717,7 +739,9 @@ function showPreview(kind) {
 
 // ---------- events ----------
 document.addEventListener('click', e => {
-  const b = e.target.closest('[data-act]'); if (!b) return;
+  const b = e.target.closest('[data-act]');
+  if (S.ddOpen && !(b && ['ddopen', 'ddpick'].includes(b.dataset.act))) { S.ddOpen = null; render(); }   // clicking elsewhere closes an open dropdown
+  if (!b) return;
   const d = b.dataset, send = m => net && net.send(m);
   switch (d.act) {
     case 'create': case 'join': {
@@ -738,6 +762,8 @@ document.addEventListener('click', e => {
     case 'passPlay': return send({ type: 'passAndPlay' });
     case 'help': $('help').classList.remove('hide'); return;
     case 'closeHelp': $('help').classList.add('hide'); return;
+    case 'ddopen': S.ddOpen = S.ddOpen === d.key ? null : d.key; return render();
+    case 'ddpick': S.ddOpen = null; render(); return send({ type: 'settings', key: d.key, value: d.v });
     case 'sit': return send({ type: 'sit', team: +d.team, seat: +d.seat });
     case 'sitAll': return send({ type: 'sitAll', team: +d.team });
     case 'stand': return send({ type: 'stand' });
@@ -764,10 +790,10 @@ document.addEventListener('input', e => {
 document.addEventListener('toggle', e => { if (e.target.id === 'adv') S.advOpen = e.target.open; }, true);
 document.addEventListener('change', e => {
   const t = e.target;
-  if (t.dataset.set && net) net.send({ type: 'settings', key: t.dataset.set, value: t.value });
   if (t.dataset.teamname !== undefined && net) net.send({ type: 'teamName', team: +t.dataset.teamname, name: t.value });
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.ddOpen) { S.ddOpen = null; render(); return; }
   if (e.key !== 'Enter') return;
   if (e.target.id === 'clue') document.querySelector('[data-act="sendClue"]').click();
   else if (e.target.id === 'guess') document.querySelector('[data-act="sendGuess"]').click();
