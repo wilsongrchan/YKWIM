@@ -945,7 +945,7 @@ function updatePreview() {
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
 const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['passask', 'Pass request'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['ready', 'Guesser: ready screen'], ['lastchance', 'Guesser: last 10s'],
-  ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over']];
+  ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over'], ['coopEnd', 'Co-op: round end'], ['coopOver', 'Co-op: game over']];
 function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
   const names = ['Team Gold', 'Team Blue'];
@@ -970,6 +970,10 @@ function mockView(kind) {
     case 'roundEnd': v.phase = 'roundEnd'; v.round = { ...round, word: 'ZEBRA', teams: [
       team('done', { result: 'correct', earned: 160, spent: 52, clues: ['AE', 'S'], breakdown: { base: 100, longWord: 25, first: 20, speed: 15, spent: 52 } }),
       team('done', { result: 'timeout', spent: 30, clues: ['A', 'SV'] })] }; return v;
+    case 'coopEnd': v.phase = 'roundEnd'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [372, 200]; v.round = { ...round, n: 2, word: 'PANDA', teams: [
+      team('done', { result: 'correct', earned: 140, spent: 106, clues: ['BAM', 'KUGFU', 'ZZ'], breakdown: { base: 100, longWord: 25, first: 0, speed: 15, spent: 106 } }),
+      team('done', { result: 'none' })] }; return v;
+    case 'coopOver': v.phase = 'over'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [647, 200]; v.winner = 0; v.rating = { label: 'Excellent!', note: 'You really know what each other means.', score: 647, words: 5 }; v.round = { ...round, teams: [team('done'), team('done')] }; return v;
     case 'over': v.phase = 'over'; v.winner = 0; v.scores = [512, 431]; v.round = { ...round, teams: [team('done'), team('done')] }; return v;
   }
 }
