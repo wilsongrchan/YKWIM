@@ -449,13 +449,13 @@ function lobbyScreen() {
         : `<label>Play to</label>${sel('target', [300, 500, 800], st.target)}`}</div>
       <div><label>Points per correct guess</label>${sel('pot', [100, 120, 150, 200], st.pot)}</div>
       <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
+      <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec')}</div>
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>Advanced settings</summary>
       <div class="settings">
         <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
         <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty)}</div>
-        <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec')}</div>
         <div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
       </div>
