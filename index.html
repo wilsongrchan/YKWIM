@@ -47,7 +47,9 @@
   .modal { position: fixed; inset: 0; background: rgba(15,12,50,.72); display: grid; place-items: center; padding: 16px; z-index: 20; }
   .modal .sheet { background: var(--field); color: var(--ink); border-radius: 18px; max-width: 460px; width: 100%; max-height: 88vh; overflow: auto; padding: 22px 22px 18px; position: relative; }
   .modal h2 { color: var(--ink); font-size: 1.7rem; }
-  .modal p, .modal li { font-size: .98rem; line-height: 1.45; } .modal ul { padding-left: 20px; margin: 8px 0 14px; }
+  .modal h3 { color: var(--ink); font: 500 1.05rem var(--display); margin: 12px 0 0; }
+  .modal p, .modal li { font-size: .95rem; line-height: 1.4; } .modal ul { padding-left: 20px; margin: 4px 0 8px; } .modal li { margin-bottom: 3px; }
+  @media (max-width: 480px) { .modal .sheet { padding: 18px 18px 14px; max-height: 94vh; } .modal h2 { font-size: 1.45rem; } .modal p, .modal li { font-size: .9rem; } .modal .big { padding: 11px; font-size: 1.05rem; } }
   .modal .x { position: absolute; top: 12px; right: 12px; background: transparent; color: var(--ink); font-size: 1.4rem; padding: 4px 10px; }
   .pvbar { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 10px; margin-bottom: 10px; border-bottom: 1px dashed color-mix(in srgb, var(--ov) 30%, transparent); }
   .pvbar button { white-space: nowrap; padding: 7px 12px; font-size: .82rem; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); }
@@ -321,15 +323,21 @@
   <div class="sheet">
     <button class="x" data-act="closeHelp" aria-label="Close">✕</button>
     <h2>How to play</h2>
-    <p>Two teams race to guess the same keyword from clues made of <b>letters, not words</b>.</p>
+    <p>Two teams race to guess the same keyword from <b>letters, not words</b>.</p>
+    <h3>Clues</h3>
     <ul>
-      <li>Clue-givers see the keyword and type a few letters. Each letter costs points, and the next costs more (10, 12, 14…). Symbols cost 5.</li>
+      <li>Type letters that hint at the keyword. Squeezing a word (TRNSPRNT) saves letters.</li>
       <li>The keyword's first few consonants are banned.</li>
-      <li>Teams of three: Clue-giver 2 sees which letters and symbols Clue-giver 1 used (alphabetical), and their prices start over. Teams of two: one clue.</li>
-      <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
-      <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
+      <li>Clue-giver 2 sees Clue-giver 1's letters, so add something new.</li>
+      <li>Guessers see their team's clues, the theme and the letter count.</li>
     </ul>
-    <div class="ex"><b>Points:</b> each team starts with a bank (200). Every letter comes straight out of it, so spend wisely. Guess the keyword to earn a reward, plus a first-to-guess bonus and a quick-guess bonus that shrinks every second. Wrong guesses cost points too. Dropping below zero means debt, or going bankrupt (an instant loss) if the host picks that.</div>
+    <h3>Points</h3>
+    <ul>
+      <li>Each team has a bank (200). Letters cost 10, 12, 14… and symbols 5.</li>
+      <li>A correct guess earns the reward plus first-to-guess and quick-guess bonuses.</li>
+      <li>A wrong guess costs points; giving up is free.</li>
+      <li>Once one team guesses, the other gets a last-chance timer.</li>
+    </ul>
     <button class="big" data-act="closeHelp">Got it</button>
   </div>
 </div>
