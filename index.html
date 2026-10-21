@@ -510,13 +510,13 @@ function renderFlow(which) {
   const EM = e => `<span class="em">${e}</span>`;
   const ban = `<span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>`;
   const first = which === 'c' ? 'BAMBOO' : 'BAM', second = { a: 'BOO', b: 'KUGFU', c: '' }[which];
-  const used = [...first].sort().join(' ');
+  const used = [...new Set(first)].sort().join(' ');
   const step1 = which === 'c'
     ? `${EM('🎋')} Bamboo! I'll just type the whole thing: <b>BAMBOO</b>.`
     : `${EM('🎋')} Bamboo! But I'll only give <b>BAM</b>, and hope Clue-giver 2 thinks of the same thing and adds <b>BOO</b>.`;
-  const step2 = { a: think('#6fc7bd', 'happy', `A, B, M… ${EM('🎋')} bam-boo, bamboo! I'll add <b>BOO</b>.`),
-    b: think('#6fc7bd', 'puzzled', `A, B, M… amber??? No idea. I'll go my own way: ${EM('🥋')} kung fu panda! No N allowed, so <b>KUGFU</b>.`),
-    c: think('#6fc7bd', 'happy', `A, B, B, M, O, O… that's already ${EM('🎋')} BAMBOO. Nothing to add, so I'll <b>skip</b>.`) }[which];
+  const step2 = { a: think('#6fc7bd', 'happy', `3 letters: A, B, M… ${EM('🎋')} bam-boo, bamboo! I'll add <b>BOO</b>.`),
+    b: think('#6fc7bd', 'puzzled', `3 letters: A, B, M… amber??? No idea. I'll go my own way: ${EM('🥋')} kung fu panda! No N allowed, so <b>KUGFU</b>.`),
+    c: think('#6fc7bd', 'happy', `6 letters, from A, B, M, O… that's already ${EM('🎋')} BAMBOO. Nothing to add, so I'll <b>skip</b>.`) }[which];
   const step3 = { a: `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🐼')} PANDA!`,
     b: `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🥋')} kung fu… ${EM('🐼')} PANDA!`,
     c: `Animals, 5 letters… ${EM('🎋')} BAMBOO… ${EM('🐼')} PANDA! Easy.` }[which];
@@ -527,7 +527,7 @@ function renderFlow(which) {
       ${think('#f5b942', 'hope', step1)}
       <div class="fs-row">${tiles(first)}${cost(sum(first.length))}</div>`) +
     box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span>${ban}
-      <div class="fs-used">${used} <span class="fs-not">not ${first}</span></div>
+      <div class="fs-used">${used}</div><div class="fs-say" style="margin-top:2px">${first.length} letters, 0 symbols typed (each letter shown once, not the order)</div>
       ${step2}
       ${second ? `<div class="fs-row">${tiles(second, 'two')}${cost(sum(second.length))}</div><div class="fs-say">The price starts again at ${price(0)}.</div>`
         : `<div class="fs-row"><div class="fs-clue fs-skip">skipped</div><span class="fs-cost">free</span></div>`}`) +
@@ -809,7 +809,7 @@ function logHtml(T) {
 
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = T.stage === 'giver2' ? 2 : 1;
-  const used = r.usedLetters !== undefined ? `<div class="used">${esc(r.usedLetters) || '(none)'}${r.usedSymbols ? ` <span class="usym">${esc(r.usedSymbols)}</span>` : ''}<small>Clue-giver 1 used${r.usedSymbols ? ' (letters and symbols)' : ''}, A–Z</small></div>` : '';
+  const used = r.usedLetters !== undefined ? `<div class="used">${esc(r.usedLetters) || '(none)'}${r.usedSymbols ? ` <span class="usym">${esc(r.usedSymbols)}</span>` : ''}<small>Clue-giver 1 typed ${plural(r.usedLetterCount, 'letter')} and ${plural(r.usedSymbolCount, 'symbol')} (each shown once)</small></div>` : '';
   const count = r.blanks.filter(Boolean).length;
   const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}</span>${timerPill(true)}</div>
     <div class="secret">
@@ -928,7 +928,7 @@ function mockView(kind) {
   switch (kind) {
     case 'lobby': v.phase = 'lobby'; v.myTeam = 0; return v;
     case 'giver1': v.myRoles = ['giver1']; v.round = { ...round, ...secret, teams: [team('giver1', { remaining: 24000, spent: 0, used: 0 }), other] }; return v;
-    case 'giver2': v.myRoles = ['giver2']; v.round = { ...round, ...secret, usedLetters: 'A E', usedSymbols: '? !', teams: [team('giver2', { remaining: 21000, spent: 22, used: 0 }), other] }; return v;
+    case 'giver2': v.myRoles = ['giver2']; v.round = { ...round, ...secret, usedLetters: 'A E', usedSymbols: '? !', usedLetterCount: 3, usedSymbolCount: 2, teams: [team('giver2', { remaining: 21000, spent: 22, used: 0 }), other] }; return v;
     case 'guesser': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 9000, log: [{ text: 'HORSE', ok: false, cost: 5 }] }), other] }; return v;
     case 'ready': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 15000, awaitReady: true, log: [] }), other] }; return v;
     case 'lastchance': v.myRoles = ['guesser']; v.scores = [130, 95]; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, remaining: 7000, log: [] }), team('done', { result: 'correct', earned: 131 })] }; return v;
