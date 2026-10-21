@@ -528,7 +528,7 @@ function renderFlow(which) {
       ${think('#f5b942', 'hope', step1)}
       <div class="fs-row">${tiles(first)}${cost(sum(first.length))}</div>`) +
     box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span>${ban}
-      <div class="fs-h" style="margin:2px 0 0">Clue-giver 1 used</div><div class="fs-used">${used}</div><div class="fs-say" style="margin-top:2px">The clue has ${first.length} letters and 0 symbols. A repeated letter shows only once here, and not the order.</div>
+      <div class="fs-h" style="margin:2px 0 0">Clue 1's ingredients</div><div class="fs-used">${used}</div><div class="fs-say" style="margin-top:2px">The clue has ${first.length} letters and 0 symbols. A repeated letter shows only once here, and not the order.</div>
       ${step2}
       ${second ? `<div class="fs-row">${tiles(second, 'two')}${cost(sum(second.length))}</div><div class="fs-say">The price starts again at ${price(0)}.</div>`
         : `<div class="fs-row"><div class="fs-clue fs-skip">skipped</div><span class="fs-cost">free</span></div>`}`) +
@@ -810,7 +810,7 @@ function logHtml(T) {
 
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = T.stage === 'giver2' ? 2 : 1;
-  const used = r.usedLetters !== undefined ? `<div class="used"><div class="used-h">Clue-giver 1 used</div>${esc(r.usedLetters) || '(none)'}${r.usedSymbols ? ` <span class="usym">${esc(r.usedSymbols)}</span>` : ''}<small>The clue has ${plural(r.usedLetterCount, 'letter')} and ${plural(r.usedSymbolCount, 'symbol')}. A repeated letter or symbol shows only once here.</small></div>` : '';
+  const used = r.usedLetters !== undefined ? `<div class="used"><div class="used-h">Clue 1's ingredients</div>${esc(r.usedLetters) || '(none)'}${r.usedSymbols ? ` <span class="usym">${esc(r.usedSymbols)}</span>` : ''}<small>The clue has ${plural(r.usedLetterCount, 'letter')} and ${plural(r.usedSymbolCount, 'symbol')}. A repeated letter or symbol shows only once here.</small></div>` : '';
   const count = r.blanks.filter(Boolean).length;
   const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}</span>${timerPill(true)}</div>
     <div class="secret">
