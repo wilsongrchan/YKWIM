@@ -205,6 +205,7 @@
   .timer.inl { margin: 0; border-radius: 999px; padding: 4px 16px; font-size: 1.4rem; }
   .linkbtn { background: none; padding: 0; color: var(--soft); text-decoration: underline; font-size: .9rem; font-weight: 400; }
   .used { text-align: center; background: var(--well); border-radius: 12px; padding: 6px 10px; margin-bottom: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 1.15rem; letter-spacing: .3em; font-weight: 500; }
+  .usym { color: var(--accent-text); letter-spacing: .25em; margin-left: .6em; }
   .used small { display: block; font-family: var(--body); font-size: .72rem; letter-spacing: 0; color: var(--soft); font-weight: 500; }
 
   .keys { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 8px; }
@@ -278,7 +279,7 @@
     <ul>
       <li>Clue-givers see the keyword and type a few letters. Each letter costs points, and the next costs more (10, 12, 14…). Symbols cost 5.</li>
       <li>The keyword's first few consonants are banned.</li>
-      <li>Teams of three: Clue-giver 2 sees which letters Clue-giver 1 used, and their prices start over. Teams of two: one clue.</li>
+      <li>Teams of three: Clue-giver 2 sees which letters and symbols Clue-giver 1 used (alphabetical), and their prices start over. Teams of two: one clue.</li>
       <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
       <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
     </ul>
@@ -624,7 +625,7 @@ function logHtml(T) {
 
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = T.stage === 'giver2' ? 2 : 1;
-  const used = r.usedLetters !== undefined ? `<div class="used">${esc(r.usedLetters) || '(none)'}<small>letters Clue-giver 1 used (shuffled)</small></div>` : '';
+  const used = r.usedLetters !== undefined ? `<div class="used">${esc(r.usedLetters) || '(none)'}${r.usedSymbols ? ` <span class="usym">${esc(r.usedSymbols)}</span>` : ''}<small>letters${r.usedSymbols ? ' and symbols' : ''} Clue-giver 1 used (alphabetical)</small></div>` : '';
   const count = r.blanks.filter(Boolean).length;
   return `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `You're the clue-giver` : `You're Clue-giver ${n}`}</span>${timerPill(true)}</div>
     <div class="secret">
@@ -734,7 +735,7 @@ function mockView(kind) {
   switch (kind) {
     case 'lobby': v.phase = 'lobby'; v.myTeam = 0; return v;
     case 'giver1': v.myRoles = ['giver1']; v.round = { ...round, ...secret, teams: [team('giver1', { remaining: 24000, spent: 0, used: 0 }), other] }; return v;
-    case 'giver2': v.myRoles = ['giver2']; v.round = { ...round, ...secret, usedLetters: 'A E', teams: [team('giver2', { remaining: 21000, spent: 22, used: 0 }), other] }; return v;
+    case 'giver2': v.myRoles = ['giver2']; v.round = { ...round, ...secret, usedLetters: 'A E', usedSymbols: '? !', teams: [team('giver2', { remaining: 21000, spent: 22, used: 0 }), other] }; return v;
     case 'guesser': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 9000, log: [{ text: 'HORSE', ok: false, cost: 5 }] }), other] }; return v;
     case 'ready': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 15000, awaitReady: true, log: [] }), other] }; return v;
     case 'lastchance': v.myRoles = ['guesser']; v.scores = [130, 95]; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, remaining: 7000, log: [] }), team('done', { result: 'correct', earned: 131 })] }; return v;

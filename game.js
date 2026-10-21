@@ -340,8 +340,12 @@
       const isGiver = roles.includes('giver1') || roles.includes('giver2');
       if (reveal || (G.phase === 'round' && isGiver)) { v.round.word = G.card.word; }
       if (G.phase === 'round' && isGiver) v.round.banned = banned().map(c => c.toUpperCase());
-      if (mt !== null && G.phase === 'round' && roles.includes('giver2') && G.teams[mt].stage === 'giver2' && seatIdx(mt, 'giver1') !== seatIdx(mt, 'giver2'))
-        v.round.usedLetters = [...G.teams[mt].clues[0]].filter(c => /[A-Z]/.test(c)).sort().join(' ');
+      if (mt !== null && G.phase === 'round' && roles.includes('giver2') && G.teams[mt].stage === 'giver2' && seatIdx(mt, 'giver1') !== seatIdx(mt, 'giver2')) {
+        // Clue-giver 2 sees what Clue-giver 1 used, but not the order: letters A-Z, then symbols in a fixed order
+        const first = [...G.teams[mt].clues[0]];
+        v.round.usedLetters = first.filter(c => /[A-Z]/.test(c)).sort().join(' ');
+        v.round.usedSymbols = first.filter(c => SYMBOLS.includes(c)).sort((a, b) => SYMBOLS.indexOf(a) - SYMBOLS.indexOf(b)).join(' ');
+      }
       return v;
     }
 
