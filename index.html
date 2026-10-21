@@ -266,7 +266,7 @@
   .sec-key .w { overflow-wrap: anywhere; }
   .secret small { display: block; font-weight: 500; opacity: .75; font-size: .8rem; }
   .giverhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-  .rolechip { white-space: nowrap; background: var(--navy); border-radius: 999px; padding: 6px 14px; font-weight: 500; font-size: .95rem; }
+  .rolechip { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; background: var(--navy); border-radius: 999px; padding: 6px 14px; font-weight: 500; font-size: .95rem; }
   .timer.inl { margin: 0; width: 6.2rem; border-radius: 999px; padding: 4px 8px; font-size: 1.4rem; }
   .linkbtn { background: none; padding: 0; color: var(--soft); text-decoration: underline; font-size: .9rem; font-weight: 400; }
   .used { text-align: center; background: var(--well); border-radius: 12px; padding: 6px 10px; margin-bottom: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 1.15rem; letter-spacing: .3em; font-weight: 500; }
@@ -812,7 +812,7 @@ function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = T.stage === 'giver2' ? 2 : 1;
   const used = r.usedLetters !== undefined ? `<div class="used"><div class="used-h">Used in Clue 1</div>${esc(r.usedLetters) || '(none)'}${r.usedSymbols ? ` <span class="usym">${esc(r.usedSymbols)}</span>` : ''}<small>The clue has ${plural(r.usedLetterCount, 'letter')} and ${plural(r.usedSymbolCount, 'symbol')}. Shown in alphabetical order, repeats only once.</small></div>` : '';
   const count = r.blanks.filter(Boolean).length;
-  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}</span>${timerPill(true)}</div>
+  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
     <div class="secret">
       <div class="sec-theme">Theme: <b>${esc(r.cat)}</b> · banned: <b>${ban.join(' ') || 'none'}</b></div>
       <div class="sec-key"><span class="kw">Keyword:</span> <span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span></div>
