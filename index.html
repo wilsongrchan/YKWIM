@@ -264,7 +264,7 @@
       <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
       <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
     </ul>
-    <div class="ex"><b>Points:</b> each team starts with a bank (200). Every letter comes straight out of it, so spend wisely. Guess the keyword to earn a reward, plus a first-to-guess bonus and a quick-guess bonus that shrinks every second. Wrong guesses cost points too. Dropping below zero means debt, or an instant loss if the host picks that.</div>
+    <div class="ex"><b>Points:</b> each team starts with a bank (200). Every letter comes straight out of it, so spend wisely. Guess the keyword to earn a reward, plus a first-to-guess bonus and a quick-guess bonus that shrinks every second. Wrong guesses cost points too. Dropping below zero means debt, or going bankrupt (an instant loss) if the host picks that.</div>
     <button class="big" data-act="closeHelp">Got it</button>
   </div>
 </div>
@@ -465,7 +465,7 @@ function lobbyScreen() {
         <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x + (x === 0 ? ' (easy)' : x === 10 ? ' (hard)' : ''))}</div>
         <div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
-        <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt (easy)'], ['lose', 'Lose immediately (hard)']], st.belowZero)}</div>
+        <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt (easy)'], ['lose', 'Go bankrupt: lose at once (hard)']], st.belowZero)}</div>
         <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec' + (x === 5 ? ' (hard)' : x === 15 ? ' (easy)' : ''))}</div>
       </div>
     </details></div>
@@ -634,7 +634,7 @@ function overScreen() {
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">GAME OVER</div>
     <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]}">${esc(V.names[V.winner])} wins!</div>
-    ${V.bankrupt !== null && V.bankrupt !== undefined ? `<div class="sub" style="color:var(--bad)">${esc(V.names[V.bankrupt])} fell below zero</div>` : ''}
+    ${V.bankrupt !== null && V.bankrupt !== undefined ? `<div class="sub" style="color:var(--bad)">${esc(V.names[V.bankrupt])} went bankrupt</div>` : ''}
     <div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>
     ${V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">Back to lobby</button>` : `<p class="sub">Waiting for the host…</p>`}
   </div>`;
@@ -673,11 +673,11 @@ function updatePreview() {
   const el = $('preview'), inp = $('clue'); if (!el || !inp || !V || !V.round) return;
   const T = V.round.teams[V.myTeam], used = T.used || 0, n = lettersOnly(inp.value), c = clueCost(inp.value, used);
   const bank = V.scores[V.myTeam], debt = c > Math.max(0, bank), lose = V.settings.belowZero === 'lose';
-  el.innerHTML = (c ? `This clue costs <b class="${debt ? 'red' : ''}">${c}</b>${debt ? (lose ? ' (you would lose the game!)' : ' (into debt!)') : ''} · ` : '') + `next letter costs <b>${V.costs.start + V.costs.step * (used + n)}</b>`;
+  el.innerHTML = (c ? `This clue costs <b class="${debt ? 'red' : ''}">${c}</b>${debt ? (lose ? ' (you would go bankrupt and lose!)' : ' (into debt!)') : ''} · ` : '') + `next letter costs <b>${V.costs.start + V.costs.step * (used + n)}</b>`;
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta');
   if (sh) sh.style.height = (bank > 0 ? Math.min(c, bank) / bank * 100 : 0) + '%';
-  if (dl) dl.textContent = c ? `−${c}${debt ? (lose ? ' (bust!)' : ' (debt)') : ''}` : '';
+  if (dl) dl.textContent = c ? `−${c}${debt ? (lose ? ' (bankrupt!)' : ' (debt)') : ''}` : '';
 }
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
