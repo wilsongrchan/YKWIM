@@ -40,8 +40,9 @@
   .masthead { display: grid; grid-template-columns: 92px 1fr 92px; align-items: center; padding: 0 2px 8px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--ov) 18%, transparent); }
   .masthead .mark { text-align: center; font-family: var(--display); font-style: normal; font-size: 1.7rem; letter-spacing: .06em; line-height: 1; }
   .masthead .mark small { display: block; font-family: var(--body); font-style: normal; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--soft); margin-top: 3px; }
+  .icon svg { display: block; }
   .icons { display: flex; gap: 8px; justify-content: flex-end; }
-  .icon { width: 40px; height: 40px; padding: 0; border-radius: 50%; background: transparent; color: var(--text); border: 2px solid color-mix(in srgb, var(--ov) 35%, transparent); font-size: 1.1rem; }
+  .icon { display: grid; place-items: center; line-height: 1; width: 40px; height: 40px; padding: 0; border-radius: 50%; background: transparent; color: var(--text); border: 2px solid color-mix(in srgb, var(--ov) 35%, transparent); font-size: 1.1rem; }
   .icon:hover { background: color-mix(in srgb, var(--ov) 12%, transparent); }
   .modal { position: fixed; inset: 0; background: rgba(15,12,50,.72); display: grid; place-items: center; padding: 16px; z-index: 20; }
   .modal .sheet { background: var(--field); color: var(--ink); border-radius: 18px; max-width: 460px; width: 100%; max-height: 88vh; overflow: auto; padding: 22px 22px 18px; position: relative; }
@@ -236,7 +237,7 @@
     <span></span>
     <div class="mark">YKWIM<small>you know what i mean</small></div>
     <div class="icons">
-      <button class="icon" data-act="themes" aria-label="Display settings">&#9881;&#xFE0E;</button>
+      <button class="icon" data-act="themes" aria-label="Display settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button class="icon" data-act="help" aria-label="How to play">?</button>
     </div>
   </header>
