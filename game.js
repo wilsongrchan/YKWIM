@@ -53,7 +53,7 @@
 
     // ---------- helpers ----------
     const teamOf = id => G.seats.findIndex(t => t.includes(id));
-    // Teams of 3: giver 1, giver 2 and the guesser are three different seats. Teams of 2: one player writes both clues.
+    // Teams of 3: giver 1, giver 2 and the guesser are three different seats. Teams of 2: one clue-giver (one clue) and a guesser.
     // Either way the seats rotate every round.
     const seatIdx = (t, role) => G.settings.teamSize === 2 ? (G.round + (role === 'guesser' ? 1 : 0)) % 2 : (G.round + ROLES.indexOf(role)) % 3;
     const holder = (t, role) => G.seats[t][seatIdx(t, role)];
@@ -132,7 +132,7 @@
       T.spent += costOf(n, T.used) + sym * SYMBOL_COST; T.used += n; T.clues.push(text);
       clearT(T.timer); T.deadline = null;
       if (pot(t) === 0) finishTeam(t, 'out', 0);
-      else if (T.stage === 'giver1') beginWriting(t, 'giver2');
+      else if (T.stage === 'giver1' && G.settings.teamSize === 3) beginWriting(t, 'giver2');   // teams of two: a single clue
       else enterGuess(t);
       change();
       return {};

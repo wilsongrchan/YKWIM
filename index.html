@@ -226,7 +226,7 @@
   <div class="sheet">
     <button class="x" data-act="closeHelp" aria-label="Close">✕</button>
     <h2>How to play</h2>
-    <p>Two teams of three race to guess the same keyword. Every round, each team has a <b>Clue-giver 1</b>, a <b>Clue-giver 2</b> and a <b>Guesser</b> (roles rotate). In a team of two, one player writes both clues and the other guesses, and you swap every round.</p>
+    <p>Two teams of three race to guess the same keyword. Every round, each team has a <b>Clue-giver 1</b>, a <b>Clue-giver 2</b> and a <b>Guesser</b> (roles rotate). In a team of two, one player writes a single clue and the other guesses, and you swap every round.</p>
     <ul>
       <li>You see the <b>theme</b> and how many letters the word has.</li>
       <li>Clue-givers type clues in <b>letters, not words</b>. Every letter costs points, and each one costs more than the last (10, 12, 14…). Symbols like <b>. ? ! @ # $</b> cost a flat 5 each.</li>
@@ -399,7 +399,7 @@ function lobbyScreen() {
       <button class="ghost" data-act="sitAll" data-team="${t}">This device plays the whole team</button>
     </div>`).join('')}</div>
     ${unseated.length ? `<p class="sub">Waiting to sit: ${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
-    <p class="sub">${st.teamSize === 2 ? 'One player writes both clues and the other guesses. You swap every word.' : 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.'}</p>
+    <p class="sub">${st.teamSize === 2 ? 'One player writes a single clue and the other guesses. You swap every word.' : 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.'}</p>
     <div class="well"><div class="settings">
       <div><label>Players per team</label>${sel('teamSize', [[3, '3 per team (6 players)'], [2, '2 per team (4 players)']], st.teamSize)}</div>
       <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
@@ -425,7 +425,7 @@ function lobbyScreen() {
 function statusLine(t) {
   const T = V.round.teams[t];
   if (T.stage === 'done') return { correct: `✓ guessed it! +${T.earned}`, out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped' }[T.result];
-  return STAGE_TEXT[T.stage];
+  return T.stage === 'giver1' && V.settings.teamSize === 2 ? 'writing the clue…' : STAGE_TEXT[T.stage];
 }
 
 function topBar() {
@@ -443,8 +443,9 @@ function slots(t, role) {
   const sent = n => `<div class="slot"><div class="ic">✓</div><small>Clue ${n} sent</small></div>`;
   const live = n => `<div class="slot live"><div class="ic">✎</div><small>Clue ${n}</small></div>`;
   const wait = n => `<div class="slot"><div class="ic">🔍</div><small>Clue ${n}</small></div>`;
-  if (clues) return shown(1, clues[0]) + shown(2, clues[1]);
-  if (st === 'giver1') return (role === 'giver1' ? live(1) : wait(1)) + hidden(2);
+  const one = V.settings.teamSize === 2;   // teams of two get a single clue
+  if (clues) return one ? shown(1, clues[0]) : shown(1, clues[0]) + shown(2, clues[1]);
+  if (st === 'giver1') return (role === 'giver1' ? live(1) : wait(1)) + (one ? '' : hidden(2));
   if (st === 'giver2') return sent(1) + (role === 'giver2' ? live(2) : wait(2));
   return wait(1) + wait(2);
 }
@@ -536,7 +537,7 @@ function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = T.stage === 'giver2' ? 2 : 1;
   const used = r.usedLetters !== undefined ? `<div class="used">${esc(r.usedLetters) || '(none)'}<small>letters Clue-giver 1 used (shuffled)</small></div>` : '';
   const count = r.blanks.filter(Boolean).length;
-  return `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue ${n} of 2` : `You're Clue-giver ${n}`}</span>${timerPill(true)}</div>
+  return `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `You're the clue-giver` : `You're Clue-giver ${n}`}</span>${timerPill(true)}</div>
     <div class="secret">
       <div class="sec-theme"><small>Theme</small><b>${esc(r.cat)}</b></div>
       <div class="sec-key"><div><span class="kw">Keyword:</span> <span class="w">${esc(r.word)}</span></div><small>${count} letters · banned: ${ban.join(' ') || 'none'}</small></div>
@@ -561,7 +562,7 @@ function roundEndScreen() {
   // The clues are the fun part: each team's two get big tiles that pop in one after the other.
   return `<div class="stage">${topBar()}<div class="playrow">${vbar(left)}<div class="playmain">
     <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">THE KEYWORD WAS</div><div class="brand" style="font-size:2rem;color:var(--lime)">${esc(r.word)}</div></div>
-    ${[left, 1 - left].map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || ['', '']; return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
+    ${[left, 1 - left].map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || [''].concat(V.settings.teamSize === 2 ? [] : ['']); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
       <h3 style="color:${TEAM_COLORS[t]}">${esc(V.names[t])} <span class="rstat">${esc(statusLine(t))}</span></h3>
       <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * 2 + i) * .3}s"><div class="bc-txt">${esc(c || '—')}</div><small>Clue ${i + 1} · ${lettersOnly(c)} letters</small></div>`).join('')}</div>
       ${b ? `<div class="breakdown"><span>pot ${b.base}</span>${b.first ? `<span>first +${b.first}</span>` : ''}${b.speed ? `<span>quick +${b.speed}</span>` : ''}<span class="tot">= +${T.earned}</span></div>` : ''}
