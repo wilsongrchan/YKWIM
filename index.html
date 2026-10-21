@@ -21,7 +21,6 @@
   }
   :root[data-theme="bubblegum"] { --navy: #38142c; --indigo: #b83a68; --deep: #962f55; --well: #78243f; --lime: #f5d27a; --ink: #38142c; --soft: #f5bfd5; --t0: #f5d27a; --t1: #7ed0ea; }
   :root[data-theme="mint"]      { --navy: #0c1424; --indigo: #1f4274; --deep: #17325a; --well: #112746; --lime: #6fe0be; --ink: #0c1424; --soft: #a3bbe0; --t0: #f291ab; --t1: #f0c978; }
-  :root[data-theme="sunrise"]   { --navy: #3a1e12; --indigo: #d0592a; --deep: #aa4620; --well: #7f3217; --lime: #fbe3a0; --ink: #3a1e12; --soft: #fbcfae; --t0: #fbe3a0; --t1: #88e0c4; }
   :root[data-theme="cobalt"]    { --navy: #12204f; --indigo: #2c55c4; --deep: #23449d; --well: #1b3680; --lime: #f5806b; --ink: #12204f; --soft: #b8ccf5; --t0: #f2c46e; --t1: #6fe0d0; }
   /* light mode: every palette gets a pale background and darker text/accent-text; fills keep the brand colours */
   :root[data-mode="dark"] { color-scheme: dark; }
@@ -30,7 +29,6 @@
     --accent-text: #9a6700; --t0: #f28b6e; --t1: #e8c94a; --t0t: #b5472b; --t1t: #8a6d00; }
   :root[data-theme="bubblegum"][data-mode="light"] { --navy: #f8e6ee; --indigo: #f2d3e1; --deep: #ecc3d6; --well: #e3b3ca; --soft: #8a4a66; --text: #38142c; --accent-text: #8a5a00; --t0: #e8b84a; --t1: #5bb8d9; --t0t: #8a5a00; --t1t: #1f6f8f; }
   :root[data-theme="mint"][data-mode="light"] { --navy: #e8eef8; --indigo: #d5e0f2; --deep: #c5d4ec; --well: #b6c8e6; --soft: #4b6285; --text: #0c1424; --accent-text: #1b7a5e; --t0: #f291ab; --t1: #f0c978; --t0t: #b0345a; --t1t: #8a6200; }
-  :root[data-theme="sunrise"][data-mode="light"] { --navy: #fbece3; --indigo: #f8dac9; --deep: #f3c9b0; --well: #ecb89c; --soft: #8a4a2c; --text: #3a1e12; --accent-text: #9a4a0a; --t0: #e8a03a; --t1: #5bc4a4; --t0t: #a04e00; --t1t: #1f7a60; }
   :root[data-theme="cobalt"][data-mode="light"] { --navy: #e7edfa; --indigo: #d3def5; --deep: #c3d2f0; --well: #b3c5ea; --soft: #4a5f93; --text: #12204f; --accent-text: #b0381f; --t0: #e8b04a; --t1: #4fc4b4; --t0t: #8a5a00; --t1t: #1a7a6e; }
   html { font-size: 16px; } html[data-size="s"] { font-size: 14px; } html[data-size="l"] { font-size: 18px; }
   * { box-sizing: border-box; }
@@ -353,7 +351,6 @@ const THEMES = {
   citrus:    { name: 'Lagoon',   colors: ['#123f43', '#1f8083', '#f5b942', '#f28b6e', '#f2d96b'] },
   bubblegum: { name: 'Rose',     colors: ['#38142c', '#b83a68', '#f5d27a', '#f5d27a', '#7ed0ea'] },
   mint:      { name: 'Midnight', colors: ['#0c1424', '#1f4274', '#6fe0be', '#f291ab', '#f0c978'] },
-  sunrise:   { name: 'Sunset',   colors: ['#3a1e12', '#d0592a', '#fbe3a0', '#fbe3a0', '#88e0c4'] },
   cobalt:    { name: 'Cobalt',   colors: ['#12204f', '#2c55c4', '#f5806b', '#f2c46e', '#6fe0d0'] }
 };
 // light / dark / follow-the-device, text size, and palette: remembered per device
