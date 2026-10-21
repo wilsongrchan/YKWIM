@@ -2,26 +2,38 @@
 // Clients send intents via handle(); every peer gets its own filtered view() so hidden info
 // (the keyword, the clues) only reaches the people allowed to see it.
 (function (root) {
-  const DATA = {
-    en: {
-      Animals: 'zebra dolphin penguin kangaroo giraffe octopus eagle rabbit spider elephant monkey parrot',
-      Food: 'pizza cheese waffle noodle cookie pumpkin lemon honey yogurt ketchup apple orange',
-      Places: 'island jungle desert glacier volcano library harbor castle forest valley lighthouse mountain',
-      Objects: 'umbrella mirror candle scissors compass wallet helmet camera clock ladder kettle blanket',
-      Nature: 'ocean river rainbow thunder eclipse iceberg feather marble shadow cactus',
-      Fantasy: 'dragon wizard unicorn vampire pirate robot snowman rocket'
-    },
-    fr: {
-      Animaux: 'zèbre dauphin manchot kangourou girafe pieuvre aigle lapin araignée éléphant singe perroquet',
-      Nourriture: 'pizza fromage gaufre nouille biscuit citrouille citron miel yaourt ketchup pomme orange',
-      Lieux: 'île jungle désert glacier volcan bibliothèque port château forêt vallée phare montagne',
-      Objets: 'parapluie miroir bougie ciseaux boussole portefeuille casque caméra horloge échelle bouilloire couverture',
-      Nature: 'océan rivière tonnerre éclipse iceberg plume marbre ombre cactus',
-      Fantastique: 'dragon sorcier licorne vampire pirate robot fusée'
-    }
+  // Word bank. Single words are separated by spaces. "Names" and "Phrases" use | between entries (they contain spaces) and only
+  // appear in the top level. Which level a plain word belongs to is worked out from its length (see TIERS).
+  const BANK = {
+    Animals: 'zebra dolphin penguin kangaroo giraffe octopus eagle rabbit spider elephant monkey parrot tiger panda koala otter camel horse sheep goose swan frog crab shark whale lion bear wolf fox deer crocodile chimpanzee hippopotamus flamingo porcupine butterfly grasshopper scorpion hedgehog squirrel cheetah leopard peacock pelican gorilla jaguar turtle lizard donkey beaver walrus ostrich seagull dragonfly caterpillar',
+    Food: 'pizza cheese waffle noodle cookie pumpkin lemon honey yogurt ketchup apple orange banana cherry grape mango peach melon bread butter pasta salad soup sushi burger pancake sandwich spaghetti chocolate strawberry watermelon blueberry cucumber mushroom broccoli cinnamon pineapple avocado croissant lasagna pretzel popcorn cupcake pepper tomato potato carrot coconut raspberry marshmallow hamburger',
+    Places: 'island jungle desert glacier volcano library harbor castle forest valley lighthouse mountain beach canyon bridge museum airport stadium hospital cathedral playground waterfall skyscraper restaurant supermarket aquarium observatory village garden farm cave tunnel palace temple pyramid',
+    Objects: 'umbrella mirror candle scissors compass wallet helmet camera clock ladder kettle blanket pencil bottle basket hammer needle button pillow guitar telescope microscope typewriter calculator suitcase flashlight toothbrush screwdriver wheelbarrow thermometer notebook backpack bicycle balloon lantern trumpet keyboard envelope television refrigerator',
+    Nature: 'ocean river rainbow thunder eclipse iceberg feather marble shadow cactus lightning blizzard tornado avalanche earthquake hurricane sunrise sunset meadow thunderstorm volcano pebble coral glacier',
+    Fantasy: 'dragon wizard unicorn vampire pirate robot snowman rocket mermaid goblin phoenix werewolf spaceship dinosaur astronaut superhero treasure scarecrow giant fairy ghost castle zombie',
+    Jobs: 'doctor teacher farmer pilot painter chef nurse dentist firefighter astronaut carpenter plumber electrician photographer journalist librarian detective scientist veterinarian baker waiter singer driver lawyer mechanic engineer',
+    Sports: 'soccer tennis hockey cricket boxing karate rugby golf swimming basketball volleyball badminton gymnastics snowboarding marathon archery surfing skiing cycling bowling fencing wrestling',
+    Names: 'sherlock holmes|mickey mouse|harry potter|santa claus|winnie the pooh|peter pan|captain hook|robin hood|snow white|spider man|super mario|pikachu|cleopatra|napoleon|albert einstein|leonardo da vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|cinderella|batman|sleeping beauty|alice in wonderland|king arthur',
+    Phrases: 'ice cream|hot dog|birthday party|swimming pool|peanut butter|traffic light|rainy day|board game|fire truck|polar bear|movie theater|bubble bath|scary movie|road trip|pillow fight|piece of cake|break the ice|under the weather|once in a blue moon|cold shoulder|home sweet home|fish out of water|bucket list|cat nap|sleeping bag|water slide|roller coaster|chocolate cake|pizza party|snow angel|treasure map|hot air balloon|time machine|magic carpet|best friends|full moon|day off|big apple|funny bone|sweet tooth|piggy bank'
+  };
+  const PHRASE_CATS = ['Names', 'Phrases'];
+  const ALL_WORDS = Object.entries(BANK).flatMap(([cat, list]) =>
+    (PHRASE_CATS.includes(cat) ? list.split('|') : list.split(' ')).map(word => ({ cat, word }))).filter((e, i, all) => all.findIndex(x => x.word === e.word) === i);   // a word listed under two categories counts once
+  // Levels: the words get longer, ending with names and phrases. Plain words qualify for a level by their number of letters.
+  const TIERS = [
+    { name: '4–6 letters', min: 4, max: 6 },
+    { name: '5–7 letters', min: 5, max: 7 },
+    { name: '6–8 letters', min: 6, max: 8 },
+    { name: '9–12 letters', min: 9, max: 12 },
+    { name: 'Names & phrases', phrases: true }
+  ];
+  const tierWords = level => {
+    const t = TIERS[level - 1];
+    return ALL_WORDS.filter(e => t.phrases ? PHRASE_CATS.includes(e.cat)
+      : !PHRASE_CATS.includes(e.cat) && e.word.length >= t.min && e.word.length <= t.max);
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', wordLevel: 'rising', levelEvery: 2, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   const ROLES = ['giver1', 'giver2', 'guesser'];
@@ -55,7 +67,7 @@
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
-      scores: [0, 0], bankrupt: null, round: 0, deck: [], card: null, teams: [null, null], firstCorrect: null, winner: null
+      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, card: null, teams: [null, null], firstCorrect: null, winner: null
     };
     const change = () => onChange();
 
@@ -89,7 +101,6 @@
     }
     const roleName = (t, role) => seatName(t, seatIdx(t, role));
     const banned = () => { const n = norm(G.card.word); return n.length >= 4 ? [...new Set([...n].filter(c => !'aeiou'.includes(c)).slice(0, G.settings.banCount))] : []; };
-    const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
     // ---------- players & lobby ----------
     function addPlayer(id, name, token) {
@@ -117,9 +128,14 @@
     function arm(t, ms, fn) { const T = G.teams[t]; clearT(T.timer); T.timer = setT(fn, ms); }
 
     function startRound() {
-      if (!G.deck.length) G.deck = shuffle(Object.entries(DATA[G.settings.lang])
-        .flatMap(([cat, ws]) => ws.split(' ').map(word => ({ cat, word }))));
-      G.card = G.deck.pop(); G.firstCorrect = null; G.phase = 'round';
+      // "rising": the level goes up every few words; otherwise one fixed level for the whole game
+      const s = G.settings;
+      G.level = s.wordLevel === 'rising' ? Math.min(TIERS.length, 1 + Math.floor(G.round / s.levelEvery)) : Number(s.wordLevel);
+      const pool = tierWords(G.level);
+      let fresh = pool.filter(e => !G.used.has(e.word));
+      if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
+      G.card = fresh[Math.floor(Math.random() * fresh.length)]; G.used.add(G.card.word);
+      G.firstCorrect = null; G.phase = 'round';
       G.teams = [newTeamState(), newTeamState()];
       if (G.settings.sequential) { // pass-and-play: teams take turns, alternating who goes first
         const first = G.round % 2;
@@ -236,7 +252,8 @@
         case 'settings': {
           if (!isHost || G.phase !== 'lobby') return {};
           const s = G.settings, n = Number(m.value);
-          if (m.key === 'lang' && DATA[m.value]) s.lang = m.value;
+          if (m.key === 'wordLevel' && ['rising', '1', '2', '3', '4', '5'].includes(String(m.value))) s.wordLevel = String(m.value);
+          else if (m.key === 'levelEvery' && [1, 2, 3].includes(n)) s.levelEvery = n;
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value)) s.mode = m.value;
           else if (m.key === 'banCount' && [2, 3, 4].includes(n)) s.banCount = n;
           else if (m.key === 'lastChance' && [5, 10, 15].includes(n)) s.lastChance = n;
@@ -269,7 +286,7 @@
         case 'start': {
           if (!isHost || G.phase !== 'lobby') return {};
           if (G.seats.some(t => t.some(s => !s))) return { error: 'Fill every seat first.' };
-          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.deck = []; G.winner = null; startRound(); change(); return {};
+          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.used = new Set(); G.winner = null; startRound(); change(); return {};
         }
         case 'next': {
           if (!isHost || G.phase !== 'roundEnd') return {};
@@ -330,7 +347,7 @@
 
       const mt = v.myTeam, roles = rolesOf(id);
       v.myRoles = roles; v.round = {
-        n: G.round, cat: G.card.cat, blanks: [...G.card.word].map(ch => /\p{L}/u.test(ch) ? 1 : 0),
+        n: G.round, cat: G.card.cat, level: G.level, levelName: TIERS[G.level - 1].name, rising: G.settings.wordLevel === 'rising', blanks: [...G.card.word].map(ch => /\p{L}/u.test(ch) ? 1 : 0),
         teams: [0, 1].map(t => {
           const T = G.teams[t], mine = t === mt;
           const rem = T.deadline ? T.deadline - now() : T.guessDeadline ? T.guessDeadline - now() : null;
@@ -361,6 +378,6 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP };
+  const api = { TIERS, tierWords, createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);

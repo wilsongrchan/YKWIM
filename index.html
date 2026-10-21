@@ -162,6 +162,7 @@
   /* top bar */
   .top { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
   .pill { background: var(--navy); border-radius: 999px; padding: 8px 16px; font-weight: 500; white-space: nowrap; }
+  .lvname { font-size: .85rem; color: var(--soft); margin-left: 6px; }
   .pill b { font-family: var(--display); font-weight: 500; color: var(--accent-text); font-size: 1.15rem; margin-left: 6px; }
   .teams { flex: 1; display: grid; gap: 6px; }
   .tb { background: var(--navy); border-radius: 999px; height: 26px; position: relative; overflow: hidden; }
@@ -279,6 +280,7 @@
     <ul>
       <li>Clue-givers see the keyword and type a few letters. Each letter costs points, and the next costs more (10, 12, 14…). Symbols cost 5.</li>
       <li>The keyword's first few consonants are banned.</li>
+      <li>Words get longer as you level up, ending with names and phrases.</li>
       <li>Teams of three: Clue-giver 2 sees which letters and symbols Clue-giver 1 used (alphabetical), and their prices start over. Teams of two: one clue.</li>
       <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
       <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
@@ -484,7 +486,7 @@ function lobbyScreen() {
         : `<label>Play to</label>${sel('target', [500, 800, 1200], st.target)}`}</div>
       <div><label>Starting points</label>${sel('bank', [100, 200, 300], st.bank)}</div>
       <div><label>Points per correct guess</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
-      <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
+      <div><label>Word length</label>${sel('wordLevel', [['rising', 'Longer each level'], ['1', '4–6 letters'], ['2', '5–7 letters'], ['3', '6–8 letters'], ['4', '9–12 letters'], ['5', 'Names & phrases']], st.wordLevel)}</div>
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>Advanced settings</summary>
@@ -495,6 +497,8 @@ function lobbyScreen() {
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
         <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt'], ['lose', 'Lose at once']], st.belowZero, x => x, EASY_HARD('debt', 'lose'))}</div>
         <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec', EASY_HARD(15, 5))}</div>
+        <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
+        ${st.wordLevel === 'rising' ? `<div><label>Words per level</label>${sel('levelEvery', [1, 2, 3], st.levelEvery, x => x + (x === 1 ? ' word' : ' words'))}</div>` : ''}
       </div>
     </details></div>
     <div style="margin-top:14px">${V.isHost
@@ -515,6 +519,7 @@ function topBar() {
   const r = V.round, st = V.settings;
   return `<div class="top">
     <div class="pill">Word<b>${r.n + 1}${st.mode === 'words' ? ' / ' + st.words : ''}</b></div>
+    <div class="pill" title="${r.rising ? 'The words get longer as the levels go up' : 'Fixed word length'}">${r.rising ? 'Level<b>' + r.level + '</b>' : ''}<span class="lvname">${esc(r.levelName)}</span></div>
     ${V.isHost && V.phase === 'round' ? `<button class="icon" style="width:34px;height:34px;font-size:.9rem;margin-left:auto" data-act="skip" title="Skip this word (if someone is stuck)">⏭</button>` : ''}
   </div>`;
 }
@@ -725,11 +730,11 @@ function mockView(kind) {
   const names = ['Team Gold', 'Team Blue'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { start: 10, step: 2, symbol: 5 }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
+    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', wordLevel: 'rising', levelEvery: 2, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
-  const round = { n: 2, cat: 'Animals', blanks: [1, 1, 1, 1, 1], roleNames: { giver1: 'You', giver2: 'Sam', guesser: 'Alex' } };
+  const round = { n: 2, level: 2, levelName: '5–7 letters', rising: true, cat: 'Animals', blanks: [1, 1, 1, 1, 1], roleNames: { giver1: 'You', giver2: 'Sam', guesser: 'Alex' } };
   const other = team('giver2', { remaining: 12000 });
   const secret = { word: 'ZEBRA', banned: ['Z', 'B', 'R'] };
   switch (kind) {
