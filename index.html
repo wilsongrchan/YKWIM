@@ -476,16 +476,16 @@
     .codeside { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; } .codeside p, .newcode { margin: 0 !important; }
     .linktxt { display: none; }
     .stage.lobby .dev { display: none; }   /* "on this device" is clear from the button's place */
-    .stage.lobby { padding: 10px; } .coderow { margin-bottom: 2px; }
-    .stage.lobby .seatgrid { margin: 6px 0 4px; gap: 4px 8px; } .stage.lobby .seatcol h3 { margin: 0 0 4px; }
-    .stage.lobby .seat { padding: 6px 10px; margin-bottom: 4px; font-size: .9rem; } .stage.lobby .seatcol .ghost { padding: 5px; font-size: .76rem; }
-    .stage.lobby > .sub { margin: 3px 0; font-size: .78rem; line-height: 1.25; }
-    .stage.lobby .lobbystart { margin: 2px 0 4px !important; } .stage.lobby .lobbystart button.big { padding: 11px; font-size: 1.05rem; }
-    .stage.lobby .lobbystart .ghost { padding: 7px; font-size: .8rem; margin-top: 6px !important; }
-    .stage.lobby .settingshead { margin: 0 0 4px; } .stage.lobby .settingshead h2 { font-size: 1.05rem; }
-    .stage.lobby .well { padding: 10px; } .stage.lobby .modes { gap: 8px; }
-    .stage.lobby .modebtn { padding: 8px 10px; border-radius: 12px; border-width: 2px; gap: 2px; } .stage.lobby .modebtn b { font-size: 1.15rem; } .stage.lobby .modebtn span { font-size: .7rem; }
-    .stage.lobby .settings label { font-size: .68rem; margin: 6px 0 2px; }
+    .stage.lobby { padding: 12px; } .coderow { margin-bottom: 4px; }
+    .stage.lobby .seatgrid { margin: 8px 0 4px; gap: 5px 10px; } .stage.lobby .seatcol h3 { margin: 0 0 6px; }
+    .stage.lobby .seat { padding: 7px 12px; margin-bottom: 5px; font-size: .92rem; } .stage.lobby .seatcol .ghost { padding: 7px; font-size: .78rem; }
+    .stage.lobby > .sub { margin: 4px 0; font-size: .8rem; line-height: 1.3; }
+    .stage.lobby .lobbystart { margin: 4px 0 6px !important; } .stage.lobby .lobbystart button.big { padding: 12px; font-size: 1.1rem; }
+    .stage.lobby .lobbystart .ghost { padding: 8px; font-size: .82rem; margin-top: 6px !important; }
+    .stage.lobby .settingshead { margin: 2px 0 6px; } .stage.lobby .settingshead h2 { font-size: 1.1rem; }
+    .stage.lobby .well { padding: 10px 12px; } .stage.lobby .modes { gap: 10px; }
+    .stage.lobby .modebtn { padding: 10px 12px; border-radius: 14px; border-width: 3px; gap: 3px; } .stage.lobby .modebtn b { font-size: 1.25rem; } .stage.lobby .modebtn span { font-size: .74rem; }
+    .stage.lobby .settings label { font-size: .7rem; margin: 8px 0 3px; }
     .code { font-size: 2.6rem; } .res { padding: 10px 12px; } .bc-txt { font-size: clamp(1.4rem, 6.5vw, 2.2rem); } .bigclue { padding: 12px 4px 8px; }
   }
   /* last chance: the timer sits above the clue boxes instead of tucking into them */
@@ -773,7 +773,7 @@ function renderFlow(which) {
   const think = (color, mood, text) => `<div class="th"><svg class="av" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 40c0-9 6-13 15-13s15 4 15 13z" fill="${color}"/><circle cx="20" cy="15" r="10" fill="#f6dcc0" stroke="#123f43" stroke-width="1.5"/><circle cx="16" cy="14" r="1.5" fill="#123f43"/><circle cx="24" cy="14" r="1.5" fill="#123f43"/><path d="${MOUTH[mood]}" fill="none" stroke="#123f43" stroke-width="1.5" stroke-linecap="round"/></svg><div class="bub">${text}</div></div>`;
   const cost = n => `<span class="fs-cost">−${n}</span>`;
   const EM = e => `<span class="em">${e}</span>`;
-  const ban = `<span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>`;
+  const ban = `<span class="fs-ban">can't use <s>P</s><s>N</s></span>`;
   const first = which === 'c' ? 'BAMBOO' : 'BAM', second = { a: 'BOO', b: 'KUGFU', c: '' }[which];
   const used = [...new Set(first)].sort().join(' ');
   const step1 = which === 'c'
@@ -805,7 +805,7 @@ renderFlow('a');
 (function costDiagram() {
   const price = YKWIM.priceOf, sum = n => YKWIM.costOf(n, 0);
   const tiles = (word, cls) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
-  const all = 'BAMBOO', g1 = 'BAM', g2 = 'BOO';   // PANDA bans P, N and D; none of these letters are in that set
+  const all = 'BAMBOO', g1 = 'BAM', g2 = 'BOO';   // PANDA bans P and N (the first 2 consonants); none of these letters are in that set
   const one = sum(all.length), split = sum(g1.length) + sum(g2.length);
   $('costdiag').innerHTML = `
     <div class="cd-title">Keyword PANDA. One giver types all of it: <b>${all}</b></div>
