@@ -373,7 +373,7 @@
     <h3>Points</h3>
     <ul>
       <li>Each team has a bank (200). Every letter costs points, and the cost climbs with each one (10, 12, 14…) but resets for Clue-giver 2. Symbols cost 5.</li>
-      <li>A correct guess earns a reward plus first-to-guess and quick-guess bonuses.</li>
+      <li>A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the first one also gets a first-to-guess bonus.</li>
       <li>A wrong guess costs points; giving up is free.</li>
       <li>When one team guesses, the other gets a last-chance timer.</li>
     </ul>
@@ -724,7 +724,7 @@ function roundScreen() {
     if (T.stage === 'waiting') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])} is playing</h2><p class="sub">You're up next.</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…</p></div>${logHtml(T)}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too.` : ''}</p></div>${logHtml(T)}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];

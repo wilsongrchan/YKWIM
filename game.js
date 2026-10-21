@@ -208,6 +208,11 @@
       if (G.teams[0].stage === 'done' && G.teams[1].stage === 'done') endRound();
     }
     function endRound() {
+      // First to guess is only a bonus when it was a race: if the other team never got it, the reward itself is difference enough.
+      const f = G.firstCorrect;
+      if (f !== null && !G.settings.sequential && G.teams[1 - f].result === 'correct') {
+        const T = G.teams[f]; T.breakdown.first = G.settings.firstBonus; T.earned += G.settings.firstBonus;
+      }
       [0, 1].forEach(t => G.scores[t] += G.teams[t].earned);
       const [a, b] = G.scores, s = G.settings;
       // "score" mode: first to the target. "words" mode: after a fixed number of words. A tie plays on (sudden death).
@@ -225,8 +230,9 @@
         const s = G.settings, first = G.firstCorrect === null && !s.sequential;
         // Quick bonus counts down: speedSecs points at the start, 1 fewer for every full second since the clues appeared.
         const quick = Math.max(0, s.speedSecs - Math.floor((now() - T.guessStart) / 1000));
-        T.breakdown = { base: s.reward, longWord: G.longBonus, first: first ? s.firstBonus : 0, speed: quick, spent: T.spent };
-        finishTeam(t, 'correct', T.breakdown.base + T.breakdown.longWord + T.breakdown.first + T.breakdown.speed);
+        // The first-to-guess bonus isn't paid yet: it only counts if the other team gets the word too (see endRound).
+        T.breakdown = { base: s.reward, longWord: G.longBonus, first: 0, speed: quick, spent: T.spent };
+        finishTeam(t, 'correct', T.breakdown.base + T.breakdown.longWord + T.breakdown.speed);
         if (first) {
           G.firstCorrect = t;
           const o = 1 - t, O = G.teams[o];
@@ -425,6 +431,7 @@
         };
       }
       v.round.passNote = G.passNote;
+      v.round.firstTeam = G.firstCorrect;   // who guessed first (their bonus waits to see if the other team gets it too)
       const isGiver = roles.includes('giver1') || roles.includes('giver2');
       if (reveal || (G.phase === 'round' && isGiver)) { v.round.word = G.card.word; }
       if (G.phase === 'round' && isGiver) v.round.banned = banned().map(c => c.toUpperCase());
