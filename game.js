@@ -43,7 +43,7 @@
 
     const G = {
       phase: 'lobby',                         // lobby | round | roundEnd | over
-      settings: { lang: 'en', teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
+      settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
@@ -72,7 +72,7 @@
       return mine.length > 1 ? `${G.players[id].name} (${mine.indexOf(seatIdx) + 1})` : G.players[id].name;
     }
     const roleName = (t, role) => seatName(t, seatIdx(t, role));
-    const banned = () => { const n = norm(G.card.word); return n.length >= 4 ? [...new Set([...n].filter(c => !'aeiou'.includes(c)).slice(0, 4))] : []; };
+    const banned = () => { const n = norm(G.card.word); return n.length >= 4 ? [...new Set([...n].filter(c => !'aeiou'.includes(c)).slice(0, G.settings.banCount))] : []; };
     const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
     // ---------- players & lobby ----------
@@ -212,6 +212,7 @@
           const s = G.settings, n = Number(m.value);
           if (m.key === 'lang' && DATA[m.value]) s.lang = m.value;
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value)) s.mode = m.value;
+          else if (m.key === 'banCount' && [2, 3, 4].includes(n)) s.banCount = n;
           else if (m.key === 'teamSize' && [2, 3].includes(n)) {
             s.teamSize = n; // seats beyond the new size are dropped
             G.seats = G.seats.map(t => Array.from({ length: n }, (_, i) => t[i] || null));

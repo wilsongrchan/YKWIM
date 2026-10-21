@@ -230,7 +230,7 @@
     <ul>
       <li>You see the <b>theme</b> and how many letters the word has.</li>
       <li>Clue-givers type clues in <b>letters, not words</b>. Every letter costs points, and each one costs more than the last (10, 12, 14…). Symbols like <b>. ? ! @ # $</b> cost a flat 5 each.</li>
-      <li>The first <b>4 consonants</b> of the keyword are banned from clues.</li>
+      <li>The first few <b>consonants</b> of the keyword (3 by default) are banned from clues.</li>
       <li>Clue-giver 2 sees which letters Clue-giver 1 used (shuffled), and their price starts back at 10. Splitting the work is cheaper!</li>
       <li>Both teams write at the same time, against a timer. Then each guesser sees only their own team's two clues.</li>
       <li>Guess as long as you like, until someone gets it. Then the other team has <b>10 seconds</b>.</li>
@@ -402,6 +402,7 @@ function lobbyScreen() {
     <p class="sub">${st.teamSize === 2 ? 'One player writes both clues and the other guesses. You swap every word.' : 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.'}</p>
     <div class="well"><div class="settings">
       <div><label>Players per team</label>${sel('teamSize', [[3, '3 per team (6 players)'], [2, '2 per team (4 players)']], st.teamSize)}</div>
+      <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
       <div><label>Language</label>${sel('lang', [['en', 'English'], ['fr', 'Français']], st.lang)}</div>
       <div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'After a set number of words']], st.mode)}</div>
       <div>${st.mode === 'words'
@@ -626,7 +627,7 @@ function mockView(kind) {
   const names = ['Team Gold', 'Team Blue'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { start: 10, step: 2, symbol: 5 }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
+    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
