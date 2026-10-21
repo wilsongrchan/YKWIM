@@ -172,6 +172,8 @@
   .bub::before { content: ""; position: absolute; left: -8px; bottom: 6px; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
   .bub::after { content: ""; position: absolute; left: -13px; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #fff; }
   .fs-cost { align-self: center; margin-left: 8px; font-weight: 600; font-size: .85rem; color: #b5472b; }
+  .fs-skip { background: transparent; border: 2px dashed #b7b7c2; color: #6b6b78; font: 500 .85rem var(--body); letter-spacing: 0; padding: 2px 12px; }
+  .fs-tabs button { font-size: .85rem; padding: 9px 4px; }
   .fs-say { font-size: .8rem; font-style: italic; margin-top: 5px; opacity: .85; }
   .fs-used { font: 600 1rem ui-monospace, Menlo, monospace; letter-spacing: .3em; margin-top: 4px; } .fs-not { font: 400 .75rem var(--body); letter-spacing: 0; color: #6b6b78; margin-left: 8px; }
   .fs-blank { display: inline-block; width: 18px; height: 22px; border-radius: 5px; background: #fff; border-bottom: 3px solid var(--lime); margin-right: 3px; }
@@ -496,7 +498,7 @@ applyDisplay();
 
 // ---------- helpers ----------
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
-// "See an example round": the same round played two ways. a = Clue-giver 2 gets what Clue-giver 1 meant, b = they don't.
+// "See an example round": the same round played three ways. a = Clue-giver 2 gets what Clue-giver 1 meant, b = they don't, c = one giver does it all.
 function renderFlow(which) {
   const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
   const tiles = (w, cls = '') => [...w].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
@@ -507,27 +509,32 @@ function renderFlow(which) {
   const cost = n => `<span class="fs-cost">−${n}</span>`;
   const EM = e => `<span class="em">${e}</span>`;
   const ban = `<span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>`;
-  const second = which === 'a' ? 'BOO' : 'KUGFU';
-  const step2 = which === 'a'
-    ? think('#6fc7bd', 'happy', `A, B, M… ${EM('🎋')} bam-boo, bamboo! I'll add <b>BOO</b>.`)
-    : think('#6fc7bd', 'puzzled', `A, B, M… amber??? No idea. I'll go my own way: ${EM('🥋')} kung fu panda! No N allowed, so <b>KUGFU</b>.`);
-  const step3 = which === 'a'
-    ? `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🐼')} PANDA!`
-    : `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🥋')} kung fu… ${EM('🐼')} PANDA!`;
-  $('flowdiag').innerHTML = `<div class="seg" style="margin:6px 0 2px">
-      <button type="button" class="${which === 'a' ? 'on' : ''}" data-act="flow" data-v="a">They get it</button>
-      <button type="button" class="${which === 'b' ? 'on' : ''}" data-act="flow" data-v="b">They don't get it</button></div>` +
+  const first = which === 'c' ? 'BAMBOO' : 'BAM', second = { a: 'BOO', b: 'KUGFU', c: '' }[which];
+  const used = [...first].sort().join(' ');
+  const step1 = which === 'c'
+    ? `${EM('🎋')} Bamboo! I'll just type the whole thing: <b>BAMBOO</b>.`
+    : `${EM('🎋')} Bamboo! But I'll only give <b>BAM</b>, and hope Clue-giver 2 thinks of the same thing and adds <b>BOO</b>.`;
+  const step2 = { a: think('#6fc7bd', 'happy', `A, B, M… ${EM('🎋')} bam-boo, bamboo! I'll add <b>BOO</b>.`),
+    b: think('#6fc7bd', 'puzzled', `A, B, M… amber??? No idea. I'll go my own way: ${EM('🥋')} kung fu panda! No N allowed, so <b>KUGFU</b>.`),
+    c: think('#6fc7bd', 'happy', `A, B, B, M, O, O… that's already ${EM('🎋')} BAMBOO. Nothing to add, so I'll <b>skip</b>.`) }[which];
+  const step3 = { a: `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🐼')} PANDA!`,
+    b: `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🥋')} kung fu… ${EM('🐼')} PANDA!`,
+    c: `Animals, 5 letters… ${EM('🎋')} BAMBOO… ${EM('🐼')} PANDA! Easy.` }[which];
+  const letters = sum(first.length) + (second ? sum(second.length) : 0);
+  const tab = (v, label) => `<button type="button" class="${which === v ? 'on' : ''}" data-act="flow" data-v="${v}">${label}</button>`;
+  $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', 'They get it')}${tab('b', "They don't")}${tab('c', 'One giver')}</div>` +
     box(1, 'Clue-giver 1 sees the keyword', `<span class="fs-kw">PANDA</span>${ban}
-      ${think('#f5b942', 'hope', `${EM('🎋')} Bamboo! But I'll only give <b>BAM</b>, and hope Clue-giver 2 thinks of the same thing and adds <b>BOO</b>.`)}
-      <div class="fs-row">${tiles('BAM')}${cost(sum(3))}</div>`) +
+      ${think('#f5b942', 'hope', step1)}
+      <div class="fs-row">${tiles(first)}${cost(sum(first.length))}</div>`) +
     box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span>${ban}
-      <div class="fs-used">A B M <span class="fs-not">not BAM</span></div>
+      <div class="fs-used">${used} <span class="fs-not">not ${first}</span></div>
       ${step2}
-      <div class="fs-row">${tiles(second, 'two')}${cost(sum(second.length))}</div><div class="fs-say">The price starts again at ${price(0)}.</div>`) +
-    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">BAM</div><div class="fs-clue">${second}</div></div>
+      ${second ? `<div class="fs-row">${tiles(second, 'two')}${cost(sum(second.length))}</div><div class="fs-say">The price starts again at ${price(0)}.</div>`
+        : `<div class="fs-row"><div class="fs-clue fs-skip">skipped</div><span class="fs-cost">free</span></div>`}`) +
+    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">${first}</div><div class="fs-clue">${second || '—'}</div></div>
       <div>${'<span class="fs-blank"></span>'.repeat(5)}</div>
       ${think('#f2907a', 'happy', step3)}`) +
-    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${sum(3) + sum(second.length)} for the letters.`);
+    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${letters} for the letters.${which === 'c' ? ` One person typing it all pays the rising price: BAM + BOO would have been ${sum(3) * 2}.` : ''}`);
 }
 renderFlow('a');
 (function costDiagram() {
