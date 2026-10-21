@@ -38,7 +38,7 @@
       : !e.top && e.word.length >= t.min && e.word.length <= t.max));
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', teams: 'two', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, belowZero: 'debt', categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', teams: 'two', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the
   // starting bank, so with the default 200 bank: more than 600 is Excellent, then 500, 400 and 275 (they scale with the number of
   // words and the bank). Worked out for a 1 + 2 team: solving all 5 words with ~4 letters a clue scores ~620, with ~5 letters ~550,
@@ -76,6 +76,7 @@
   }
   const letterCount = s => (String(s).match(/[A-Za-z]/g) || []).length;
   const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += START_COST + STEP * (used + i); return c; };
+  const clueCost = (text, used) => { const n = letterCount(text); return costOf(n, used) + (text.length - n) * SYMBOL_COST; };
 
   function createGame(opts = {}) {
     const now = opts.now || Date.now;
@@ -84,12 +85,13 @@
     const hostId = opts.hostId || 'host';
 
     const G = {
+      seatNames: [[], []],                    // custom names for seats one device holds several of: seatNames[team][seat]
       phase: 'lobby',                         // lobby | round | roundEnd | over
       settings: { ...DEFAULT_SETTINGS },
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
-      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, winner: null,
+      scores: [0, 0], round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, gaveUp: null, winner: null,
       solo: false, history: [],   // one-team mode: how each word went, for the graph at the end
       pass: null, passUsed: [false, false], passNote: null   // a request to pass the word: { from, to, expires, timer }; each team may ask once per word
     };
@@ -109,17 +111,12 @@
       return live === undefined ? ts[0] : live;
     };
     const rolesOf = (id, t = actTeam(id)) => t < 0 ? [] : rolesFor(G.settings.teamSize).filter(r => holder(t, r) === id);
-    // Letters and wrong guesses cost real points: they come straight out of the team's score (which can go negative).
-    const spend = (t, amount) => { G.scores[t] -= amount; G.teams[t].spent += amount; };
-    // Optional rule: dropping below zero ends the game on the spot and the other team wins.
-    function bust(t) {
-      if (G.settings.belowZero !== 'lose' || G.scores[t] >= 0) return false;
-      G.teams.forEach(T => T && clearT(T.timer));
-      G.phase = 'over'; G.winner = 1 - t; G.bankrupt = t;
-      return true;
-    }
+    // Letters and wrong guesses cost real points, straight out of the team's score. A team can only spend what it has, so the score never goes below zero.
+    // Clue costs are tracked apart (clueSpent): a team that doesn't get the word gets them back (see finishTeam).
+    const spend = (t, amount, clue) => { G.scores[t] -= amount; G.teams[t].spent += amount; if (clue) G.teams[t].clueSpent += amount; };
     function seatName(t, seatIdx) {
       const id = G.seats[t][seatIdx]; if (!id || !G.players[id]) return `Seat ${seatIdx + 1}`;
+      if (G.seatNames[t][seatIdx]) return G.seatNames[t][seatIdx];
       const mine = G.seats[t].map((s, i) => s === id ? i : -1).filter(i => i >= 0);
       return mine.length > 1 ? `${G.players[id].name} (${mine.indexOf(seatIdx) + 1})` : G.players[id].name;
     }
@@ -143,11 +140,15 @@
       else G.players[id].connected = false;
       change();
     }
-    function vacate(id, exceptTeam) { G.seats = G.seats.map((t, i) => i === exceptTeam ? t : t.map(s => s === id ? null : s)); }
+    // a seat that changes hands loses its custom name
+    function vacate(id, exceptTeam) {
+      G.seats.forEach((t, i) => { if (i !== exceptTeam) t.forEach((s, j) => { if (s === id) G.seatNames[i][j] = null; }); });
+      G.seats = G.seats.map((t, i) => i === exceptTeam ? t : t.map(s => s === id ? null : s));
+    }
 
     // ---------- round flow ----------
     function newTeamState() {
-      return { stage: 'giver1', deadline: null, timer: null, clues: [], spent: 0, used: 0, log: [], result: null, earned: 0, breakdown: null, guessDeadline: null, guessStart: null, awaitReady: false };
+      return { stage: 'giver1', deadline: null, timer: null, clues: [], spent: 0, clueSpent: 0, used: 0, log: [], result: null, earned: 0, breakdown: null, guessDeadline: null, guessStart: null, awaitReady: false };
     }
     function arm(t, ms, fn) { const T = G.teams[t]; clearT(T.timer); T.timer = setT(fn, ms); }
 
@@ -163,7 +164,7 @@
       let fresh = pool.filter(e => !G.used.has(e.word));
       if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
       G.card = fresh[Math.floor(Math.random() * fresh.length)]; G.used.add(G.card.word);
-      G.firstCorrect = null; G.phase = 'round';
+      G.firstCorrect = null; G.gaveUp = null; G.phase = 'round';
       if (G.pass) { clearT(G.pass.timer); G.pass = null; }
       G.teams = [newTeamState(), newTeamState()];
       if (G.solo) { G.teams[1].stage = 'done'; G.teams[1].result = 'none'; beginWriting(0, 'giver1'); }   // no second team: it's out of the way
@@ -191,11 +192,11 @@
         text = [...text].filter(c => !ban.includes(c.toLowerCase())).join('');
         if (norm(text).includes(answer) || isPatternClue(text, answer)) text = '';
       }
-      const n = letterCount(text), sym = text.length - n;
-      spend(t, costOf(n, T.used) + sym * SYMBOL_COST); T.used += n; T.clues.push(text);
+      if (auto) while (text && clueCost(text, T.used) > G.scores[t]) text = text.slice(0, -1);   // out of time: keep what the team can afford
+      else if (clueCost(text, T.used) > G.scores[t]) return { error: "You can't afford that clue." };
+      spend(t, clueCost(text, T.used), true); T.used += letterCount(text); T.clues.push(text);
       clearT(T.timer); T.deadline = null;
       if (G.pass && G.pass.from === t) { clearT(G.pass.timer); G.pass = null; }   // they decided to write after all
-      if (bust(t)) { change(); return {}; }
       const k = +T.stage.slice(5);   // which clue-giver just finished
       if (k < G.settings.teamSize - 1) beginWriting(t, 'giver' + (k + 1)); else enterGuess(t);
       change();
@@ -208,8 +209,9 @@
     const sharedGuesser = t => { const id = holder(t, 'guesser'); return G.seats[t].filter(s => s === id).length > 1; };
     function enterGuess(t) {
       const T = G.teams[t]; T.stage = 'guess';
-      T.awaitReady = sharedGuesser(t) || G.firstCorrect === null; T.guessStart = T.awaitReady ? null : now();
-      if (!T.awaitReady && G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
+      const otherDone = G.firstCorrect !== null || G.gaveUp !== null;   // the other team got it or gave up: this one is on the last-chance clock
+      T.awaitReady = sharedGuesser(t) || !otherDone; T.guessStart = T.awaitReady ? null : now();
+      if (!T.awaitReady && otherDone) startFinal(t);
     }
     function startFinal(t) {
       // last chance: once one team guesses it, the other has settings.lastChance seconds
@@ -218,6 +220,7 @@
     }
     function finishTeam(t, result, earned) {
       const T = G.teams[t]; clearT(T.timer);
+      if (result !== 'correct') { G.scores[t] += T.clueSpent; T.spent -= T.clueSpent; T.clueSpent = 0; }   // didn't get it: the letters are paid back
       T.stage = 'done'; T.result = result; T.earned = earned; T.deadline = T.guessDeadline = null;
       const o = G.teams[1 - t];
       if (G.settings.sequential && o.stage === 'waiting') beginWriting(1 - t, 'giver1');
@@ -225,8 +228,10 @@
     }
     function endRound() {
       // First to guess is only a bonus when it was a race: if the other team never got it, the reward itself is difference enough.
-      const f = G.firstCorrect;
-      if (f !== null && !G.settings.sequential && G.teams[1 - f].result === 'correct') {
+      // In pass-and-play the teams don't race, so the faster guesser (less time from seeing the clues to the right answer) counts as first.
+      const [x, y] = G.teams;
+      const f = G.settings.sequential ? (x.result === 'correct' && y.result === 'correct' && x.guessMs !== y.guessMs ? (x.guessMs < y.guessMs ? 0 : 1) : null) : G.firstCorrect;
+      if (f !== null && G.teams[1 - f].result === 'correct') {
         const T = G.teams[f]; T.breakdown.first = G.settings.firstBonus; T.earned += G.settings.firstBonus;
       }
       [0, 1].forEach(t => G.scores[t] += G.teams[t].earned);
@@ -244,11 +249,12 @@
       if (text.toLowerCase() === norm(G.card.word)) {
         T.log.push({ text, ok: true });
         // A correct guess pays the reward plus the first-to-guess and quick-guess bonuses (letters were already paid for).
-        // (no first-to-guess bonus or 10s limit in pass-and-play: the teams don't play at the same time)
+        // (no live first-to-guess race or last-chance limit in pass-and-play: the teams don't play at the same time; endRound compares their times instead)
         const s = G.settings, first = G.firstCorrect === null && !s.sequential;
         // Quick bonus counts down: speedSecs points at the start, 1 fewer for every full second since the clues appeared.
         const quick = Math.max(0, s.speedSecs - Math.floor((now() - T.guessStart) / 1000));
         // The first-to-guess bonus isn't paid yet: it only counts if the other team gets the word too (see endRound).
+        T.guessMs = now() - T.guessStart;
         T.breakdown = { base: s.reward, longWord: G.longBonus, first: 0, speed: quick, spent: T.spent };
         finishTeam(t, 'correct', T.breakdown.base + T.breakdown.longWord + T.breakdown.speed);
         if (first) {
@@ -258,8 +264,8 @@
           if (O.stage === 'guess' && !O.awaitReady) startFinal(o);
         }
       } else {
-        spend(t, G.settings.penalty); T.log.push({ text, ok: false, cost: G.settings.penalty });
-        if (bust(t)) { change(); return {}; }
+        const cost = Math.min(G.settings.penalty, G.scores[t]);   // can't pay more than the team has
+        spend(t, cost); T.log.push({ text, ok: false, cost });
       }
       change();
       return {};
@@ -296,18 +302,18 @@
           if (team === 1 && G.settings.teams === 'one') return {};
           if (![0, 1].includes(team) || !(Number.isInteger(seat) && seat >= 0 && seat < G.settings.teamSize)) return {};
           const cur = G.seats[team][seat]; if (cur && cur !== id) return { error: 'Seat taken.' };
-          vacate(id, team); G.seats[team][seat] = id; G.settings.sequential = false; change(); return {};
+          vacate(id, team); G.seats[team][seat] = id; G.seatNames[team][seat] = null; G.settings.sequential = false; change(); return {};
         }
         case 'sitAll': { // one device plays a whole team
           if (G.phase !== 'lobby') return { error: 'Game already started.' };
           const { team } = m; if (![0, 1].includes(team) || (team === 1 && G.settings.teams === 'one')) return {};
           if (G.seats[team].some(s => s && s !== id)) return { error: 'Some seats on that team are taken.' };
-          vacate(id, team); G.seats[team] = Array(G.settings.teamSize).fill(id); G.settings.sequential = false; change(); return {};
+          vacate(id, team); G.seats[team] = Array(G.settings.teamSize).fill(id); G.seatNames[team] = []; G.settings.sequential = false; change(); return {};
         }
         case 'stand': if (G.phase === 'lobby') { vacate(id, -1); G.settings.sequential = false; change(); } return {};
         case 'passAndPlay': { // everyone shares the host's device; teams take turns
           if (!isHost || G.phase !== 'lobby' || G.settings.teams === 'one') return {};
-          G.seats = [0, 1].map(() => Array(G.settings.teamSize).fill(id)); G.settings.sequential = true; change(); return {};
+          G.seats = [0, 1].map(() => Array(G.settings.teamSize).fill(id)); G.seatNames = [[], []]; G.settings.sequential = true; change(); return {};
         }
         case 'settings': {
           if (!isHost || G.phase !== 'lobby') return {};
@@ -334,7 +340,6 @@
           else if (m.key === 'words' && n >= 1 && n <= 50) s.words = n;
           else if (m.key === 'reward' && n >= 40 && n <= 400) s.reward = n;
           else if (m.key === 'bank' && n >= 0 && n <= 600) s.bank = n;
-          else if (m.key === 'belowZero' && ['debt', 'lose'].includes(m.value)) s.belowZero = m.value;
           else if (m.key === 'writeSecs' && n >= 10 && n <= 120) s.writeSecs = n;
           else if (m.key === 'penalty' && n >= 0 && n <= 20) s.penalty = n;
           else if (m.key === 'firstBonus' && n >= 0 && n <= 100) s.firstBonus = n;
@@ -348,15 +353,19 @@
           G.seats = G.seats.map(t => Array.from({ length: G.settings.teamSize }, (_, i) => t[i] || null));
           change(); return {};
         }
+        case 'seatName': { // whoever holds several seats of a team on one device can name each of them
+          if (G.phase !== 'lobby' || ![0, 1].includes(m.team) || G.seats[m.team][m.seat] !== id) return {};
+          G.seatNames[m.team][m.seat] = String(m.name || '').trim().slice(0, 14) || null; change(); return {};
+        }
         case 'teamName': {
-          if (!isHost || G.phase !== 'lobby' || ![0, 1].includes(m.team)) return {};
+          if (G.phase !== 'lobby' || ![0, 1].includes(m.team) || !(isHost || G.seats[m.team].every(s => s === id))) return {};
           G.names[m.team] = String(m.name || '').trim().slice(0, 16) || `Team ${m.team + 1}`; change(); return {};
         }
         case 'start': {
           if (!isHost || G.phase !== 'lobby') return {};
           G.solo = G.settings.teams === 'one';
           if ((G.solo ? [G.seats[0]] : G.seats).some(t => t.some(s => !s))) return { error: 'Fill every seat first.' };
-          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.used = new Set(); G.winner = null; G.passUsed = [false, false]; G.passNote = null; G.history = []; startRound(); change(); return {};
+          G.scores = [G.settings.bank, G.settings.bank]; G.round = 0; G.used = new Set(); G.winner = null; G.passUsed = [false, false]; G.passNote = null; G.history = []; startRound(); change(); return {};
         }
         case 'next': {
           if (!isHost || G.phase !== 'roundEnd') return {};
@@ -369,7 +378,7 @@
         }
         case 'skip': { // host ends a stuck word
           if (!isHost || G.phase !== 'round') return {};
-          [0, 1].forEach(t => { if (G.teams[t].stage !== 'done') { G.scores[t] += G.teams[t].spent; G.teams[t].spent = 0; finishTeam(t, 'skipped', 0); } });   // a skipped word refunds what was spent on it
+          [0, 1].forEach(t => { if (G.teams[t].stage !== 'done') { G.scores[t] += G.teams[t].spent; G.teams[t].spent = G.teams[t].clueSpent = 0; finishTeam(t, 'skipped', 0); } });   // a skipped word refunds what was spent on it
           change(); return {};
         }
         case 'clue': {
@@ -390,7 +399,7 @@
           const t = actTeam(id), T = t < 0 ? null : G.teams[t];
           if (!T || T.stage !== 'guess' || !T.awaitReady || !rolesOf(id).includes('guesser')) return {};
           T.awaitReady = false; T.guessStart = now();
-          if (G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
+          if (G.firstCorrect !== null || G.gaveUp !== null) startFinal(t);
           change(); return {};
         }
         case 'proposePass': {
@@ -418,7 +427,14 @@
         case 'giveup': {
           if (G.phase !== 'round') return {};
           const t = actTeam(id); if (t < 0 || G.teams[t].stage !== 'guess' || !rolesOf(id).includes('guesser')) return {};
-          finishTeam(t, 'gaveup', 0); change(); return {};
+          finishTeam(t, 'gaveup', 0);   // final: the team is done with this word
+          const o = 1 - t, O = G.teams[o];
+          if (!G.solo && !G.settings.sequential && G.firstCorrect === null && G.gaveUp === null) {   // giving up starts the other team's last-chance timer, like a correct guess does
+            G.gaveUp = t;
+            if (O.stage === 'guess' && O.awaitReady && !sharedGuesser(o)) { O.awaitReady = false; O.guessStart = now(); }
+            if (O.stage === 'guess' && !O.awaitReady) startFinal(o);
+          }
+          change(); return {};
         }
       }
       return {};
@@ -429,7 +445,7 @@
       const reveal = G.phase === 'roundEnd' || G.phase === 'over';
       const v = {
         phase: G.phase, me: id, isHost: id === hostId, hostId, settings: G.settings, names: G.names, scores: G.scores,
-        winner: G.winner, history: G.solo && G.phase === 'over' ? G.history : null, rating: G.solo && G.phase === 'over' && G.bankrupt === null ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, bankrupt: G.phase === 'over' ? G.bankrupt : null, costs: { start: START_COST, step: STEP, symbol: SYMBOL_COST },
+        winner: G.winner, history: G.solo && G.phase === 'over' ? G.history : null, rating: G.solo && G.phase === 'over' ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, costs: { start: START_COST, step: STEP, symbol: SYMBOL_COST },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
         myTeam: actTeam(id) < 0 ? null : actTeam(id),

@@ -71,6 +71,14 @@
   .vb-sub b { color: var(--text); font-weight: 500; }
   .vb-num.neg { color: var(--bad); }
   .settings > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modebtn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 14px 16px; border-radius: 16px; background: transparent; color: var(--text); border: 3px solid color-mix(in srgb, var(--mc) 55%, transparent); }
+  .modebtn b { font: 500 1.5rem var(--display); letter-spacing: .03em; color: var(--mc); }
+  .modebtn span { font-size: .8rem; line-height: 1.25; color: var(--soft); }
+  .modebtn.on { background: var(--mc); border-color: var(--mc); } .modebtn.on b, .modebtn.on span { color: var(--ink); }
+  .modebtn:disabled { opacity: 1; cursor: default; } .modebtn:disabled:not(.on) { opacity: .6; }
+  .settings.main > div:last-child:nth-child(odd) { grid-column: auto; }   /* the full-width Mode box shifts the count by one */
+  .settings.main > div:last-child:nth-child(even) { grid-column: 1 / -1; }
   .vb-shadow { position: absolute; left: 0; right: 0; top: 0; height: 0; transition: height .15s ease; border-bottom: 2px solid rgba(0,0,0,.55);
     background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
   .vb-num, .vb-sub, .vb-delta { font-variant-numeric: tabular-nums; }
@@ -312,6 +320,7 @@
   .seat { display: block; width: 100%; margin-bottom: 6px; text-align: left; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); padding: 11px 14px; }
   .seat.empty { background: transparent; border: 2px dashed color-mix(in srgb, var(--ov) 30%, transparent); color: var(--soft); }
   .seat.mine { background: var(--lime); color: var(--ink); }
+  .seatname { margin-bottom: 6px; background: var(--lime); color: var(--ink); font-weight: 500; }
   .seatcol .ghost { width: 100%; font-size: .85rem; padding: 8px; }
   .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
   .chip { background: color-mix(in srgb, var(--ov) 12%, transparent); border-radius: 999px; padding: 4px 12px; font-size: .85rem; font-weight: 500; }
@@ -382,8 +391,8 @@
     <ul>
       <li>Each team has a bank (200). Every letter costs points, and the cost climbs with each one (10, 12, 14…) but resets for Clue-giver 2. Symbols cost 5.</li>
       <li>A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the first one also gets a first-to-guess bonus.</li>
-      <li>A wrong guess costs points; giving up is free.</li>
-      <li>When one team guesses, the other gets a last-chance timer.</li>
+      <li>You can only write a clue you can afford. A wrong guess costs points; giving up is free. If your team doesn't get the word, the letters are refunded.</li>
+      <li>When one team guesses or gives up, the other gets a last-chance timer. Giving up is final.</li>
       <li>Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a rating.</li>
     </ul>
     <details class="costs"><summary>See what a clue costs</summary><div id="costdiag"></div></details>
@@ -619,7 +628,7 @@ function homeScreen() {
   return `<div class="stage home">
     <div class="logo display">YKWIM</div>
     <p class="tag" style="margin-bottom:6px">Do you know what I mean, though?</p>
-    <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">A word game for 4–6 players</p>
+    <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">A word game for 3–8 players</p>
     <label>Your name</label>
     <input id="name" maxlength="14" placeholder="Name" value="${esc(S.name)}">
     <div style="margin-top:18px"><button class="big" data-act="create" ${S.busy ? 'disabled' : ''}>Create room</button></div>
@@ -635,6 +644,8 @@ function lobbyScreen() {
   const seatBtn = (t, i) => {
     const s = V.seats[t][i];
     if (!s) return `<button class="seat empty" data-act="sit" data-team="${t}" data-seat="${i}">Sit here</button>`;
+    if (s.id === V.me && V.seats[t].filter(x => x && x.id === V.me).length > 1)   // one device holding several seats: each player gets a name box
+      return `<input class="seatname" data-seatname="${t}:${i}" value="${esc(s.name)}" maxlength="14" aria-label="Player name">`;
     return `<button class="seat ${s.id === V.me ? 'mine' : ''}" ${s.id === V.me ? 'data-act="stand"' : 'disabled'}>${esc(s.name)}${s.id === V.me ? ' (you)' : ''}</button>`;
   };
   const full = (V.settings.teams === 'one' ? [V.seats[0]] : V.seats).every(t => t.every(Boolean));
@@ -646,15 +657,15 @@ function lobbyScreen() {
     <p class="sub center">Share this link: <b style="color:var(--text)">${esc(link)}</b> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">Copy</button></p>
     ${V.isHost ? `<div class="center" style="margin:-4px 0 8px"><button class="linkbtn" data-act="newCode">↻ New room code</button></div>` : ''}
     <div class="seatgrid${st.teams === 'one' ? ' solo' : ''}">${(st.teams === 'one' ? [0] : [0, 1]).map(t => `<div class="seatcol">
-      <h3 style="color:${TEAM_TEXT[t]}">${V.isHost ? `<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem">` : esc(V.names[t])}</h3>
+      <h3 style="color:${TEAM_TEXT[t]}">${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem">` : esc(V.names[t])}</h3>
       ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
-      <button class="ghost" data-act="sitAll" data-team="${t}">This device plays the whole team</button>
+      ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">Leave: stop playing this team on this device</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? 'Pass-and-play on this device' : 'Pass-and-play this team on this device'}</button>`}
     </div>`).join('')}</div>
     ${unseated.length ? `<p class="sub">Waiting to sit: ${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
     <p class="sub">${{ 2: 'One player writes a clue and the other guesses. You swap every word.', 3: 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.', 4: 'Roles (three clue-givers and a guesser) rotate between the 4 seats every word.' }[st.teamSize]}</p>
     <div class="settingshead"><h2>Game settings</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">Reset to defaults</button>` : ''}</div>
-    <div class="well"><div class="settings">
-      <div><label>Mode</label>${sel('teams', [['two', 'VS'], ['one', 'Co-op']], st.teams)}</div>
+    <div class="well"><div class="settings main">
+      <div style="grid-column:1 / -1" class="modepick"><label>Game mode</label><div class="modes">${[['two', 'VS', 'Two teams race to guess the same word.', 't0'], ['one', 'Co-op', 'One team plays a set number of words and earns a grade.', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
       <div><label>Team</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 guesser, 1 clue-giver', 3: '1 guesser, 2 clue-givers', 4: '1 guesser, 3 clue-givers' })[v])}</div>
       ${st.teams === 'one' ? `<div><label>Number of words</label>${sel('words', [5, 8, 10], st.words, x => x + ' words')}</div>` : `<div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'Set number of words']], st.mode)}</div>
       <div>${st.mode === 'words'
@@ -664,23 +675,22 @@ function lobbyScreen() {
       <div><label>Points per correct guess</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
       <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
     </div>
-    <div class="cats"><div class="catshead">Categories</div>
-      ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}</div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>Advanced settings</summary>
+      <div class="cats" style="margin:12px 0"><div class="catshead">Categories</div>
+      ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}</div>
       <div class="settings">
         <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2'], [3, 'First 3'], [4, 'First 4']], st.banCount, x => x, EASY_HARD(2, 4))}</div>
         <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
         ${st.teams === 'one' ? '' : `<div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>`}
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
-        <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt'], ['lose', 'Lose at once']], st.belowZero, x => x, EASY_HARD('debt', 'lose'))}</div>
         ${st.teams === 'one' ? '' : `<div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec', EASY_HARD(15, 5))}</div>`}
       </div>
     </details></div>
     <div style="margin-top:14px">${V.isHost
       ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? 'Start game' : 'Fill every seat to start'}</button>
-         ${st.teams === 'one' ? '' : `<button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? '✓ Pass-and-play on this device' : 'Or: pass-and-play on this one device'}</button>`}
-         ${st.sequential ? `<p class="sub center" style="margin-top:8px">Everyone shares this screen and the teams take turns (no first-to-guess bonus or 10-second limit).</p>` : ''}`
+         ${st.teams === 'one' ? '' : `<button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? '✓ Pass-and-play both teams on this device' : 'Or: pass-and-play both teams on this device'}</button>`}
+         ${st.sequential ? `<p class="sub center" style="margin-top:8px">Everyone shares this screen and the teams take turns. The team that guesses faster gets the first-to-guess bonus; there's no last-chance timer.</p>` : ''}`
       : `<p class="sub center">Waiting for the host to start…</p>`}</div>
   </div>`;
 }
@@ -744,7 +754,6 @@ function roundScreen() {
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
-      const oDone = r.teams[1 - mt].stage === 'done' && V.settings.sequential;
       const guesserWaiting = stageRole === 'guesser' && T.awaitReady;   // the quick-guess clock hasn't started: wait for the tap
       if (guesserWaiting && !multi) {
         handoff = true;
@@ -753,8 +762,7 @@ function roundScreen() {
           <button class="big" data-act="ready" data-key="${key}" data-guess="1">I'm ready</button></div>`;
       } else if (guesserWaiting || (multi && S.shownRole !== key)) {
         handoff = true;
-        body = `<div class="well center">${oDone ? `<p class="sub" style="margin:0 0 6px">${esc(V.names[1 - mt])}: ${esc(statusLine(1 - mt))}</p>` : ''}
-          <h2 style="color:${TEAM_TEXT[mt]}">${esc(V.names[mt])}</h2><h2>Pass the device to ${esc(r.roleNames[stageRole])}</h2>
+        body = `<div class="well center">          <h2 style="color:${TEAM_TEXT[mt]}">${esc(V.names[mt])}</h2><h2>Pass the device to ${esc(r.roleNames[stageRole])}</h2>
           <p class="sub">${stageRole === 'guesser' ? 'Clue-givers: look away! The quick-guess bonus starts when they tap.' : stageRole !== 'giver1' ? 'The guesser must look away!' : 'Everyone else, look away!'}</p>
           <button class="big" data-act="ready" data-key="${key}"${stageRole === 'guesser' ? ' data-guess="1"' : ''}>I'm ready</button></div>`;
       } else {
@@ -785,15 +793,16 @@ function vbar(t) {
   const st = V.settings, byWords = st.mode === 'words', own = V.round && V.myTeam === t;
   const T = V.round && V.round.teams[t], other = V.round && V.round.teams[1 - t];
   const active = own && V.phase === 'round' && T && (isWriting(T.stage) || T.stage === 'guess') && T.spent !== undefined;
-  const firstLeft = active && !st.sequential && st.teams !== 'one' && !(other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
+  const firstLeft = active && st.teams !== 'one' && !(!st.sequential && other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
   const roundReward = V.round ? V.round.reward : st.reward, longBonus = V.round ? V.round.longBonus : 0;
   const reward = active ? roundReward : 0, longWord = active ? longBonus : 0;
   const scale = Math.max(byWords ? 0 : st.target, Math.max(...V.scores, 0) + roundReward + longBonus + st.firstBonus + st.speedSecs, 1);   // one scale for both bars
   const pct = v => v / scale * 100, score = pct(Math.max(0, V.scores[t]));
   const quick = active ? (T.stage === 'guess' ? Math.ceil((T.speedLeft || 0) / 1000) : st.speedSecs) : 0;
-  const icon = V.phase !== 'round' ? '' : T.stage === 'done' ? (T.result === 'correct' ? '✓' : '✕') : { giver1: '✎', giver2: '✎', giver3: '✎', guess: '💭', waiting: '⏳' }[T.stage];
+  const hush = V.settings.sequential && V.phase === 'round' && T.stage === 'done';   // pass-and-play: the team still to play must not learn how the other did
+  const icon = V.phase !== 'round' ? '' : T.stage === 'done' ? (hush ? '■' : T.result === 'correct' ? '✓' : '✕') : { giver1: '✎', giver2: '✎', giver3: '✎', guess: '💭', waiting: '⏳' }[T.stage];
   const dataAttrs = active ? ` data-stage="${T.stage}" data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + longWord + firstLeft}" data-await="${T.awaitReady ? 1 : 0}"` : '';
-  return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' ? ': ' + esc(statusLine(t)) : ''}">
+  return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' && !hush ? ': ' + esc(statusLine(t)) : ''}">
     <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t].slice(0, 8))}</div>
     <div class="vb-track">
       <i class="vb-score" style="height:${score}%;background:${TEAM_COLORS[t]}">${active ? '<b class="vb-shadow" id="tubeShadow"></b>' : ''}</i>
@@ -813,7 +822,7 @@ function hbar(t) {
   const st = V.settings, byWords = st.mode === 'words', own = V.round && V.myTeam === t;
   const T = V.round && V.round.teams[t], other = V.round && V.round.teams[1 - t];
   const active = own && V.phase === 'round' && T && (isWriting(T.stage) || T.stage === 'guess') && T.spent !== undefined;
-  const firstLeft = active && !st.sequential && st.teams !== 'one' && !(other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
+  const firstLeft = active && st.teams !== 'one' && !(!st.sequential && other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
   const roundReward = V.round ? V.round.reward : st.reward, longBonus = V.round ? V.round.longBonus : 0;
   const reward = active ? roundReward : 0, longWord = active ? longBonus : 0;
   const scale = Math.max(byWords ? 0 : st.target, Math.max(...V.scores, 0) + roundReward + longBonus + st.firstBonus + st.speedSecs, 1);
@@ -858,7 +867,7 @@ function guesserPanel(T, theme, blanks) {
   const seen = [...new Set([...(T.clues || []).join('')].filter(c => /[A-Z]/.test(c) && !'AEIOU'.includes(c)))];
   const top = `${theme}${blanks}
     <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your guess" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
-    <div class="preview one">Wrong guess −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">give up</button> (no penalty)</div>`;
+    <div class="preview one">Wrong guess −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">give up</button> (letters refunded)</div>`;
   return [top, `<div class="keys">${keyboard([], 'guess', seen)}</div>
     ${seen.length ? `<div class="keyhint"><b>Dimmed</b> letters showed up in the clues, so there's a chance they're not in the keyword.</div>` : ''}
     ${logHtml(T)}`];
@@ -909,9 +918,6 @@ function overScreen() {
   const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">Back to lobby</button>` : `<p class="sub">Waiting for the host…</p>`;
   if (SOLO()) {
     const R = V.rating;
-    if (!R) return `<div class="stage center"><div class="sub" style="margin-top:14px">GAME OVER</div>
-      <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:var(--bad)">Out of points</div>
-      <div class="sub">${esc(V.names[0])} went bankrupt before the last word.</div>${back}</div>`;
     return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0]).toUpperCase()} · ${V.settings.words} WORDS</div>
       <div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--g${R.rank})">${esc(R.label)}</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
@@ -921,7 +927,6 @@ function overScreen() {
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">GAME OVER</div>
     <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]}">${esc(V.names[V.winner])} wins!</div>
-    ${V.bankrupt !== null && V.bankrupt !== undefined ? `<div class="sub" style="color:var(--bad)">${esc(V.names[V.bankrupt])} went bankrupt</div>` : ''}
     <div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>
     ${back}
   </div>`;
@@ -965,15 +970,16 @@ setInterval(tick, 250);
 function updatePreview() {
   const el = $('preview'), inp = $('clue'); if (!el || !inp || !V || !V.round) return;
   const T = V.round.teams[V.myTeam], used = T.used || 0, n = lettersOnly(inp.value), c = clueCost(inp.value, used);
-  const bank = V.scores[V.myTeam], debt = c > Math.max(0, bank), lose = V.settings.belowZero === 'lose';
-  el.innerHTML = (c ? `Costs <b class="${debt ? 'red' : ''}">${c}</b>${debt ? (lose ? ' (bankrupt!)' : ' (debt)') : ''} · next letter ` : 'Next letter costs ') + `<b>${V.costs.start + V.costs.step * (used + n)}</b>`;
+  const bank = V.scores[V.myTeam], over = c > bank;
+  el.innerHTML = over ? `<b class="red">Costs ${c}: you only have ${bank}</b>` : (c ? `Costs <b>${c}</b> · next letter ` : 'Next letter costs ') + `<b>${V.costs.start + V.costs.step * (used + n)}</b>`;
+  const send = document.querySelector('[data-act="sendClue"]'); if (send) send.disabled = over;
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta');
   if (sh) sh.style.height = (bank > 0 ? Math.min(c, bank) / bank * 100 : 0) + '%';
-  if (dl) dl.textContent = c ? `−${c}${debt ? (lose ? ' (bankrupt!)' : ' (debt)') : ''}` : '';
+  if (dl) dl.textContent = c ? `−${c}` : '';
   const shH = $('tubeShadowH'), dlH = $('tubeDeltaH');
   if (shH) shH.style.width = (bank > 0 ? Math.min(c, bank) / bank * 100 : 0) + '%';
-  if (dlH) { dlH.textContent = c ? `−${c}${debt ? (lose ? ' bankrupt!' : ' debt') : ''}` : ''; dlH.closest('.hb').classList.toggle('hasdelta', !!c); }
+  if (dlH) { dlH.textContent = c ? `−${c}` : ''; dlH.closest('.hb').classList.toggle('hasdelta', !!c); }
 }
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
@@ -984,7 +990,7 @@ function mockView(kind) {
   const names = ['Team Gold', 'Team Blue'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { start: 10, step: 2, symbol: 5 }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, belowZero: 'debt', categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
+    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
@@ -1053,10 +1059,11 @@ document.addEventListener('click', e => {
     case 'sit': return send({ type: 'sit', team: +d.team, seat: +d.seat });
     case 'sitAll': return send({ type: 'sitAll', team: +d.team });
     case 'stand': return send({ type: 'stand' });
-    case 'resetSettings':
+    case 'resetSettings': return send({ type: 'resetSettings' });
     case 'proposePass': return send({ type: 'proposePass' });
     case 'answerPass': return send({ type: 'answerPass', yes: d.yes === '1' });
-    case 'start': case 'next': case 'toLobby': case 'skip': case 'giveup': return send({ type: d.act });
+    case 'giveup': if (!confirm("Give up on this word? You can't guess again, and the other team gets a last-chance timer.")) return; return send({ type: 'giveup' });
+    case 'start': case 'next': case 'toLobby': case 'skip': return send({ type: d.act });
     case 'newCode': if (V && V.phase === 'lobby' && room && confirm('Make a new room code? Anyone who already joined will need to join again with the new code.')) hostRoom(S.name, 0, true); return;
     case 'flow': return renderFlow(d.v);
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('Link copied!')); return;
@@ -1080,6 +1087,7 @@ document.addEventListener('input', e => {
 document.addEventListener('toggle', e => { if (e.target.id === 'adv') S.advOpen = e.target.open; }, true);
 document.addEventListener('change', e => {
   const t = e.target;
+  if (t.dataset.seatname !== undefined && net) { const [tm, sd] = t.dataset.seatname.split(':'); net.send({ type: 'seatName', team: +tm, seat: +sd, name: t.value }); }
   if (t.dataset.teamname !== undefined && net) net.send({ type: 'teamName', team: +t.dataset.teamname, name: t.value });
 });
 document.addEventListener('keydown', e => {
