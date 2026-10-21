@@ -287,7 +287,8 @@
     .timer { padding: 5px 20px 7px; font-size: 1.6rem; margin-bottom: -16px; }
     .themebar div { padding: 5px; font-size: .92rem; } .blanks { margin: 0 0 8px; gap: 5px; } .blanks span { width: 26px; height: 30px; }
     .secret { padding: 5px 10px 7px; margin-bottom: 8px; } .secret .w { font-size: 1.7rem; }
-    .giverhead { margin-bottom: 8px; } .rolechip { padding: 4px 12px; font-size: .88rem; } .used { padding: 4px 8px; margin-bottom: 8px; font-size: 1rem; }
+    .giverhead { margin-bottom: 8px; } .rolechip { padding: 2px 10px; font-size: .76rem; } .timer.inl { width: 5.4rem; font-size: 1.2rem; padding: 2px 6px; }
+    #clue, #guess { font-size: .95rem; letter-spacing: .06em; } #clue::placeholder, #guess::placeholder { font-size: .8rem; letter-spacing: .04em; } .used { padding: 4px 8px; margin-bottom: 8px; font-size: 1rem; }
     input { padding: 10px 12px; } .bar button { padding: 0 16px; }
     .settings, .seatgrid { gap: 0 8px; } .seatgrid { gap: 8px; } .seat { padding: 9px 10px; font-size: .92rem; } .dd-btn { padding: 10px 11px; font-size: .95rem; }
     .code { font-size: 2.6rem; } .res { padding: 10px 12px; } .bc-txt { font-size: clamp(1.4rem, 6.5vw, 2.2rem); } .bigclue { padding: 12px 4px 8px; }
@@ -324,7 +325,6 @@
     <ul>
       <li>Clue-givers see the keyword and type a few letters. Each letter costs points, and the next costs more (10, 12, 14…). Symbols cost 5.</li>
       <li>The keyword's first few consonants are banned.</li>
-      <li>Words get longer as you level up, with a long-word bonus on top of the reward. The last level is names and phrases.</li>
       <li>Teams of three: Clue-giver 2 sees which letters and symbols Clue-giver 1 used (alphabetical), and their prices start over. Teams of two: one clue.</li>
       <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
       <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
@@ -721,8 +721,8 @@ function guesserPanel(T, theme, blanks) {
   // Clue-givers can't type the keyword's first few consonants, so a consonant that shows up in a clue is a poor guess.
   const seen = [...new Set([...(T.clues || []).join('')].filter(c => /[A-Z]/.test(c) && !'AEIOU'.includes(c)))];
   const top = `${theme}${blanks}
-    <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Write the keyword…" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
-    <div class="preview one">Wrong guess −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">give up</button></div>`;
+    <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your guess" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
+    <div class="preview one">Wrong guess −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">give up</button> (no penalty)</div>`;
   return [top, `<div class="keys">${keyboard([], 'guess', seen)}</div>
     ${seen.length ? `<div class="keyhint"><b>Dimmed</b> letters are in the clues, so probably not in the keyword.</div>` : ''}
     ${logHtml(T)}`];
