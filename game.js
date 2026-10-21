@@ -7,7 +7,7 @@
   const BANK = {
     Animals: 'zebra dolphin penguin kangaroo giraffe octopus eagle rabbit spider elephant monkey parrot tiger panda koala otter camel horse sheep goose swan frog crab shark whale lion bear wolf fox deer crocodile chimpanzee hippopotamus flamingo porcupine butterfly grasshopper scorpion hedgehog squirrel cheetah leopard peacock pelican gorilla jaguar turtle lizard donkey beaver walrus ostrich seagull dragonfly caterpillar',
     Food: 'pizza cheese waffle noodle cookie pumpkin lemon honey yogurt ketchup apple orange banana cherry grape mango peach melon bread butter pasta salad soup sushi burger pancake sandwich spaghetti chocolate strawberry watermelon blueberry cucumber mushroom broccoli cinnamon pineapple avocado croissant lasagna pretzel popcorn cupcake pepper tomato potato carrot coconut raspberry marshmallow hamburger',
-    Places: 'island jungle desert glacier volcano library harbor castle forest valley lighthouse mountain beach canyon bridge museum airport stadium hospital cathedral playground waterfall skyscraper restaurant supermarket aquarium observatory village garden farm cave tunnel palace temple pyramid',
+    'Places & buildings': 'island jungle desert glacier volcano library harbor castle forest valley lighthouse mountain beach canyon bridge museum airport stadium hospital cathedral playground waterfall skyscraper restaurant supermarket aquarium observatory village garden farm cave tunnel palace temple pyramid',
     Objects: 'umbrella mirror candle scissors compass wallet helmet camera clock ladder kettle blanket pencil bottle basket hammer needle button pillow guitar telescope microscope typewriter calculator suitcase flashlight toothbrush screwdriver wheelbarrow thermometer notebook backpack bicycle balloon lantern trumpet keyboard envelope television refrigerator',
     Nature: 'ocean river rainbow thunder eclipse iceberg feather marble shadow cactus lightning blizzard tornado avalanche earthquake hurricane sunrise sunset meadow thunderstorm volcano pebble coral glacier',
     Fantasy: 'dragon wizard unicorn vampire pirate robot snowman rocket mermaid goblin phoenix werewolf spaceship dinosaur astronaut superhero treasure scarecrow giant fairy ghost castle zombie',
@@ -16,11 +16,11 @@
     Names: 'taylor swift|ed sheeran|billie eilish|ariana grande|justin bieber|lady gaga|bruno mars|elvis presley|michael jackson|madonna|rihanna|harry styles|dua lipa|katy perry|shakira|adele|beyonce|drake|tom hanks|leonardo dicaprio|brad pitt|angelina jolie|johnny depp|will smith|meryl streep|keanu reeves|scarlett johansson|dwayne johnson|jennifer lawrence|emma watson|tom cruise|morgan freeman|denzel washington|zendaya|margot robbie|ryan reynolds|chris hemsworth|jackie chan|bruce lee|marilyn monroe|lionel messi|cristiano ronaldo|michael jordan|lebron james|serena williams|usain bolt',
     Characters: 'sherlock holmes|mickey mouse|harry potter|santa claus|winnie the pooh|peter pan|captain hook|robin hood|snow white|spider man|super mario|pikachu|cinderella|batman|sleeping beauty|alice in wonderland|king arthur|darth vader|donald duck|bugs bunny|sonic the hedgehog|wonder woman',
     History: 'cleopatra|napoleon|albert einstein|leonardo da vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|julius caesar|christopher columbus|queen victoria|martin luther king|mahatma gandhi|joan of arc|alexander the great|neil armstrong',
-    Phrases: 'ice cream|hot dog|birthday party|swimming pool|peanut butter|traffic light|rainy day|board game|fire truck|polar bear|movie theater|bubble bath|scary movie|road trip|pillow fight|piece of cake|break the ice|under the weather|once in a blue moon|cold shoulder|home sweet home|fish out of water|bucket list|cat nap|sleeping bag|water slide|roller coaster|chocolate cake|pizza party|snow angel|treasure map|hot air balloon|time machine|magic carpet|best friends|full moon|day off|big apple|funny bone|sweet tooth|piggy bank'
+    Sayings: 'ice cream@Food|hot dog@Food|birthday party@Activities|swimming pool@Places & buildings|peanut butter@Food|traffic light@Objects|rainy day@Nature|board game@Activities|fire truck@Objects|polar bear@Animals|movie theater@Places & buildings|bubble bath@Activities|scary movie@Activities|road trip@Activities|pillow fight@Activities|piece of cake|break the ice|under the weather|once in a blue moon|cold shoulder|home sweet home|fish out of water|bucket list|cat nap@Activities|sleeping bag@Objects|water slide@Objects|roller coaster@Objects|chocolate cake@Food|pizza party@Activities|snow angel@Activities|treasure map@Objects|hot air balloon@Objects|time machine@Objects|magic carpet@Objects|best friends|full moon@Nature|day off@Activities|big apple@Places & buildings|funny bone|sweet tooth|piggy bank@Objects'
   };
-  const PHRASE_CATS = ['Names', 'Characters', 'History', 'Phrases'];   // these contain spaces and only appear at the top level
+  const PHRASE_CATS = ['Names', 'Characters', 'History', 'Sayings'];   // these lists contain spaces and only appear at the top level (an entry can carry its own category: hot dog@Food)
   const ALL_WORDS = Object.entries(BANK).flatMap(([cat, list]) =>
-    (PHRASE_CATS.includes(cat) ? list.split('|') : list.split(' ')).map(word => ({ cat, word }))).filter((e, i, all) => all.findIndex(x => x.word === e.word) === i);   // a word listed under two categories counts once
+    (PHRASE_CATS.includes(cat) ? list.split('|').map(x => { const [word, own] = x.split('@'); return { cat: own || cat, word, top: true }; }) : list.split(' ').map(word => ({ cat, word, top: false })))).filter((e, i, all) => all.findIndex(x => x.word === e.word) === i);   // a word listed under two categories counts once
   // Levels: the words get longer, ending with names and phrases. Plain words qualify for a level by their number of letters.
   const TIERS = [
     { name: '4–6 letters', min: 4, max: 6 },
@@ -29,14 +29,14 @@
     { name: '9–12 letters', min: 9, max: 12 },
     { name: 'Names & phrases', phrases: true }
   ];
-  const CATEGORIES = Object.keys(BANK);
+  const CATEGORIES = [...Object.keys(BANK).filter(c => c !== 'Sayings'), ...new Set(ALL_WORDS.map(e => e.cat))].filter((c, i, a) => a.indexOf(c) === i);   // every category a word can carry, in a stable order
   const tierWords = (level, cats = CATEGORIES) => {
     const t = TIERS[level - 1];
-    return ALL_WORDS.filter(e => cats.includes(e.cat) && (t.phrases ? PHRASE_CATS.includes(e.cat)
-      : !PHRASE_CATS.includes(e.cat) && e.word.length >= t.min && e.word.length <= t.max));
+    return ALL_WORDS.filter(e => cats.includes(e.cat) && (t.phrases ? e.top
+      : !e.top && e.word.length >= t.min && e.word.length <= t.max));
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, belowZero: 'debt', categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
   const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
   const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;   // longer words pay a bonus on top of the reward: +25% of it per level
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
