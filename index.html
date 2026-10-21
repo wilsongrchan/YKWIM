@@ -295,6 +295,7 @@
   .keys { display: grid; grid-template-columns: repeat(22, 1fr); gap: 5px; margin: 8px auto 0; max-width: 480px; }
   .keys button { width: 100%; height: 40px; padding: 0; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); border-radius: 10px; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
   .keys button.fn { font-size: .8rem; }
+  .keys button.kbtoggle { justify-self: end; width: auto; height: 26px; padding: 0 12px; margin-bottom: 2px; font-size: .72rem; letter-spacing: .06em; border-radius: 999px; box-shadow: none; background: color-mix(in srgb, var(--ov) 10%, transparent); }
   .symrow { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; margin-top: 2px; padding-top: 6px; border-top: 1px dashed color-mix(in srgb, var(--ov) 20%, transparent); }
   .symrow button { background: color-mix(in srgb, var(--ov) 8%, transparent); height: 30px; font-size: .85rem; box-shadow: none; }
   .symrow::before { content: "Symbols cost 5 each"; grid-column: 1 / -1; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
@@ -373,10 +374,13 @@
     padding: 10px 18px; border-radius: 999px; font-weight: 500; z-index: 9; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
   .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
   @media (max-width: 480px) {
-    /* landing page: the coloured card fills the rest of the phone screen */
-    #wrap.landing { min-height: calc(100vh - 16px); min-height: calc(100dvh - 16px); display: flex; flex-direction: column; }
-    #wrap.landing #app { flex: 1; display: flex; flex-direction: column; }
-    #wrap.landing .stage.home { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    /* landing page: the colour is the whole screen's background, edge to edge, with nothing to scroll */
+    html.landing, html.landing body { height: 100vh; height: 100dvh; overflow: hidden; padding: 0; }
+    #wrap.landing { height: 100vh; height: 100dvh; max-width: none; position: relative; }
+    #wrap.landing #app, #wrap.landing .stage.home { height: 100%; }
+    #wrap.landing .masthead { position: absolute; top: 0; left: 0; right: 0; z-index: 5; border-bottom: 0; margin: 0; padding: 10px 12px 0; }
+    #wrap.landing .masthead .mark { visibility: hidden; }   /* the big logo is right there */
+    #wrap.landing .stage.home { display: flex; flex-direction: column; justify-content: center; border-radius: 0; box-shadow: none; overflow: hidden; }   /* the drifting ? layer is bigger than the screen on purpose, so clip it: nothing scrolls */
     body { padding: 8px; } .stage { padding: 10px; border-radius: 18px; }
     .masthead { grid-template-columns: 84px 1fr 84px; margin-bottom: 8px; } .icon { width: 36px; height: 36px; }
     .top { margin-bottom: 8px; gap: 8px; } .pill { padding: 5px 12px; } .pill b { font-size: 1rem; } .lvname { font-size: .78rem; }
@@ -419,7 +423,6 @@
     <h2>Display</h2>
     <div class="dlabel">Mode</div><div class="seg" id="seg-mode"></div>
     <div class="dlabel">Text size</div><div class="seg" id="seg-size"></div>
-    <div class="dlabel">Keyboard</div><div class="seg" id="seg-keys"></div>
     <div class="dlabel">Colours</div><div class="swatches" id="swatches"></div>
   </div>
 </div>
@@ -475,7 +478,7 @@
 <div id="tip" class="tip hide" role="tooltip"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="game.js"></script>
+<script src="game.js?v=20261021b"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -602,7 +605,6 @@ function applyDisplay() {
   const seg = (name, opts) => opts.map(([v, label]) => `<button class="${D[name] === v ? 'on' : ''}" data-act="${name}" data-v="${v}">${label}</button>`).join('');
   $('seg-mode').innerHTML = seg('mode', [['light', '☀ Light'], ['dark', '☾ Dark'], ['auto', 'Auto']]);
   $('seg-size').innerHTML = seg('size', [['s', 'S'], ['m', 'M'], ['l', 'L']]);
-  $('seg-keys').innerHTML = seg('keys', [['qwerty', 'QWERTY'], ['abc', 'ABC']]);
   $('swatches').innerHTML = Object.entries(THEMES).map(([k, t]) =>
     `<button class="sw ${k === D.theme ? 'on' : ''}" data-act="theme" data-theme="${k}"><i>${t.colors.map(c => `<b style="background:${c}"></b>`).join('')}</i>${t.name}</button>`).join('');
 }
@@ -682,11 +684,13 @@ const KEY_LAYOUTS = {   // rows are [letters, first column] on a 22-column grid,
   abc: { rows: [['ABCDEFGHI', 1], ['JKLMNOPQR', 1], ['STUVWXYZ', 1]], fn: '19 / span 4' }
 };
 const keyboard = (ban = [], target, seen = [], L = KEY_LAYOUTS[DISPLAY.keys] || KEY_LAYOUTS.qwerty) =>
-  L.rows.map(([row, col], r) => [...row].map((c, i) => `<button data-act="key" data-target="${target}" data-k="${c}" style="grid-column:${col + 2 * i} / span 2;grid-row:${r + 1}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')).join('')
-  + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:${L.fn};grid-row:2" aria-label="Clear all">Clear</button>`
-  + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:${L.fn};grid-row:3" aria-label="Backspace">⌫</button>`
+  // top row: a small switch between the two layouts (it shows the one you'd get)
+  `<button type="button" class="kbtoggle" data-act="keys" data-v="${L === KEY_LAYOUTS.abc ? 'qwerty' : 'abc'}" style="grid-column:1 / -1;grid-row:1" aria-label="Switch keyboard layout">⌨ ${L === KEY_LAYOUTS.abc ? 'QWERTY' : 'ABC'}</button>`
+  + L.rows.map(([row, col], r) => [...row].map((c, i) => `<button data-act="key" data-target="${target}" data-k="${c}" style="grid-column:${col + 2 * i} / span 2;grid-row:${r + 2}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')).join('')
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:${L.fn};grid-row:3" aria-label="Clear all">Clear</button>`
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:${L.fn};grid-row:4" aria-label="Backspace">⌫</button>`
   // symbols cost a flat 5 each in clues, so only the clue keyboard gets them
-  + (target === 'clue' ? `<div class="symrow" style="grid-row:4">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
+  + (target === 'clue' ? `<div class="symrow" style="grid-row:5">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
 // Settings dropdown. Closed, it shows just the short value; the open list can carry a faint hint (easy / hard).
 const sel = (key, opts, cur, fmtFn = x => x, hintFn = () => '') => {
   const rows = opts.map(o => { const val = Array.isArray(o) ? o[0] : o, lab = Array.isArray(o) ? o[1] : o; return { val, label: fmtFn(lab), hint: hintFn(val) }; });
@@ -705,6 +709,7 @@ function render() {
   const start = active && active.selectionStart;
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
   $('wrap').classList.toggle('landing', !V);
+  document.documentElement.classList.toggle('landing', !V);
   const fb = !!V && V.phase !== 'lobby' && S.feedback && S.feedback.until > Date.now() ? S.feedback : null;
   // while a word is being played, the accent colour (keyword, buttons, outlines) is the colour of the team on this screen
   const teamColour = fb ? fb.team : V && V.phase === 'round' ? V.myTeam : null;
@@ -1212,7 +1217,7 @@ document.addEventListener('click', e => {
     case 'keys': setDisplay({ keys: d.v }); if (V) render(); return;
     case 'passPlay': return send({ type: 'passAndPlay' });
     case 'help': $('help').classList.remove('hide'); return;
-    case 'helpTab': ['rules', 'cost', 'flow', 'bar', 'result'].forEach(t => $('help-' + t).classList.toggle('hide', d.tab !== t)); document.querySelectorAll('#seg-help button').forEach(b => b.classList.toggle('on', b.dataset.tab === d.tab)); if (d.tab === 'bar') $('bardiag').innerHTML = barDiagram(); return;
+    case 'helpTab': ['rules', 'cost', 'flow', 'bar', 'result'].forEach(t => $('help-' + t).classList.toggle('hide', d.tab !== t)); document.querySelectorAll('#seg-help button').forEach(b => b.classList.toggle('on', b.dataset.tab === d.tab)); if (d.tab === 'bar') $('bardiag').innerHTML = barDiagram(); if (d.tab === 'result') $('gradediag').innerHTML = gradeTable(); return;
     case 'closeHelp': $('help').classList.add('hide'); return;
     case 'cat': return send({ type: 'settings', key: 'toggleCategory', value: d.c });
     case 'ddopen': S.ddOpen = S.ddOpen === d.key ? null : d.key; return render();
@@ -1307,11 +1312,12 @@ function barDiagram() {
 })();
 
 // The co-op grades for the How to play page, straight from the game's own table so the numbers never drift
-const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
-const need = YKWIM.gradeNeed;   // points gained to reach a grade over this many words
-$('gradediag').innerHTML = `<table class="gt"><caption>Points you need to gain</caption><tr><th>Grade</th>${GRADE_WORDS.map(w => `<th>${w} words</th>`).join('')}</tr>`
-  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr><th><b class="gchip" style="background:var(--g${YKWIM.RATINGS.length - 1 - i})">${label}</b><span class="gq">“${quote}”</span></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? 'under ' + need(YKWIM.RATING_CUTS[0], w) : 'over ' + need(cut, w)}</td>`).join('')}</tr>`).join('')
+function gradeTable() {   // built when the Results tab opens, so nothing here can stop the page from loading
+  return `<table class="gt"><caption>Points you need to gain</caption><tr><th>Grade</th>${GRADE_WORDS.map(w => `<th>${w} words</th>`).join('')}</tr>`
+  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr><th><b class="gchip" style="background:var(--g${YKWIM.RATINGS.length - 1 - i})">${label}</b><span class="gq">“${quote}”</span></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? 'under ' + YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) : 'over ' + YKWIM.gradeNeed(cut, w)}</td>`).join('')}</tr>`).join('')
   + '</table><p style="font-size:.8rem;margin:4px 0 0">Points gained = your final points minus your starting points. The more words you play, the more points each grade needs.</p>';
+}
+const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
 render();
 if (IS_LOCAL && new URLSearchParams(location.search).has('preview')) showPreview('giver1');
 </script>
