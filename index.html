@@ -447,7 +447,7 @@ function lobbyScreen() {
       <div>${st.mode === 'words'
         ? `<label>Number of words</label>${sel('words', [5, 10, 15], st.words, x => x + ' words')}`
         : `<label>Play to</label>${sel('target', [300, 500, 800], st.target)}`}</div>
-      <div><label>Points per correct guess</label>${sel('pot', [100, 120, 150, 200], st.pot)}</div>
+      <div><label>Points per correct guess</label>${sel('pot', [100, 150, 200, 300], st.pot)}</div>
       <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
       <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec' + (x === 5 ? ' (hard)' : x === 15 ? ' (easy)' : ''))}</div>
     </div>
