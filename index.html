@@ -679,9 +679,10 @@ function lobbyScreen() {
   </div>`;
 }
 
-function statusLine(t) {
-  const T = V.round.teams[t];
-  if (T.stage === 'done') return { correct: `✓ guessed it! +${T.earned}`, out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped' }[T.result];
+// net = the whole word's result (reward and bonuses minus the letters), as the round-end breakdown shows it
+function statusLine(t, net) {
+  const T = V.round.teams[t], gain = net ? (() => { const n = T.earned - (T.spent || 0); return (n < 0 ? '−' : '+') + Math.abs(n); })() : '+' + T.earned;
+  if (T.stage === 'done') return { correct: `✓ guessed it! ${gain}`, out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped' }[T.result];
   return T.stage === 'giver1' && V.settings.teamSize === 2 ? 'writing the clue…' : STAGE_TEXT[T.stage];
 }
 
@@ -862,7 +863,7 @@ function roundEndScreen() {
   return `<div class="stage">${topBar()}${hbars(left)}<div class="playrow">${vbar(left)}<div class="playmain">
     <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">THE KEYWORD WAS</div><div class="brand" style="font-size:2rem;color:var(--accent-text)">${esc(r.word)}</div></div>
     ${shown.map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || Array(n).fill(''); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
-      <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat">${esc(statusLine(t))}</span></h3>
+      <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat">${esc(statusLine(t, true))}</span></h3>
       <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * n + i) * .3}s"><div class="bc-txt">${esc(c || '—')}</div><small>Clue ${i + 1} · ${plural(lettersOnly(c), 'letter')}</small></div>`).join('')}</div>
       ${(() => { const spent = T.spent || 0, net = T.earned - spent;
         const parts = (b ? `<span>reward +${b.base}</span>${b.longWord ? `<span>long word +${b.longWord}</span>` : ''}${b.first ? `<span>first +${b.first}</span>` : ''}${b.speed ? `<span>quick +${b.speed}</span>` : ''}` : '') + (spent ? `<span>letters −${spent}</span>` : '');
