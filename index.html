@@ -157,6 +157,18 @@
   .cd-t i { display: block; font-style: normal; font-size: .56rem; color: #6b6b78; font-variant-numeric: tabular-nums; }
   .cd-total { font-size: .82rem; margin-top: 4px; color: var(--ink); } .cd-total b { font-weight: 500; }
   .cd-note { font-size: .8rem; margin-top: 10px; color: var(--ink); background: #f2f2f5; border-radius: 10px; padding: 8px 10px; }
+  .fs { display: flex; gap: 8px; margin-top: 8px; }
+  .fs-n { flex: 0 0 22px; height: 22px; margin-top: 6px; border-radius: 50%; background: var(--ink); color: var(--field); display: grid; place-items: center; font-size: .75rem; font-weight: 600; }
+  .fs-b { flex: 1; min-width: 0; background: #f2f2f5; border-radius: 12px; padding: 8px 10px; color: var(--ink); }
+  .fs-h { font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: #6b6b78; font-weight: 500; margin-bottom: 4px; }
+  .fs-kw { font: 400 1.5rem var(--brand); font-style: italic; letter-spacing: .06em; line-height: 1.1; }
+  .fs-ban { font-size: .78rem; margin-left: 6px; } .fs-ban s { display: inline-block; padding: 0 5px; margin-left: 3px; border-radius: 6px; background: var(--ink); color: var(--field); text-decoration: none; font-weight: 600; }
+  .fs-row { display: flex; gap: 2px; align-items: flex-end; flex-wrap: wrap; margin-top: 4px; } .fs-row .cd-t { background: #fff; }
+  .fs-clue { background: #fff; border-radius: 8px; padding: 4px 14px; font: 600 1.05rem ui-monospace, Menlo, monospace; letter-spacing: .15em; }
+  .fs-say { font-size: .8rem; font-style: italic; margin-top: 5px; opacity: .85; }
+  .fs-used { font: 600 1rem ui-monospace, Menlo, monospace; letter-spacing: .3em; }
+  .fs-blank { display: inline-block; width: 18px; height: 22px; border-radius: 5px; background: #fff; border-bottom: 3px solid var(--lime); margin-right: 3px; }
+  .fs-ok { color: #2e8b57; font-weight: 600; }
   .modal .ex { background: #f2f2f5; border-radius: 12px; padding: 10px 14px; margin: 8px 0 14px; font-size: .92rem; }
   .stage { position: relative; border-radius: 22px; padding: 14px;
     background:
@@ -350,6 +362,7 @@
       <li>A wrong guess costs points; giving up is free.</li>
       <li>When one team guesses, the other gets a last-chance timer.</li>
     </ul>
+    <details class="costs"><summary>See an example round</summary><div id="flowdiag"></div></details>
     <details class="costs"><summary>See what a clue costs</summary><div id="costdiag"></div></details>
     <button class="big" data-act="closeHelp">Got it</button>
   </div>
@@ -476,6 +489,19 @@ applyDisplay();
 
 // ---------- helpers ----------
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
+(function exampleFlow() {
+  const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
+  const tiles = (w, cls = '') => [...w].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
+  const box = (n, head, body) => `<div class="fs"><div class="fs-n">${n}</div><div class="fs-b"><div class="fs-h">${head}</div>${body}</div></div>`;
+  $('flowdiag').innerHTML =
+    box(1, 'Clue-giver 1 sees the keyword', `<span class="fs-kw">PANDA</span><span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>
+      <div class="fs-row">${tiles('BAM')}</div><div class="fs-say">Bam… bamboo! Hope Clue-giver 2 gets it. (−${sum(3)})</div>`) +
+    box(2, 'Clue-giver 2 sees the keyword and the letters used', `<span class="fs-kw">PANDA</span><div class="fs-used">A B M</div>
+      <div class="fs-row">${tiles('BOO')}</div><div class="fs-say">BAM… bam-BOO! I'll add BOO, and my price starts again. (−${sum(3)})</div>`) +
+    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">BAM</div><div class="fs-clue">BOO</div></div>
+      <div>${'<span class="fs-blank"></span>'.repeat(5)}</div><div class="fs-say">Animals, 5 letters… bamboo… PANDA!</div>`) +
+    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${sum(3) * 2} for the letters.`);
+})();
 (function costDiagram() {
   const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
   const tiles = (word, cls, from = 0) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(from + i)}</i></div>`).join('');
