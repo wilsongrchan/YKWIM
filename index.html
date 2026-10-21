@@ -62,9 +62,10 @@
   .vbar.me .vb-track { border-color: var(--lime); }
   .vb-track::after { content: ""; position: absolute; inset: 0; border-radius: 13px; pointer-events: none; background: linear-gradient(90deg, color-mix(in srgb, var(--ov) 22%, transparent) 0, color-mix(in srgb, var(--ov) 0%, transparent) 40%); }
   .vb-score { position: absolute; left: 0; right: 0; bottom: 0; transition: height .6s ease; }
-  .vb-reward { position: absolute; left: 0; right: 0; transition: height .5s ease, bottom .6s ease;
-    background: linear-gradient(180deg, var(--lime), color-mix(in srgb, var(--lime) 72%, black)); }
-  .vb-long { position: absolute; left: 0; right: 0; transition: bottom .6s ease, height .5s ease; background: color-mix(in srgb, var(--lime) 62%, white); }
+  .vb-reward { position: absolute; left: 0; right: 0; transition: height .5s ease, bottom .6s ease; }
+  .vb-reward, .hb-reward { background: color-mix(in srgb, var(--lime) 78%, white); }   /* a shade between the bank and the long-word bonus */
+  .vb-long { position: absolute; left: 0; right: 0; transition: bottom .6s ease, height .5s ease; }
+  .vb-long, .hb-long { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--lime) 55%, white) 0 3px, color-mix(in srgb, var(--lime) 72%, white) 3px 6px); }   /* small, so it gets a pattern */
   .vb-first, .vb-quick { position: absolute; left: 0; right: 0; transition: bottom .6s ease, height .25s linear; }
   .vb-first { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--lime) 55%, white) 0 4px, color-mix(in srgb, var(--lime) 40%, white) 4px 8px); }
   .vb-quick { background: color-mix(in srgb, var(--lime) 30%, white); }
@@ -83,13 +84,13 @@
     background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
   .vb-num, .vb-sub, .vb-delta { font-variant-numeric: tabular-nums; }
   .vb-num { margin-top: 8px; font-family: var(--display); font-weight: 500; font-size: 1.25rem; line-height: 1; }
-  .vb-sub { font-size: .66rem; color: var(--soft); min-height: .9em; margin-top: 2px; white-space: nowrap; }
+  .vb-sub { font-size: .66rem; text-align: center; color: var(--soft); min-height: .9em; margin-top: 2px; white-space: nowrap; }
   .vb-delta { min-height: 1.1em; font-size: .75rem; color: var(--bad); white-space: nowrap; }
   .vb-stat { font-size: .95rem; min-height: 1.2em; }
   @media (max-width: 480px) { .vbar { flex-basis: 42px; } .vb-track { width: 22px; min-height: 220px; } .vb-num { font-size: 1.05rem; } }
   .playmain { flex: 1; min-width: 0; }
   .hbars { display: none; }
-  .hb { display: grid; grid-template-columns: 64px 1fr 36px 66px; align-items: center; gap: 6px; }
+  .hb { display: grid; grid-template-columns: 64px 1fr 36px 96px; align-items: center; gap: 6px; }
   .hb + .hb { margin-top: 5px; }
   .hb-name { font-size: .72rem; font-weight: 500; letter-spacing: .03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hb-track { position: relative; display: flex; height: 18px; border-radius: 9px; overflow: hidden; background: var(--track); border: 2px solid color-mix(in srgb, var(--ov) 24%, transparent); }
@@ -98,8 +99,6 @@
   .hb-score { position: relative; }
   .hb-shadow { position: absolute; top: 0; bottom: 0; right: 0; width: 0; transition: width .15s ease; border-left: 2px solid rgba(0,0,0,.55);
     background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
-  .hb-reward { background: linear-gradient(180deg, var(--lime), color-mix(in srgb, var(--lime) 72%, black)); }
-  .hb-long { background: color-mix(in srgb, var(--lime) 62%, white); }
   .hb-first { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--lime) 55%, white) 0 4px, color-mix(in srgb, var(--lime) 40%, white) 4px 8px); }
   .hb-quick { background: color-mix(in srgb, var(--lime) 30%, white); transition: width .25s linear !important; }
   .hb-num { font-family: var(--display); font-weight: 500; font-size: 1rem; text-align: right; font-variant-numeric: tabular-nums; }
@@ -249,9 +248,12 @@
   /* timer + clue slots */
   .timer { display: block; width: 9.5rem; text-align: center; font-variant-numeric: tabular-nums; margin: 0 auto -18px; position: relative; z-index: 2; background: var(--navy);
     padding: 8px 30px 10px; border-radius: 26px 26px 0 0; font-family: var(--display); font-size: 2rem; letter-spacing: .04em; line-height: 1.1; }
-  .timer.hot { color: var(--bad); animation: pulse .8s infinite; } .timer.bonus { color: var(--accent-text); }
+  .timer.hot { color: var(--bad); animation: blinknum .5s steps(2, jump-none) infinite; }   /* last chance: only the numbers blink */ .timer.bonus { color: var(--accent-text); }
   .timer small { display: block; font-family: var(--body); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); text-align: center; }
-  @keyframes pulse { 50% { opacity: .6; } }   /* fades, never scales, so nothing around it moves */
+  .timer.warn { color: var(--bad); animation: blinkred .5s steps(2, jump-none) infinite; }   /* last 5 seconds of writing */
+  @keyframes blinknum { 50% { color: var(--text); } }
+  @keyframes blinkred { 50% { background: var(--bad); color: var(--navy); } }
+  .timenote { margin-top: 4px; min-height: 1.3em; text-align: center; font-size: .85rem; font-weight: 500; color: var(--bad); } .timenote.off { visibility: hidden; }   /* hidden, not removed, so showing it doesn't move the keyboard */
   .slots { display: flex; gap: 10px; background: var(--well); border-radius: 18px; padding: 26px 10px 10px; margin-bottom: 12px; }
   .slot { flex: 1; min-height: 70px; border-radius: 12px; background: color-mix(in srgb, var(--ov) 6%, transparent); display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center; padding: 8px 4px; overflow: hidden; }
@@ -290,9 +292,9 @@
   .used-h { font: 500 .72rem var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
   .used small { display: block; font-family: var(--body); font-size: .72rem; letter-spacing: 0; color: var(--soft); font-weight: 500; }
 
-  .keys { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin: 8px auto 0; max-width: 480px; }
+  .keys { display: grid; grid-template-columns: repeat(22, 1fr); gap: 5px; margin: 8px auto 0; max-width: 480px; }
   .keys button { width: 100%; height: 40px; padding: 0; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); border-radius: 10px; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
-  .keys button.wide { grid-column: span 4; }
+  .keys button.fn { font-size: .8rem; }
   .symrow { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; margin-top: 2px; padding-top: 6px; border-top: 1px dashed color-mix(in srgb, var(--ov) 20%, transparent); }
   .symrow button { background: color-mix(in srgb, var(--ov) 8%, transparent); height: 30px; font-size: .85rem; box-shadow: none; }
   .symrow::before { content: "Symbols cost 5 each"; grid-column: 1 / -1; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
@@ -316,7 +318,7 @@
   :root { --g0: #f2766b; --g1: #f29a5b; --g2: #f5c84a; --g3: #9fd77a; --g4: #4fc08a; }   /* the grade scale, red (M) to green (YKWIM) */
   :root[data-mode="light"] { --g0: #c2392b; --g1: #c4651e; --g2: #9a6700; --g3: #4c8f2a; --g4: #1f8a5b; }
   .quote { font: italic 500 1.35rem var(--display); margin-top: 8px; }
-  .climb { display: block; width: 100%; max-width: 460px; margin: 10px auto 0; overflow: visible; } .climb .cg { font: 500 7.5px var(--body); fill: var(--soft); } .climb .cg.miss { fill: var(--bad); } .climb .cn { font: 600 9px var(--body); fill: var(--text); } .climb .cn.miss { fill: var(--bad); }
+  .climb { display: block; width: 100%; max-width: 460px; margin: 10px auto 0; overflow: visible; box-sizing: border-box; padding: 12px 8px 8px; background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.18); } .climb .cg { font: 500 7.5px var(--body); fill: #4d5a5e; } .climb .cg.miss { fill: #c2392b; } .climb .cn { font: 600 9px var(--body); fill: #1d2b2e; } .climb .cn.miss { fill: #c2392b; }
   .seatgrid.solo { grid-template-columns: 1fr !important; }
   .seatcol h3 { margin: 0 0 8px; font-family: var(--display); font-style: normal; font-weight: 500; font-size: 1.15rem;  }
   .seat { display: block; width: 100%; margin-bottom: 6px; text-align: left; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); padding: 11px 14px; }
@@ -337,6 +339,20 @@
   .ticks { position: absolute; inset: 0; pointer-events: none; --tk: color-mix(in srgb, var(--ov) 60%, transparent);
     background: repeating-linear-gradient(to top, var(--tk) 0 2px, transparent 2px var(--M)) right top / 60% 100% no-repeat; }
   .hb-track .ticks { background: repeating-linear-gradient(to right, var(--tk) 0 2px, transparent 2px var(--M)) left bottom / 100% 60% no-repeat; }
+  details.review { margin: 12px 0; background: var(--well); border-radius: 14px; padding: 10px 14px; }
+  details.gamereview { text-align: left; } details.rvword { border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); margin-top: 8px; padding-top: 8px; }
+  details.rvword summary { display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none; font-size: .95rem; } details.rvword summary::-webkit-details-marker { display: none; }
+  details.rvword summary::before { content: "▸"; color: var(--soft); transition: transform .15s; } details.rvword[open] summary::before { transform: rotate(90deg); }
+  details.rvword summary b { font-family: var(--brand); font-style: italic; letter-spacing: .06em; text-transform: uppercase; flex: 1; font-weight: 400; } .tdot.sm { display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; box-shadow: none; } .rvnet { font-weight: 500; font-variant-numeric: tabular-nums; }
+  details.review summary { cursor: pointer; font-weight: 500; color: var(--soft); list-style: none; }
+  details.review summary::-webkit-details-marker { display: none; } details.review summary::before { content: "▸"; display: inline-block; margin-right: 8px; transition: transform .15s; }
+  details.review[open] summary::before { transform: rotate(90deg); }
+  .rv-head { margin: 8px 0 6px; font-size: .85rem; color: var(--soft); } .rv-head b { color: var(--text); letter-spacing: .06em; }
+  .rv-team { border-left: 4px solid; padding: 2px 0 2px 10px; margin-top: 10px; }
+  .rv-team h4 { margin: 0 0 4px; font: 500 1.05rem var(--display); display: flex; justify-content: space-between; gap: 8px; } .rv-team h4 span { font: 400 .8rem var(--body); color: var(--soft); }
+  .rv-team .line { display: flex; justify-content: space-between; gap: 10px; font-size: .88rem; padding: 3px 0; color: var(--soft); } .rv-team .line > span:last-child { text-align: right; color: var(--text); }
+  .rv-team .mono { font-family: ui-monospace, Menlo, monospace; letter-spacing: .1em; } .rv-team small { color: var(--bad); } .rv-team .ok { color: var(--good); } .rv-team .no { color: var(--bad); }
+  .rv-sum { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: .82rem; color: var(--soft); margin-top: 4px; border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); padding-top: 4px; } .rv-sum b { color: var(--text); font-weight: 500; } .rv-sum .tot { margin-left: auto; color: var(--accent-text); }
   .tip { position: fixed; z-index: 40; max-width: 230px; pointer-events: none; background: var(--field); color: var(--ink); border-radius: 10px; padding: 7px 10px; font-size: .8rem; line-height: 1.3; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
   [data-tip] { cursor: help; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--navy); border: 2px solid var(--bad); color: var(--text);
@@ -360,6 +376,10 @@
     .settings, .seatgrid { gap: 0 8px; } .seatgrid { gap: 8px; } .seat { padding: 9px 10px; font-size: .92rem; } .dd-btn { padding: 10px 11px; font-size: .95rem; }
     .code { font-size: 2.6rem; } .res { padding: 10px 12px; } .bc-txt { font-size: clamp(1.4rem, 6.5vw, 2.2rem); } .bigclue { padding: 12px 4px 8px; }
   }
+  /* last chance: the timer sits above the clue boxes instead of tucking into them */
+  .timer.hot { margin: 0 auto 10px; border-radius: 999px; } .timer.hot.inl { margin: 0; } .timer.hot + .slots { padding-top: 10px; }
+  .giverhead + .slots { padding-top: 10px; }
+  .timer.inl small { display: none; }
 </style>
 </head>
 <body>
@@ -402,8 +422,8 @@
     </ul>
     <h3>Points</h3>
     <ul>
-      <li>Each team has a bank (200). Every letter costs points, and the cost climbs with each one (10, 12, 14…) but resets for Clue-giver 2. Symbols cost 5.</li>
-      <li>A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the first one also gets a first-to-guess bonus.</li>
+      <li>Each team has a bank (200). Every letter costs points, and the cost climbs with each one (5, 8, 10, 12…) but resets for Clue-giver 2. Symbols cost 5.</li>
+      <li>A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the faster one also gets a first-to-guess bonus.</li>
       <li>You can only write a clue you can afford. A wrong guess costs points; giving up is free. If your team doesn't get the word, the letters are refunded.</li>
       <li>When one team guesses or gives up, the other gets a last-chance timer. Giving up is final.</li>
       <li>Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a rating.</li>
@@ -433,6 +453,7 @@ const S = { name: safeGet('ykwim-name') || '', code: (new URLSearchParams(locati
 // The screen-preview tool is a development aid: only offered when running from this machine or the local network.
 const IS_LOCAL = ['localhost', '127.0.0.1', ''].includes(location.hostname) || location.hostname.endsWith('.local') || /^(192\.168|10)\./.test(location.hostname) || /^172\.(1[6-9]|2\d|3[01])\./.test(location.hostname);
 const TEAM_COLORS = ['var(--t0)', 'var(--t1)'];          // fills
+const TEAM_BANK = TEAM_COLORS.map(c => `color-mix(in srgb, ${c} 88%, black)`);   // the bank in the score bars: a deeper shade, so the bonus segments above it stand out
 const TEAM_TEXT = ['var(--t0t)', 'var(--t1t)'];          // the same colours, readable as text in light mode
 const STAGE_TEXT = { waiting: 'waiting for their turn', giver1: 'writing clue 1…', giver2: 'writing clue 2…', giver3: 'writing clue 3…', guess: 'thinking…' };
 const isWriting = stage => /^giver\d$/.test(stage);                 // a clue-giver is typing
@@ -550,7 +571,7 @@ applyDisplay();
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
 // "See an example round": the same round played three ways. a = Clue-giver 2 gets what Clue-giver 1 meant, b = they don't, c = one giver does it all.
 function renderFlow(which) {
-  const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
+  const price = YKWIM.priceOf, sum = n => YKWIM.costOf(n, 0);
   const tiles = (w, cls = '') => [...w].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
   const box = (n, head, body) => `<div class="fs"><div class="fs-n">${n}</div><div class="fs-b"><div class="fs-h">${head}</div>${body}</div></div>`;
   // a little player with a thought bubble: colour = role, mouth = mood
@@ -588,7 +609,7 @@ function renderFlow(which) {
 }
 renderFlow('a');
 (function costDiagram() {
-  const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
+  const price = YKWIM.priceOf, sum = n => YKWIM.costOf(n, 0);
   const tiles = (word, cls) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
   const all = 'BAMBOO', g1 = 'BAM', g2 = 'BOO';   // PANDA bans P, N and D; none of these letters are in that set
   const one = sum(all.length), split = sum(g1.length) + sum(g2.length);
@@ -605,14 +626,17 @@ renderFlow('a');
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const lettersOnly = s => (String(s).match(/\p{L}/gu) || []).length;
-const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += V.costs.start + V.costs.step * (used + i); return c; };
+const priceOf = i => i === 0 ? V.costs.first : V.costs.start + V.costs.step * i;
+const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += priceOf(used + i); return c; };
 const clueCost = (text, used) => { const n = lettersOnly(text); return costOf(n, used) + V.costs.symbol * ([...text].length - n); };
 // ban: keys that can't be used (disabled). seen: keys to flag but leave usable (guesser's hint).
+const KEY_ROWS = [['QWERTYUIOP', 1], ['ASDFGHJKL', 2], ['ZXCVBNM', 4]];   // [letters, first column]: a 22-column grid, two columns a key, so the rows stagger like a real keyboard
 const keyboard = (ban = [], target, seen = []) =>
-  [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(c => `<button data-act="key" data-target="${target}" data-k="${c}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')
-  + `<button class="wide" data-act="key" data-target="${target}" data-k="⌫">⌫</button>`
+  KEY_ROWS.map(([row, col], r) => [...row].map((c, i) => `<button data-act="key" data-target="${target}" data-k="${c}" style="grid-column:${col + 2 * i} / span 2;grid-row:${r + 1}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')).join('')
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:20 / span 3;grid-row:2" aria-label="Clear all">Clear</button>`
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:20 / span 3;grid-row:3" aria-label="Backspace">⌫</button>`
   // symbols cost a flat 5 each in clues, so only the clue keyboard gets them
-  + (target === 'clue' ? `<div class="symrow">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
+  + (target === 'clue' ? `<div class="symrow" style="grid-row:4">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
 // Settings dropdown. Closed, it shows just the short value; the open list can carry a faint hint (easy / hard).
 const sel = (key, opts, cur, fmtFn = x => x, hintFn = () => '') => {
   const rows = opts.map(o => { const val = Array.isArray(o) ? o[0] : o, lab = Array.isArray(o) ? o[1] : o; return { val, label: fmtFn(lab), hint: hintFn(val) }; });
@@ -749,8 +773,8 @@ function timerPill(inline) {
   const mt = V.myTeam, T = mt === null ? null : V.round.teams[mt];
   if (!T || T.stage === 'done' || T.stage === 'waiting') return '';
   if (isWriting(T.stage)) return `<span class="timer${inline ? ' inl' : ''}" data-timer="dl${mt}">00:00${inline ? '' : '<small>time to write</small>'}</span>`;
-  if (T.remaining !== null) return `<span class="timer hot" data-timer="dl${mt}">00:10<small>last chance!</small></span>`;
-  return `<span class="timer" data-timer="speed">∞<small>no time limit</small></span>`;
+  if (T.remaining !== null) return `<span class="timer hot${inline ? ' inl' : ''}" data-timer="dl${mt}">00:10<small>last chance!</small></span>`;
+  return `<span class="timer${inline ? ' inl' : ''}" data-timer="speed">∞<small>no time limit</small></span>`;
 }
 
 function roundScreen() {
@@ -768,7 +792,7 @@ function roundScreen() {
     if (T.stage === 'waiting') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])} is playing</h2><p class="sub">You're up next.</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too.` : ''}</p></div>${logHtml(T)}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
@@ -799,7 +823,10 @@ function roundScreen() {
   // clue-givers get a compact layout (their panel carries its own role label and timer); everyone else sees the clue slots
   const [bodyTop, bodyBottom] = Array.isArray(body) ? body : [body, ''];
   const compact = (role && role.startsWith('giver')) || handoff;
-  const head = compact ? '' : `${timerPill()}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
+  // everyone else gets the same header row as the clue-givers (role on the left, timer on the right), then the clue slots
+  const rowT = mt === null ? null : r.teams[mt], rowRole = rowT && stageRoleOf(rowT.stage);
+  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? 'Guesser' : V.settings.teamSize === 2 ? 'Clue-giver' : 'Clue-giver ' + rowRole.slice(5)}: ${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · last chance!' : ''}</span>${timerPill(true)}</div>`;
+  const head = compact ? '' : `${headRow}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
   return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${SOLO() ? '' : vbar(mt === null ? 1 : 1 - mt)}</div></div>${askBar}`;   // phones hide the side bars, so the keyboard here is full width anyway
 }
 
@@ -807,8 +834,8 @@ function roundScreen() {
 // Solid fill = the team's bank. Letters are paid from it right away, so for my own team the striped shadow
 // inside it is what the clue being typed would cost. The segments stacked above are what a correct guess
 // could still win: the reward, the first-to-guess bonus, and the quick-guess bonus (shrinks every second, see tick()).
-const TIP = { score: 'Bank: the points the team has now', shadow: "Cost of the clue being typed (comes out of the bank)", reward: 'Reward for a correct guess',
-  long: 'Long-word bonus: longer words pay extra', first: 'First-to-guess bonus: paid only if the other team gets it too (faster team in pass-and-play)', quick: 'Quick-guess bonus: shrinks every second once the clues appear' };
+const TIP = { score: 'Bank: the points the team has now', shadow: "What the clue you are typing will cost (comes out of the bank)", reward: 'Reward for a correct guess',
+  long: 'Long-word bonus: longer words pay extra', first: 'First-to-guess bonus: paid only if the other team gets it too, but slower than you', quick: 'Quick-guess bonus: shrinks every second once the clues appear' };
 // little marks along a bar, one every 100 points (the bar is `scale` points tall)
 const ticks = scale => `<b class="ticks" style="--M:${100 / scale * 100}%"></b>`;
 function vbar(t) {
@@ -827,7 +854,7 @@ function vbar(t) {
   return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' && !hush ? ': ' + esc(statusLine(t)) : ''}">
     <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t].slice(0, 8))}</div>
     <div class="vb-track">
-      <i class="vb-score" data-tip="${TIP.score}" style="height:${score}%;background:${TEAM_COLORS[t]}">${active ? `<b class="vb-shadow" id="tubeShadow" data-tip="${TIP.shadow}"></b>` : ''}</i>
+      <i class="vb-score" data-tip="${TIP.score}" style="height:${score}%;background:${TEAM_BANK[t]}">${active ? `<b class="vb-shadow" id="tubeShadow" data-tip="${TIP.shadow}"></b>` : ''}</i>
       ${active ? `<i class="vb-reward" data-tip="${TIP.reward}" style="bottom:${score}%;height:${pct(reward)}%"></i>
         ${longWord ? `<i class="vb-long" data-tip="${TIP.long}" style="bottom:${score + pct(reward)}%;height:${pct(longWord)}%"></i>` : ''}
         ${firstLeft ? `<i class="vb-first" data-tip="${TIP.first}" style="bottom:${score + pct(reward + longWord)}%;height:${pct(firstLeft)}%"></i>` : ''}
@@ -835,7 +862,7 @@ function vbar(t) {
       ${ticks(scale)}
     </div>
     <div class="vb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</div>
-    <div class="vb-sub">${active ? `up to <b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</div>
+    <div class="vb-sub">${active ? `earn up to +<b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</div>
     <div class="vb-delta"${active ? ' id="tubeDelta"' : ''}></div>
     <div class="vb-stat">${icon}</div></div>`;
 }
@@ -855,12 +882,12 @@ function hbar(t) {
   return `<div class="hb${own ? ' me' : ''}"${dataAttrs}>
     <span class="hb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</span>
     <div class="hb-track">
-      <i class="hb-score" data-tip="${TIP.score}" style="width:${pct(Math.max(0, V.scores[t]))}%;background:${TEAM_COLORS[t]}">${active ? `<b class="hb-shadow" id="tubeShadowH" data-tip="${TIP.shadow}"></b>` : ''}</i>
+      <i class="hb-score" data-tip="${TIP.score}" style="width:${pct(Math.max(0, V.scores[t]))}%;background:${TEAM_BANK[t]}">${active ? `<b class="hb-shadow" id="tubeShadowH" data-tip="${TIP.shadow}"></b>` : ''}</i>
       ${active ? `<i class="hb-reward" data-tip="${TIP.reward}" style="width:${pct(reward)}%"></i>${longWord ? `<i class="hb-long" data-tip="${TIP.long}" style="width:${pct(longWord)}%"></i>` : ''}${firstLeft ? `<i class="hb-first" data-tip="${TIP.first}" style="width:${pct(firstLeft)}%"></i>` : ''}<i class="hb-quick" data-qbh data-tip="${TIP.quick}" style="width:${pct(quick)}%"></i>` : ''}
       ${ticks(scale)}
     </div>
     <b class="hb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</b>
-    <span class="hb-sub">${active ? `up to <b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</span>
+    <span class="hb-sub">${active ? `earn up to +<b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</span>
     <span class="hb-delta"${active ? ' id="tubeDeltaH"' : ''}></span>
   </div>`;
 }
@@ -882,7 +909,8 @@ function giverPanel(T, theme, blanks) {
     </div>
     ${used}
     <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your clue" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
-    <div class="preview" id="preview"></div>`;
+    <div class="preview" id="preview"></div>
+    <div class="timenote off" id="timenote">Almost out of time! Anything in the box will be sent.</div>`;
   return [top, `<div class="keys">${keyboard(ban, 'clue')}</div>`];   // [beside the tubes, full width underneath]
 }
 
@@ -895,6 +923,32 @@ function guesserPanel(T, theme, blanks) {
   return [top, `<div class="keys">${keyboard([], 'guess', seen)}</div>
     ${seen.length ? `<div class="keyhint"><b>Dimmed</b> letters showed up in the clues, so there's a chance they're not in the keyword.</div>` : ''}
     ${logHtml(T)}`];
+}
+
+// A collapsed look back at a word: who wrote which clue, what each cost, the guesses, and how the points added up.
+const RESULT_TEXT = { correct: '✓ guessed it!', out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped', none: '' };
+function reviewTeam(t, T) {   // T: one team's record of a word (the round view or an entry of the game record)
+  const sign = n => (n < 0 ? '−' : '+') + Math.abs(n), b = T.breakdown, people = T.people || [], clues = T.clues || [];
+  const who = role => (people.find(x => x.role === role) || {}).name || '';
+  const costs = clues.map(c => clueCost(c, 0)), letters = costs.reduce((a, c) => a + c, 0);
+  const wrong = (T.log || []).filter(g => !g.ok).reduce((a, g) => a + (g.cost || 0), 0), got = T.result === 'correct';
+  const rows = [];
+  if (b) rows.push(['Reward', b.base], ...(b.longWord ? [['Long word', b.longWord]] : []), ...(b.first ? [['First to guess', b.first]] : []), ...(b.speed ? [['Quick guess', b.speed]] : []));
+  if (letters) rows.push(['Letters', -letters]);
+  if (wrong) rows.push(['Wrong guesses', -wrong]);
+  if (letters && !got) rows.push(['Letters refunded', letters]);
+  const net = rows.reduce((a, x) => a + x[1], 0);
+  return `<div class="rv-team" style="border-color:${TEAM_COLORS[t]}">
+    <h4 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span>${esc(RESULT_TEXT[T.result]) || 'no answer'}</span></h4>
+    ${clues.map((c, i) => `<div class="line"><span>${V.settings.teamSize === 2 ? 'Clue' : 'Clue ' + (i + 1)} · ${esc(who('giver' + (i + 1)))}</span><span><b class="mono">${esc(c || '—')}</b> <small>−${costs[i]}</small></span></div>`).join('')}
+    <div class="line"><span>Guesser · ${esc(who('guesser'))}</span><span>${(T.log || []).length ? T.log.map(g => `<span class="${g.ok ? 'ok' : 'no'}">${esc(g.text)}${g.ok ? ' ✓' : ''}</span>`).join(', ') : '<small>no guesses</small>'}</span></div>
+    <div class="rv-sum">${rows.map(([k, v]) => `<span>${k} <b>${sign(v)}</b></span>`).join('')}<span class="tot">Net <b>${sign(net)}</b></span></div>
+  </div>`;
+}
+const reviewHead = r => `<div class="rv-head">Word ${r.n + 1} · <b>${esc(r.word)}</b> · ${esc(r.cat)} · ${esc(r.levelName)}</div>`;
+function gameReviewHtml(shown) {   // every word of the game, each one collapsed
+  if (!V.record || !V.record.length) return '';
+  return `<details class="review gamereview"><summary>Game review</summary>${V.record.map(r => `<details class="rvword"><summary><b>${esc(r.word)}</b>${shown.map(t => { const T = r.teams[t], n = T.earned - T.spent; return `<span class="rvnet" style="color:${TEAM_TEXT[t]}">${shown.length > 1 ? `<i class="tdot sm" style="background:${TEAM_COLORS[t]}"></i>` : ''}${n < 0 ? '−' : '+'}${Math.abs(n)}</span>`; }).join('')}</summary>${reviewHead(r)}${shown.map(t => reviewTeam(t, r.teams[t])).join('')}</details>`).join('')}</details>`;
 }
 
 function roundEndScreen() {
@@ -924,18 +978,18 @@ function climb(history) {
   const lo = Math.min(0, ...pts.map(p => p.total)), hi = Math.max(cut(4) + 70 * words / 5, ...pts.map(p => p.total));
   const longest = Math.max(5, ...history.map(p => String(p.word).length)), PH = 120, W = 320, L = 36, R = 74, T = 24, B = Math.round(18 + longest * 3.7), H = T + PH + B, X = i => L + (W - L - R) * i / (pts.length - 1), Y = v => T + PH * (1 - (v - lo) / (hi - lo));
   const edges = [lo, cut(1), cut(2), cut(3), cut(4), hi];
-  const bands = COL.map((c, i) => `<rect x="${L}" width="${W - L - R}" y="${Y(Math.min(edges[i + 1], hi)).toFixed(1)}" height="${Math.max(0, Y(Math.max(edges[i], lo)) - Y(Math.min(edges[i + 1], hi))).toFixed(1)}" fill="${c}" opacity=".22"/>
+  const bands = COL.map((c, i) => `<rect x="${L}" width="${W - L - R}" y="${Y(Math.min(edges[i + 1], hi)).toFixed(1)}" height="${Math.max(0, Y(Math.max(edges[i], lo)) - Y(Math.min(edges[i + 1], hi))).toFixed(1)}" fill="${c}" opacity=".3"/>
     <text x="${W - R + 14}" y="${((Y(Math.min(edges[i + 1], hi)) + Y(Math.max(edges[i], lo))) / 2 + 3).toFixed(1)}" class="cg">${GRADE[i]}</text>`).join('');
-  const ticks = [1, 2, 3, 4].map(i => `<line x1="${L}" x2="${W - R}" y1="${Y(cut(i)).toFixed(1)}" y2="${Y(cut(i)).toFixed(1)}" stroke="var(--ov)" stroke-opacity=".18" stroke-dasharray="3 3"/><text x="${L - 4}" y="${(Y(cut(i)) + 3).toFixed(1)}" class="cg" text-anchor="end">${Math.round(cut(i))}</text>`).join('');
+  const ticks = [1, 2, 3, 4].map(i => `<line x1="${L}" x2="${W - R}" y1="${Y(cut(i)).toFixed(1)}" y2="${Y(cut(i)).toFixed(1)}" stroke="#000" stroke-opacity=".2" stroke-dasharray="3 3"/><text x="${L - 4}" y="${(Y(cut(i)) + 3).toFixed(1)}" class="cg" text-anchor="end">${Math.round(cut(i))}</text>`).join('');
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.total).toFixed(1)}`).join(' ');
   const dots = pts.map((p, i) => { const x = X(i).toFixed(1), y = Y(p.total).toFixed(1), miss = i && p.result !== 'correct';
     const label = i === 0 ? 'start' : String(p.word).toUpperCase();
-    return `<circle cx="${x}" cy="${y}" r="4.5" fill="${i === 0 ? 'var(--text)' : miss ? 'var(--bad)' : 'var(--good)'}" stroke="var(--navy)" stroke-width="1.5"/>
+    return `<circle cx="${x}" cy="${y}" r="4.5" fill="${i === 0 ? '#1d2b2e' : miss ? '#c2392b' : '#2e8b57'}" stroke="#fff" stroke-width="1.5"/>
       ${i ? `<text x="${x}" y="${(+y - 8).toFixed(1)}" class="cn${miss ? ' miss' : ''}" text-anchor="middle">${p.net >= 0 ? '+' : '−'}${Math.abs(p.net)}</text>` : ''}
       ${i === 0 ? `<text x="${x}" y="${T + PH + 12}" class="cg" text-anchor="middle">start</text>`
         : `<text x="${(+x - 2).toFixed(1)}" y="${T + PH + 11}" class="cg${miss ? ' miss' : ''}" transform="rotate(45 ${(+x - 2).toFixed(1)} ${T + PH + 11})">${esc(label)}</text>`}`; }).join('');
   return `<svg class="climb" viewBox="0 0 ${W} ${H}" role="img" aria-label="Score after each word">${bands}${ticks}
-    <path d="${line}" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
+    <path d="${line}" fill="none" stroke="#1d2b2e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
 }
 
 function overScreen() {
@@ -946,13 +1000,13 @@ function overScreen() {
       <div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--g${R.rank})">${esc(R.label)}</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
       <div class="big-score" style="font:500 2.4rem var(--display);margin:0">${R.score}</div><div class="sub">points</div>
-      <div class="quote">“${esc(R.quote)}”</div>${back}</div>`;
+      <div class="quote">“${esc(R.quote)}”</div>${gameReviewHtml([0])}${back}</div>`;
   }
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">GAME OVER</div>
     <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]}">${esc(V.names[V.winner])} wins!</div>
     <div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>
-    ${back}
+    ${gameReviewHtml([0, 1])}${back}
   </div>`;
 }
 
@@ -966,10 +1020,15 @@ function tick() {
   document.querySelectorAll('[data-timer]').forEach(el => {
     const k = el.dataset.timer, dl = k === 'speed' ? S.speedDl : S.dl[+k.slice(2)];
     if (k === 'speed') {
-      if (dl && dl > now) { el.firstChild.textContent = '+' + Math.ceil((dl - now) / 1000); el.className = 'timer bonus'; el.querySelector('small').textContent = '⚡ quick bonus'; }
-      else { el.firstChild.textContent = '∞'; el.className = 'timer'; el.querySelector('small').textContent = 'no time limit'; }
-    } else if (dl) el.firstChild.textContent = fmt(dl - now);
+      if (dl && dl > now) { el.firstChild.textContent = (el.classList.contains('inl') ? '⚡+' : '+') + Math.ceil((dl - now) / 1000);   // the small label is hidden in the header row, so the bolt says what it is
+      el.className = 'timer bonus' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = '⚡ quick bonus'; }
+      else { el.firstChild.textContent = '∞'; el.className = 'timer' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = 'no time limit'; }
+    } else if (dl) {
+      el.firstChild.textContent = fmt(dl - now);
+      if (!el.classList.contains('hot')) el.classList.toggle('warn', dl - now <= 5000);   // the writing clock: blink red for the last 5 seconds
+    }
   });
+  const note = $('timenote'); if (note) { const dl = S.dl[V.myTeam]; note.classList.toggle('off', !(dl && dl - now <= 10000)); }
   document.querySelectorAll('[data-qb]').forEach(el => {
     const bar = el.closest('.vbar'), d = bar.dataset;
     const q = d.stage === 'guess' && d.await !== '1' ? (S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0) : +d.qmax;
@@ -995,7 +1054,7 @@ function updatePreview() {
   const el = $('preview'), inp = $('clue'); if (!el || !inp || !V || !V.round) return;
   const T = V.round.teams[V.myTeam], used = T.used || 0, n = lettersOnly(inp.value), c = clueCost(inp.value, used);
   const bank = V.scores[V.myTeam], over = c > bank;
-  el.innerHTML = over ? `<b class="red">Costs ${c}: you only have ${bank}</b>` : (c ? `Costs <b>${c}</b> · next letter ` : 'Next letter costs ') + `<b>${V.costs.start + V.costs.step * (used + n)}</b>`;
+  el.innerHTML = over ? `<b class="red">Costs ${c}: you only have ${bank}</b>` : (c ? `Costs <b>${c}</b> · next letter ` : 'Next letter costs ') + `<b>${priceOf(used + n)}</b>`;
   const send = document.querySelector('[data-act="sendClue"]'); if (send) send.disabled = over;
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta');
@@ -1009,11 +1068,20 @@ function updatePreview() {
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
 const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['passask', 'Pass request'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['ready', 'Guesser: ready screen'], ['lastchance', 'Guesser: last 10s'],
   ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over'], ['coopEnd', 'Co-op: round end'], ['grade4', 'Co-op: YKWIM'], ['grade3', 'Co-op: KWIM'], ['grade2', 'Co-op: WIM'], ['grade1', 'Co-op: IM'], ['grade0', 'Co-op: M']];
+function mockRecord() {   // two fake words for the game review in the preview tool
+  const people = [{ role: 'giver1', name: 'Alex' }, { role: 'giver2', name: 'Sam' }, { role: 'guesser', name: 'Kai' }];
+  return [{ n: 0, word: 'panda', cat: 'Animals', levelName: '4–6 letters', teams: [
+      { result: 'correct', earned: 117, spent: 28, breakdown: { base: 100, longWord: 0, first: 5, speed: 12 }, clues: ['BAM', 'KUGFU'], log: [{ text: 'BEAR', ok: false, cost: 5 }, { text: 'PANDA', ok: true }], people },
+      { result: 'gaveup', earned: 0, spent: 5, breakdown: null, clues: ['ZZ', 'BLK'], log: [{ text: 'ZEBRA', ok: false, cost: 5 }], people } ] },
+    { n: 1, word: 'lemon', cat: 'Food', levelName: '4–6 letters', teams: [
+      { result: 'correct', earned: 112, spent: 18, breakdown: { base: 100, longWord: 0, first: 0, speed: 12 }, clues: ['SOUR', 'YLW'], log: [{ text: 'LEMON', ok: true }], people },
+      { result: 'correct', earned: 125, spent: 23, breakdown: { base: 100, longWord: 0, first: 20, speed: 5 }, clues: ['YELO', 'AC'], log: [{ text: 'LEMON', ok: true }], people } ] }];
+}
 function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
   const names = ['Team Gold', 'Team Blue'];
   const v = {
-    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { start: 10, step: 2, symbol: 5 }, myTeam: 0, myRoles: [],
+    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { first: YKWIM.FIRST_COST, start: YKWIM.START_COST, step: YKWIM.STEP, symbol: YKWIM.SYMBOL_COST }, myTeam: 0, myRoles: [],
     settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
@@ -1037,12 +1105,12 @@ function mockView(kind) {
       team('done', { result: 'correct', earned: 140, spent: 106, clues: ['BAM', 'KUGFU', 'ZZ'], breakdown: { base: 100, longWord: 25, first: 0, speed: 15, spent: 106 } }),
       team('done', { result: 'none' })] }; return v;
     case 'grade4': case 'grade3': case 'grade2': case 'grade1': case 'grade0': {   // the co-op game over screen, one example per grade
-      const nets = { grade4: [90, 70, 95, 100, 92], grade3: [60, 55, 70, 75, 80], grade2: [85, 90, -55, 45, 55], grade1: [60, -50, 85, -40, 65], grade0: [-40, 60, -70, -30, -25] }[kind];
+      const nets = { grade4: [110, 100, 105, 100, 110], grade3: [95, 90, 95, 90, 90], grade2: [100, 95, 0, 90, 90], grade1: [90, 0, 95, 0, 90], grade0: [95, 0, -5, 0, 60] }[kind];
       const words = ['panda', 'lemon', 'castle', 'dolphin', 'lighthouse']; let total = 200;
-      const history = nets.map((net, i) => ({ n: i, word: words[i], result: net < 0 ? 'gaveup' : 'correct', net, total: total += net }));
+      const history = nets.map((net, i) => ({ n: i, word: words[i], result: net <= 0 ? 'gaveup' : 'correct', net, total: total += net }));
       v.phase = 'over'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [total, 200]; v.winner = 0; v.history = history;
-      v.rating = YKWIM.rating(total, 200, 5); v.round = { ...round, teams: [team('done'), team('done')] }; return v; }
-    case 'over': v.phase = 'over'; v.winner = 0; v.scores = [512, 431]; v.round = { ...round, teams: [team('done'), team('done')] }; return v;
+      v.record = mockRecord(); v.rating = YKWIM.rating(total, 200, 5); v.round = { ...round, teams: [team('done'), team('done')] }; return v; }
+    case 'over': v.phase = 'over'; v.winner = 0; v.scores = [512, 431]; v.round = { ...round, teams: [team('done'), team('done')] }; v.record = mockRecord(); return v;
   }
 }
 function showPreview(kind) {
@@ -1097,7 +1165,7 @@ document.addEventListener('click', e => {
     case 'sendGuess': { const g = $('guess').value; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
     case 'key': {
       const inp = $(d.target); if (!inp) return;
-      inp.value = d.k === '⌫' ? inp.value.slice(0, -1) : inp.value + d.k;
+      inp.value = d.k === 'CLEAR' ? '' : d.k === '⌫' ? inp.value.slice(0, -1) : inp.value + d.k;
       S.draft[d.target] = inp.value; if (d.target === 'clue') updatePreview(); return;
     }
   }
@@ -1129,16 +1197,17 @@ function barDiagram() {
   const seg = (from, to, fill) => `<rect x="${X0}" y="${y(to)}" width="${W}" height="${y(from) - y(to)}" style="fill:${fill}"/>`;
   const parts = [   // [from, to, fill, label, description], top of the bar first
     [345, 360, 'color-mix(in srgb, var(--lime) 30%, white)', 'Quick-guess bonus', 'shrinks every second'],
-    [325, 345, 'url(#lgFirst)', 'First-to-guess bonus', 'paid if the other team gets it too'],
-    [300, 325, 'color-mix(in srgb, var(--lime) 62%, white)', 'Long-word bonus', 'longer words pay extra'],
-    [200, 300, 'var(--lime)', 'Reward', 'for a correct guess'],
-    [160, 200, 'url(#lgShadow)', 'Clue cost (striped)', 'what the clue you type costs'],
-    [0, 160, 'var(--t0)', 'Bank', "your team's points"]];
+    [325, 345, 'url(#lgFirst)', 'First-to-guess bonus', 'if the other team gets it too, but slower'],
+    [300, 325, 'url(#lgLong)', 'Long-word bonus', 'longer words pay extra'],
+    [200, 300, 'color-mix(in srgb, var(--lime) 78%, white)', 'Reward', 'for a correct guess'],
+    [160, 200, 'url(#lgShadow)', 'Clue cost', 'what the clue you are typing will cost'],
+    [0, 160, 'color-mix(in srgb, var(--t0) 88%, black)', 'Bank', "your team's points"]];
   const labelY = [34, 70, 106, 142, 186, 236];
   let svg = `<svg viewBox="0 0 340 300" width="100%" role="img" aria-label="Parts of the score bar" style="max-width:380px;display:block;margin:6px auto">
-    <defs><pattern id="lgShadow" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" style="fill:var(--t0)"/><rect width="5" height="10" fill="rgba(0,0,0,.45)"/></pattern>
+    <defs><pattern id="lgShadow" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" style="fill:color-mix(in srgb, var(--t0) 88%, black)"/><rect width="5" height="10" fill="rgba(0,0,0,.45)"/></pattern>
     <clipPath id="lgPill"><rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}"/></clipPath>
     <linearGradient id="lgShine" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <pattern id="lgLong" width="8.5" height="8.5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8.5" height="8.5" style="fill:color-mix(in srgb, var(--lime) 72%, white)"/><rect width="4.2" height="8.5" style="fill:color-mix(in srgb, var(--lime) 55%, white)"/></pattern>
     <pattern id="lgFirst" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" style="fill:color-mix(in srgb, var(--lime) 40%, white)"/><rect width="4" height="8" style="fill:color-mix(in srgb, var(--lime) 55%, white)"/></pattern></defs>
     <rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}" style="fill:var(--track)"/><g clip-path="url(#lgPill)">`;
   // the bank is drawn as one block, the shadow sits on top of its upper end
