@@ -373,7 +373,7 @@ function homeScreen() {
     <input id="name" maxlength="14" placeholder="Name" value="${esc(S.name)}">
     <div style="margin-top:18px"><button class="big" data-act="create" ${S.busy ? 'disabled' : ''}>Create room</button></div>
     <p class="sub center" style="margin:16px 0 8px">or join a friend's room</p>
-    <div class="bar"><input id="code" class="caps" maxlength="4" placeholder="ROOM CODE" value="${esc(S.code)}"><button data-act="join" ${S.busy ? 'disabled' : ''}>→</button></div>
+    <div class="bar"><input id="code" class="caps" maxlength="4" placeholder="ROOM CODE" value="${esc(S.code)}"><button data-act="join" style="font-size:1.05rem" ${S.busy ? 'disabled' : ''}>Join</button></div>
     <div class="msg">${esc(S.err)}${S.busy ? 'Connecting…' : ''}</div>
     <button class="ghost" style="width:100%;font-size:.85rem" data-act="preview" data-kind="giver1">👀 Preview the screens (no game needed)</button>
   </div>`;
