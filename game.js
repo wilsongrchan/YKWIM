@@ -32,6 +32,14 @@
   // A clue is capital letters plus free symbols; anything else is dropped.
   const cleanClue = raw => [...String(raw).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()]
     .filter(c => /[A-Z]/.test(c) || SYMBOLS.includes(c)).join('').slice(0, 30);
+  // Hangman-style clues are out: with every symbol read as "any letter", a clue that lines up with the start or the end
+  // of the keyword (e.g. *A**ER for LADDER) tells the guesser exactly where letters sit.
+  function isPatternClue(text, word) {
+    const c = [...text], w = [...word.toUpperCase()];
+    if (!c.some(ch => SYMBOLS.includes(ch)) || !c.some(ch => /[A-Z]/.test(ch)) || c.length > w.length) return false;
+    const fits = off => c.every((ch, i) => SYMBOLS.includes(ch) || ch === w[off + i]);
+    return fits(0) || fits(w.length - c.length);
+  }
   const letterCount = s => (String(s).match(/[A-Za-z]/g) || []).length;
   const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += START_COST + STEP * (used + i); return c; };
 
@@ -130,11 +138,12 @@
       const ban = banned(), answer = norm(G.card.word);
       if (!auto) {
         if (norm(text).includes(answer)) return { error: "You can't type the keyword itself!" };
+        if (isPatternClue(text, answer)) return { error: "No pattern clues: symbols can't mark where the letters go." };
         const bad = [...ban].filter(c => text.toLowerCase().includes(c));
         if (bad.length) return { error: `Banned letters: ${bad.join(', ').toUpperCase()}` };
       } else {
         text = [...text].filter(c => !ban.includes(c.toLowerCase())).join('');
-        if (norm(text).includes(answer)) text = '';
+        if (norm(text).includes(answer) || isPatternClue(text, answer)) text = '';
       }
       const n = letterCount(text), sym = text.length - n;
       spend(t, costOf(n, T.used) + sym * SYMBOL_COST); T.used += n; T.clues.push(text);
