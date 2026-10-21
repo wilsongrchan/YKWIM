@@ -372,7 +372,8 @@ function render() {
 function homeScreen() {
   return `<div class="stage home">
     <div class="logo display">YKWIM</div>
-    <p class="tag">Do you know what I mean, though?</p>
+    <p class="tag" style="margin-bottom:6px">Do you know what I mean, though?</p>
+    <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">A word game for 4–6 players</p>
     <label>Your name</label>
     <input id="name" maxlength="14" placeholder="Name" value="${esc(S.name)}">
     <div style="margin-top:18px"><button class="big" data-act="create" ${S.busy ? 'disabled' : ''}>Create room</button></div>
