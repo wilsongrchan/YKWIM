@@ -455,10 +455,8 @@ function lobbyScreen() {
         ? `<label>Number of words</label>${sel('words', [5, 10, 15], st.words, x => x + ' words')}`
         : `<label>Play to</label>${sel('target', [500, 800, 1200], st.target)}`}</div>
       <div><label>Starting points</label>${sel('bank', [100, 200, 300], st.bank)}</div>
-      <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt (easy)'], ['lose', 'Lose immediately (hard)']], st.belowZero)}</div>
       <div><label>Points per correct guess</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
       <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
-      <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec' + (x === 5 ? ' (hard)' : x === 15 ? ' (easy)' : ''))}</div>
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>Advanced settings</summary>
@@ -467,6 +465,8 @@ function lobbyScreen() {
         <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x + (x === 0 ? ' (easy)' : x === 10 ? ' (hard)' : ''))}</div>
         <div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
+        <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt (easy)'], ['lose', 'Lose immediately (hard)']], st.belowZero)}</div>
+        <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec' + (x === 5 ? ' (hard)' : x === 15 ? ' (easy)' : ''))}</div>
       </div>
     </details></div>
     <div style="margin-top:14px">${V.isHost
