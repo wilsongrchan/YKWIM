@@ -410,7 +410,7 @@
   <div class="sheet">
     <button class="x" data-act="closeHelp" aria-label="Close">✕</button>
     <h2>How to play</h2>
-    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">Rules</button><button data-act="helpTab" data-tab="cost">Clue cost</button><button data-act="helpTab" data-tab="flow">Example</button><button data-act="helpTab" data-tab="bar">Score bar</button></div>
+    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">Rules</button><button data-act="helpTab" data-tab="cost">Clues</button><button data-act="helpTab" data-tab="flow">Example</button><button data-act="helpTab" data-tab="bar">Score bar</button></div>
     <div id="help-rules">
     <p>Two teams race to guess one keyword from <b>letters, not words</b>.</p>
     <h3>Clues</h3>
@@ -431,7 +431,14 @@
       <li>Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a rating.</li>
     </ul>
     </div>
-    <div id="help-cost" class="hide"><div id="costdiag"></div></div>
+    <div id="help-cost" class="hide">
+      <h3>Clue rules</h3>
+      <ul>
+        <li>Clues are letters and symbols. The keyword itself, and its banned consonants, are not allowed.</li>
+        <li><b>No pattern clues.</b> Symbols can't mark where the letters sit in the word. For LADDER, <b>L**D</b> or <b>**DER</b> would be rejected, because they line up with the start or end of the word.</li>
+      </ul>
+      <h3>What a clue costs</h3>
+      <div id="costdiag"></div></div>
     <div id="help-flow" class="hide"><div id="flowdiag"></div></div>
     <div id="help-bar" class="hide"><p>The bar beside the game shows your team's points and what you could still win.</p><div id="bardiag" style="--lime:var(--t0)"></div><p style="font-size:.85rem">Hover over (or tap) a part of the real bar to see its name.</p></div>
     <button class="big" data-act="closeHelp">Got it</button>
@@ -724,7 +731,7 @@ function lobbyScreen() {
       <div class="cats" style="margin:12px 0"><div class="catshead">Categories</div>
       ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}</div>
       <div class="settings">
-        <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2'], [3, 'First 3'], [4, 'First 4']], st.banCount, x => x, EASY_HARD(2, 4))}</div>
+        <div><label>Banned consonants</label>${sel('banCount', [[1, 'First 1'], [2, 'First 2'], [3, 'First 3']], st.banCount, x => x, EASY_HARD(1, 3))}</div>
         <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
         ${st.teams === 'one' ? '' : `<div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>`}
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
@@ -1085,7 +1092,7 @@ function mockView(kind) {
   const names = ['Team Gold', 'Team Blue'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { first: YKWIM.FIRST_COST, start: YKWIM.START_COST, step: YKWIM.STEP, symbol: YKWIM.SYMBOL_COST }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
+    settings: { lang: 'en', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
