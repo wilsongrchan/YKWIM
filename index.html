@@ -303,6 +303,8 @@
   /* lobby */
   .code { font-family: var(--display); font-size: 3.2rem; letter-spacing: .25em; text-align: center; color: var(--accent-text); line-height: 1.1; }
   .seatgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  :root { --g0: #f2766b; --g1: #f29a5b; --g2: #f5c84a; --g3: #9fd77a; --g4: #4fc08a; }   /* the grade scale, red (M) to green (YKWIM) */
+  :root[data-mode="light"] { --g0: #c2392b; --g1: #c4651e; --g2: #9a6700; --g3: #4c8f2a; --g4: #1f8a5b; }
   .quote { font: italic 500 1.35rem var(--display); margin-top: 8px; }
   .climb { display: block; width: 100%; max-width: 460px; margin: 10px auto 0; overflow: visible; } .climb .cg { font: 500 7.5px var(--body); fill: var(--soft); } .climb .cg.miss { fill: var(--bad); } .climb .cn { font: 600 9px var(--body); fill: var(--text); } .climb .cn.miss { fill: var(--bad); }
   .seatgrid.solo { grid-template-columns: 1fr !important; }
@@ -910,11 +912,10 @@ function overScreen() {
       <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:var(--bad)">Out of points</div>
       <div class="sub">${esc(V.names[0])} went bankrupt before the last word.</div>${back}</div>`;
     return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0]).toUpperCase()} · ${V.settings.words} WORDS</div>
-      <div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--accent-text)">${esc(R.label)}</div>
+      <div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--g${R.rank})">${esc(R.label)}</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
       <div class="big-score" style="font:500 2.4rem var(--display);margin:0">${R.score}</div><div class="sub">points</div>
-      <div class="quote">“${esc(R.quote)}”</div>
-      <p class="sub" style="margin-top:4px">${esc(R.note)}</p>${back}</div>`;
+      <div class="quote">“${esc(R.quote)}”</div>${back}</div>`;
   }
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">GAME OVER</div>

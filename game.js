@@ -44,12 +44,12 @@
   // words and the bank). Worked out for a 1 + 2 team: solving all 5 words with ~4 letters a clue scores ~620, with ~5 letters ~550,
   // with ~6 ~480; solving 4 of 5 ~420-440; 3 of 5 ~285; 2 of 5 ~175.
   const RATING_CUTS = [75, 200, 300, 400];
-  // The five grades are YKWIM > KWIM > WIM > IM > M: "You know what I mean!" down to "Man...".
-  const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!', 'You really know what each other means.'], [RATING_CUTS[2], 'KWIM', 'Know what I mean!', "You're on the same wavelength."],
-    [RATING_CUTS[1], 'WIM', 'Well, I mean...', 'Getting there, one clue at a time.'], [RATING_CUTS[0], 'IM', 'I mean...', 'Some great hits, some near misses.'], [-Infinity, 'M', 'Man...', 'Not quite on the same page yet.']];
+  // The five grades are YKWIM > KWIM > WIM > IM > M, each a little backronym: confident, nearly, explaining, guessing, giving up.
+  const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!'], [RATING_CUTS[2], 'KWIM', 'Kind of what I meant'],
+    [RATING_CUTS[1], 'WIM', 'Wait, I meant…'], [RATING_CUTS[0], 'IM', 'Idk, maybe?'], [-Infinity, 'M', 'Moving on.']];
   function rating(score, bank, words) {
     const net = (score - bank) * 5 / words, r = RATINGS.find(x => net > x[0]);
-    return { label: r[1], quote: r[2], note: r[3], score, words };
+    return { label: r[1], quote: r[2], rank: RATINGS.length - 1 - RATINGS.indexOf(r), score, words };   // rank 4 = best, 0 = worst
   }
   const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
   const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;   // longer words pay a bonus on top of the reward: +25% of it per level
