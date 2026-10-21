@@ -495,7 +495,8 @@ applyDisplay();
 
 // ---------- helpers ----------
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
-(function exampleFlow() {
+// "See an example round": the same round played two ways. a = Clue-giver 2 gets what Clue-giver 1 meant, b = they don't.
+function renderFlow(which) {
   const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
   const tiles = (w, cls = '') => [...w].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
   const box = (n, head, body) => `<div class="fs"><div class="fs-n">${n}</div><div class="fs-b"><div class="fs-h">${head}</div>${body}</div></div>`;
@@ -503,19 +504,30 @@ applyDisplay();
   const MOUTH = { hope: 'M14 20q6 4 12 0', puzzled: 'M15 21.5q5-2 10 0', happy: 'M13 19q7 7 14 0' };
   const think = (color, mood, text) => `<div class="th"><svg class="av" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 40c0-9 6-13 15-13s15 4 15 13z" fill="${color}"/><circle cx="20" cy="15" r="10" fill="#f6dcc0" stroke="#123f43" stroke-width="1.5"/><circle cx="16" cy="14" r="1.5" fill="#123f43"/><circle cx="24" cy="14" r="1.5" fill="#123f43"/><path d="${MOUTH[mood]}" fill="none" stroke="#123f43" stroke-width="1.5" stroke-linecap="round"/></svg><div class="bub">${text}</div></div>`;
   const cost = n => `<span class="fs-cost">−${n}</span>`;
-  $('flowdiag').innerHTML =
-    box(1, 'Clue-giver 1 sees the keyword', `<span class="fs-kw">PANDA</span><span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>
+  const ban = `<span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>`;
+  const second = which === 'a' ? 'BOO' : 'KUGFU';
+  const step2 = which === 'a'
+    ? think('#6fc7bd', 'happy', 'A, B, M… bam! BAM-BOO, bamboo! I\'ll add BOO.')
+    : think('#6fc7bd', 'puzzled', 'A, B, M… amber??? No idea. I\'ll go my own way: kung fu panda! No N allowed, so KUGFU.');
+  const step3 = which === 'a'
+    ? 'Animals, 5 letters… bamboo… PANDA!'
+    : 'Animals, 5 letters… bamboo… kung fu… PANDA!';
+  $('flowdiag').innerHTML = `<div class="seg" style="margin:6px 0 2px">
+      <button type="button" class="${which === 'a' ? 'on' : ''}" data-act="flow" data-v="a">They get it</button>
+      <button type="button" class="${which === 'b' ? 'on' : ''}" data-act="flow" data-v="b">They don't get it</button></div>` +
+    box(1, 'Clue-giver 1 sees the keyword', `<span class="fs-kw">PANDA</span>${ban}
       ${think('#f5b942', 'hope', 'Bam… bamboo! I hope Clue-giver 2 gets it.')}
       <div class="fs-row">${tiles('BAM')}${cost(sum(3))}</div>`) +
-    box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span><span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>
+    box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span>${ban}
       <div class="fs-used">A B M <span class="fs-not">not BAM</span></div>
-      ${think('#6fc7bd', 'puzzled', 'A, B, M… amber??? No idea. I\'ll go my own way: kung fu panda! No N allowed, so KUGFU.')}
-      <div class="fs-row">${tiles('KUGFU', 'two')}${cost(sum(5))}</div><div class="fs-say">The price starts again at ${price(0)}.</div>`) +
-    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">BAM</div><div class="fs-clue">KUGFU</div></div>
+      ${step2}
+      <div class="fs-row">${tiles(second, 'two')}${cost(sum(second.length))}</div><div class="fs-say">The price starts again at ${price(0)}.</div>`) +
+    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">BAM</div><div class="fs-clue">${second}</div></div>
       <div>${'<span class="fs-blank"></span>'.repeat(5)}</div>
-      ${think('#f2907a', 'happy', 'Animals, 5 letters… bamboo… kung fu… PANDA!')}`) +
-    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${sum(3) + sum(5)} for the letters.`);
-})();
+      ${think('#f2907a', 'happy', step3)}`) +
+    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${sum(3) + sum(second.length)} for the letters.`);
+}
+renderFlow('a');
 (function costDiagram() {
   const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
   const tiles = (word, cls, from = 0) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(from + i)}</i></div>`).join('');
@@ -958,6 +970,7 @@ document.addEventListener('click', e => {
     case 'resetSettings':
     case 'start': case 'next': case 'toLobby': case 'skip': case 'giveup': return send({ type: d.act });
     case 'newCode': if (V && V.phase === 'lobby' && room && confirm('Make a new room code? Anyone who already joined will need to join again with the new code.')) hostRoom(S.name, 0, true); return;
+    case 'flow': return renderFlow(d.v);
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('Link copied!')); return;
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
     case 'sendClue': S.draft.clue = ''; return send({ type: 'clue', text: $('clue').value });
