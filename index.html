@@ -62,6 +62,7 @@
   .vb-score { position: absolute; left: 0; right: 0; bottom: 0; transition: height .6s ease; }
   .vb-reward { position: absolute; left: 0; right: 0; transition: height .5s ease, bottom .6s ease;
     background: linear-gradient(180deg, var(--lime), color-mix(in srgb, var(--lime) 72%, black)); }
+  .vb-long { position: absolute; left: 0; right: 0; transition: bottom .6s ease, height .5s ease; background: color-mix(in srgb, var(--lime) 62%, white); }
   .vb-first, .vb-quick { position: absolute; left: 0; right: 0; transition: bottom .6s ease, height .25s linear; }
   .vb-first { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--lime) 55%, white) 0 4px, color-mix(in srgb, var(--lime) 40%, white) 4px 8px); }
   .vb-quick { background: color-mix(in srgb, var(--lime) 30%, white); }
@@ -286,7 +287,7 @@
     <ul>
       <li>Clue-givers see the keyword and type a few letters. Each letter costs points, and the next costs more (10, 12, 14…). Symbols cost 5.</li>
       <li>The keyword's first few consonants are banned.</li>
-      <li>Words get longer, and pay more, as you level up. The last level is names and phrases.</li>
+      <li>Words get longer as you level up, with a long-word bonus on top of the reward. The last level is names and phrases.</li>
       <li>Teams of three: Clue-giver 2 sees which letters and symbols Clue-giver 1 used (alphabetical), and their prices start over. Teams of two: one clue.</li>
       <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
       <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
@@ -611,23 +612,24 @@ function vbar(t) {
   const T = V.round && V.round.teams[t], other = V.round && V.round.teams[1 - t];
   const active = own && V.phase === 'round' && T && ['giver1', 'giver2', 'guess'].includes(T.stage) && T.spent !== undefined;
   const firstLeft = active && !st.sequential && !(other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
-  const roundReward = V.round ? V.round.reward : st.reward;
-  const reward = active ? roundReward : 0;
-  const scale = Math.max(byWords ? 0 : st.target, Math.max(...V.scores, 0) + roundReward + st.firstBonus + st.speedSecs, 1);   // one scale for both bars
+  const roundReward = V.round ? V.round.reward : st.reward, longBonus = V.round ? V.round.longBonus : 0;
+  const reward = active ? roundReward : 0, longWord = active ? longBonus : 0;
+  const scale = Math.max(byWords ? 0 : st.target, Math.max(...V.scores, 0) + roundReward + longBonus + st.firstBonus + st.speedSecs, 1);   // one scale for both bars
   const pct = v => v / scale * 100, score = pct(Math.max(0, V.scores[t]));
   const quick = active ? (T.stage === 'guess' ? Math.ceil((T.speedLeft || 0) / 1000) : st.speedSecs) : 0;
   const icon = V.phase !== 'round' ? '' : T.stage === 'done' ? (T.result === 'correct' ? '✓' : '✕') : { giver1: '✎', giver2: '✎', guess: '💭', waiting: '⏳' }[T.stage];
-  const dataAttrs = active ? ` data-stage="${T.stage}" data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + firstLeft}" data-await="${T.awaitReady ? 1 : 0}"` : '';
+  const dataAttrs = active ? ` data-stage="${T.stage}" data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + longWord + firstLeft}" data-await="${T.awaitReady ? 1 : 0}"` : '';
   return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' ? ': ' + esc(statusLine(t)) : ''}">
     <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t].slice(0, 8))}</div>
     <div class="vb-track">
       <i class="vb-score" style="height:${score}%;background:${TEAM_COLORS[t]}">${active ? '<b class="vb-shadow" id="tubeShadow"></b>' : ''}</i>
       ${active ? `<i class="vb-reward" style="bottom:${score}%;height:${pct(reward)}%"></i>
-        ${firstLeft ? `<i class="vb-first" style="bottom:${score + pct(reward)}%;height:${pct(firstLeft)}%"></i>` : ''}
-        <i class="vb-quick" data-qb style="bottom:${score + pct(reward + firstLeft)}%;height:${pct(quick)}%"></i>` : ''}
+        ${longWord ? `<i class="vb-long" style="bottom:${score + pct(reward)}%;height:${pct(longWord)}%"></i>` : ''}
+        ${firstLeft ? `<i class="vb-first" style="bottom:${score + pct(reward + longWord)}%;height:${pct(firstLeft)}%"></i>` : ''}
+        <i class="vb-quick" data-qb style="bottom:${score + pct(reward + longWord + firstLeft)}%;height:${pct(quick)}%"></i>` : ''}
     </div>
     <div class="vb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</div>
-    <div class="vb-sub">${active ? `win up to <b data-gain>${reward + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</div>
+    <div class="vb-sub">${active ? `win up to <b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</div>
     <div class="vb-delta"${active ? ' id="tubeDelta"' : ''}></div>
     <div class="vb-stat">${icon}</div></div>`;
 }
@@ -672,7 +674,7 @@ function roundEndScreen() {
       <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat">${esc(statusLine(t))}</span></h3>
       <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * 2 + i) * .3}s"><div class="bc-txt">${esc(c || '—')}</div><small>Clue ${i + 1} · ${plural(lettersOnly(c), 'letter')}</small></div>`).join('')}</div>
       ${(() => { const spent = T.spent || 0, net = T.earned - spent;
-        const parts = (b ? `<span>reward +${b.base}</span>${b.first ? `<span>first +${b.first}</span>` : ''}${b.speed ? `<span>quick +${b.speed}</span>` : ''}` : '') + (spent ? `<span>letters −${spent}</span>` : '');
+        const parts = (b ? `<span>reward +${b.base}</span>${b.longWord ? `<span>long word +${b.longWord}</span>` : ''}${b.first ? `<span>first +${b.first}</span>` : ''}${b.speed ? `<span>quick +${b.speed}</span>` : ''}` : '') + (spent ? `<span>letters −${spent}</span>` : '');
         return parts ? `<div class="breakdown">${parts}<span class="tot">= ${net < 0 ? '−' : '+'}${Math.abs(net)}</span></div>` : ''; })()}
     </div>`; }).join('')}
     ${V.settings.mode === 'words' && r.n + 1 >= V.settings.words && V.scores[0] === V.scores[1] ? `<p class="sub center" style="color:var(--accent-text)">Tied! One more word decides it.</p>` : ''}
@@ -742,7 +744,7 @@ function mockView(kind) {
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
-  const round = { n: 2, level: 2, levelName: '5–7 letters', reward: 125, cat: 'Animals', blanks: [1, 1, 1, 1, 1], roleNames: { giver1: 'You', giver2: 'Sam', guesser: 'Alex' } };
+  const round = { n: 2, level: 2, levelName: '5–7 letters', reward: 100, longBonus: 25, cat: 'Animals', blanks: [1, 1, 1, 1, 1], roleNames: { giver1: 'You', giver2: 'Sam', guesser: 'Alex' } };
   const other = team('giver2', { remaining: 12000 });
   const secret = { word: 'ZEBRA', banned: ['Z', 'B', 'R'] };
   switch (kind) {
@@ -754,7 +756,7 @@ function mockView(kind) {
     case 'lastchance': v.myRoles = ['guesser']; v.scores = [130, 95]; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, remaining: 7000, log: [] }), team('done', { result: 'correct', earned: 131 })] }; return v;
     case 'waiting': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('giver1', { remaining: 18000, spent: 0, used: 0 }), other] }; return v;
     case 'roundEnd': v.phase = 'roundEnd'; v.round = { ...round, word: 'ZEBRA', teams: [
-      team('done', { result: 'correct', earned: 135, spent: 52, clues: ['AE', 'S'], breakdown: { base: 100, first: 20, speed: 15, spent: 52 } }),
+      team('done', { result: 'correct', earned: 160, spent: 52, clues: ['AE', 'S'], breakdown: { base: 100, longWord: 25, first: 20, speed: 15, spent: 52 } }),
       team('done', { result: 'timeout', spent: 30, clues: ['A', 'SV'] })] }; return v;
     case 'over': v.phase = 'over'; v.winner = 0; v.scores = [512, 431]; v.round = { ...round, teams: [team('done'), team('done')] }; return v;
   }

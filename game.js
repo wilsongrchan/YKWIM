@@ -38,7 +38,7 @@
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
   const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
   const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
-  const levelReward = (base, level) => Math.round(base * (1 + 0.25 * (level - 1)) / 5) * 5;   // longer words pay more: +25% per level
+  const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;   // longer words pay a bonus on top of the reward: +25% of it per level
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   const ROLES = ['giver1', 'giver2', 'guesser'];
@@ -72,7 +72,7 @@
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
-      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, roundReward: 0, card: null, teams: [null, null], firstCorrect: null, winner: null
+      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, winner: null
     };
     const change = () => onChange();
 
@@ -133,13 +133,13 @@
     function arm(t, ms, fn) { const T = G.teams[t]; clearT(T.timer); T.timer = setT(fn, ms); }
 
     function startRound() {
-      // the word level rises as the game goes on; longer words pay a bigger reward
+      // the word level rises as the game goes on; longer words earn a long-word bonus
       const s = G.settings;
       const want = Math.min(TIERS.length, 1 + Math.floor(G.round / LEVEL_EVERY));
       // if the ticked categories have no words at that level, use the nearest level that does (lower first)
       const order = [want, ...Array.from({ length: want - 1 }, (_, i) => want - 1 - i), ...Array.from({ length: TIERS.length - want }, (_, i) => want + 1 + i)];
       G.level = order.find(l => tierWords(l, s.categories).length) || want;
-      G.roundReward = levelReward(s.reward, G.level);
+      G.longBonus = longWordBonus(s.reward, G.level);
       const pool = tierWords(G.level, s.categories);
       let fresh = pool.filter(e => !G.used.has(e.word));
       if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
@@ -219,8 +219,8 @@
         const s = G.settings, first = G.firstCorrect === null && !s.sequential;
         // Quick bonus counts down: speedSecs points at the start, 1 fewer for every full second since the clues appeared.
         const quick = Math.max(0, s.speedSecs - Math.floor((now() - T.guessStart) / 1000));
-        T.breakdown = { base: G.roundReward, first: first ? s.firstBonus : 0, speed: quick, spent: T.spent };
-        finishTeam(t, 'correct', T.breakdown.base + T.breakdown.first + T.breakdown.speed);
+        T.breakdown = { base: s.reward, longWord: G.longBonus, first: first ? s.firstBonus : 0, speed: quick, spent: T.spent };
+        finishTeam(t, 'correct', T.breakdown.base + T.breakdown.longWord + T.breakdown.first + T.breakdown.speed);
         if (first) {
           G.firstCorrect = t;
           const o = 1 - t, O = G.teams[o];
@@ -359,7 +359,7 @@
 
       const mt = v.myTeam, roles = rolesOf(id);
       v.myRoles = roles; v.round = {
-        n: G.round, cat: G.card.cat, level: G.level, levelName: TIERS[G.level - 1].name, reward: G.roundReward, blanks: [...G.card.word].map(ch => /\p{L}/u.test(ch) ? 1 : 0),
+        n: G.round, cat: G.card.cat, level: G.level, levelName: TIERS[G.level - 1].name, reward: G.settings.reward, longBonus: G.longBonus, blanks: [...G.card.word].map(ch => /\p{L}/u.test(ch) ? 1 : 0),
         teams: [0, 1].map(t => {
           const T = G.teams[t], mine = t === mt;
           const rem = T.deadline ? T.deadline - now() : T.guessDeadline ? T.guessDeadline - now() : null;
