@@ -365,20 +365,26 @@ const STAGE_TEXT = { waiting: 'waiting for their turn', giver1: 'writing clue 1â
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 const randomCode = () => Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
 
-function hostRoom(name, attempt = 0) {
+let room = null;   // the host's live room: { peer, conns, game }
+function broadcast() {
+  if (!room) return;
+  onView(room.game.view('host'));
+  for (const id in room.conns) if (room.conns[id].open) room.conns[id].send({ type: 'view', view: room.game.view(id) });
+}
+// renew = the host asked for a fresh room code: same game and seat, new address. Everyone else has to join again.
+function hostRoom(name, attempt = 0, renew = false) {
   const code = randomCode();
   const peer = new Peer('ykwim-' + code);
   peer.on('error', e => {
-    if (e.type === 'unavailable-id' && attempt < 5) return hostRoom(name, attempt + 1);
+    if (e.type === 'unavailable-id' && attempt < 5) return hostRoom(name, attempt + 1, renew);
+    if (renew) return toast("Couldn't make a new code. Try again.");
     fail(`Couldn't create a room (${e.type}). Check your connection.`);
   });
   peer.on('open', () => {
-    const conns = {};
-    const game = YKWIM.createGame({ hostId: 'host', onChange: broadcast });
-    function broadcast() {
-      onView(game.view('host'));
-      for (const id in conns) if (conns[id].open) conns[id].send({ type: 'view', view: game.view(id) });
-    }
+    const conns = {}, old = renew ? room : null;
+    const game = old ? old.game : YKWIM.createGame({ hostId: 'host', onChange: broadcast });
+    if (old) { old.peer.destroy(); Object.keys(old.conns).forEach(id => game.disconnect(id)); }
+    room = { peer, conns, game };
     peer.on('connection', conn => {
       conns[conn.peer] = conn;
       conn.on('data', m => {
@@ -390,7 +396,7 @@ function hostRoom(name, attempt = 0) {
     });
     net = { code, isHost: true, send: m => { const r = game.handle('host', m); if (r && r.error) toast(r.error); } };
     S.code = code; S.busy = false;
-    game.addPlayer('host', name, token);
+    if (old) { broadcast(); toast('New room code: ' + code); } else game.addPlayer('host', name, token);
   });
 }
 
@@ -523,6 +529,7 @@ function lobbyScreen() {
     <div class="sub center" style="margin:0">ROOM CODE</div>
     <div class="code">${esc(net ? net.code : '')}</div>
     <p class="sub center">Share this link: <b style="color:var(--text)">${esc(link)}</b> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">Copy</button></p>
+    ${V.isHost ? `<div class="center" style="margin:-4px 0 8px"><button class="linkbtn" data-act="newCode">â†» New room code</button></div>` : ''}
     <div class="seatgrid">${[0, 1].map(t => `<div class="seatcol">
       <h3 style="color:${TEAM_TEXT[t]}">${V.isHost ? `<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem">` : esc(V.names[t])}</h3>
       ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
@@ -882,6 +889,7 @@ document.addEventListener('click', e => {
     case 'stand': return send({ type: 'stand' });
     case 'resetSettings':
     case 'start': case 'next': case 'toLobby': case 'skip': case 'giveup': return send({ type: d.act });
+    case 'newCode': if (V && V.phase === 'lobby' && room && confirm('Make a new room code? Anyone who already joined will need to join again with the new code.')) hostRoom(S.name, 0, true); return;
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('Link copied!')); return;
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
     case 'sendClue': S.draft.clue = ''; return send({ type: 'clue', text: $('clue').value });
