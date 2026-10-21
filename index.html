@@ -78,6 +78,26 @@
   .vb-stat { font-size: .95rem; min-height: 1.2em; }
   @media (max-width: 480px) { .vbar { flex-basis: 42px; } .vb-track { width: 22px; min-height: 220px; } .vb-num { font-size: 1.05rem; } }
   .playmain { flex: 1; min-width: 0; }
+  .hbars { display: none; }
+  .hb { display: grid; grid-template-columns: 64px 1fr 36px 66px; align-items: center; gap: 6px; }
+  .hb + .hb { margin-top: 5px; }
+  .hb-name { font-size: .72rem; font-weight: 500; letter-spacing: .03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hb-track { position: relative; display: flex; height: 18px; border-radius: 9px; overflow: hidden; background: var(--track); border: 2px solid color-mix(in srgb, var(--ov) 24%, transparent); }
+  .hb.me .hb-track { border-color: var(--lime); }
+  .hb-track i { display: block; height: 100%; flex: none; transition: width .5s ease; }
+  .hb-score { position: relative; }
+  .hb-shadow { position: absolute; top: 0; bottom: 0; right: 0; width: 0; transition: width .15s ease; border-left: 2px solid rgba(0,0,0,.55);
+    background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
+  .hb-reward { background: linear-gradient(180deg, var(--lime), color-mix(in srgb, var(--lime) 72%, black)); }
+  .hb-long { background: color-mix(in srgb, var(--lime) 62%, white); }
+  .hb-first { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--lime) 55%, white) 0 4px, color-mix(in srgb, var(--lime) 40%, white) 4px 8px); }
+  .hb-quick { background: color-mix(in srgb, var(--lime) 30%, white); transition: width .25s linear !important; }
+  .hb-num { font-family: var(--display); font-weight: 500; font-size: 1rem; text-align: right; font-variant-numeric: tabular-nums; }
+  .hb-num.neg { color: var(--bad); }
+  .hb-sub, .hb-delta { font-size: .66rem; color: var(--soft); white-space: nowrap; font-variant-numeric: tabular-nums; grid-column: 4; grid-row: 1; }
+  .hb-sub b { color: var(--text); font-weight: 500; }
+  .hb-delta { color: var(--bad); font-weight: 500; visibility: hidden; }
+  .hb.hasdelta .hb-sub { visibility: hidden; } .hb.hasdelta .hb-delta { visibility: visible; }
   .res { border-top: 4px solid var(--tc, transparent); }
   .res h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .rstat { font-family: var(--body); font-size: .85rem; color: var(--soft); font-weight: 400; }
@@ -207,8 +227,8 @@
   .secret { text-align: center; }
   .sec-theme { font-size: .85rem; font-weight: 500; opacity: .8; }
   .sec-theme b { font-weight: 500; opacity: 1; }
-  .sec-key .kw { font-size: .85rem; font-weight: 500; opacity: .75; display: block; }
-  .sec-key .w { display: block; overflow-wrap: anywhere; }
+  .sec-key .kw { font-size: .85rem; font-weight: 500; opacity: .75; }
+  .sec-key .w { overflow-wrap: anywhere; }
   .secret small { display: block; font-weight: 500; opacity: .75; font-size: .8rem; }
   .giverhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
   .rolechip { white-space: nowrap; background: var(--navy); border-radius: 999px; padding: 6px 14px; font-weight: 500; font-size: .95rem; }
@@ -232,7 +252,7 @@
   .keys button:disabled { background: rgba(0,0,0,.2); color: var(--soft); opacity: .5; box-shadow: none; }
   .msg { min-height: 1.3em; font-size: .9rem; margin-top: 8px; color: var(--bad); font-weight: 500; text-align: center; }
   .preview.one { height: 1.6rem; }
-  .preview { height: 2.9rem; overflow: hidden; text-align: center; font-variant-numeric: tabular-nums; color: var(--soft); font-size: .88rem; font-weight: 500; margin-top: 8px; }
+  .preview { height: 1.7rem; white-space: nowrap; overflow: hidden; text-align: center; font-variant-numeric: tabular-nums; color: var(--soft); font-size: .88rem; font-weight: 500; margin-top: 8px; }
   .preview b { color: var(--accent-text); font-size: 1.1rem; } .preview b.red { color: var(--bad); }
   .log { list-style: none; padding: 0; margin: 12px 0 0; }
   .log li { display: flex; justify-content: space-between; background: color-mix(in srgb, var(--ov) 8%, transparent); border-radius: 10px; padding: 7px 12px; margin-bottom: 4px; font-weight: 500; letter-spacing: .08em; }
@@ -259,8 +279,9 @@
     body { padding: 8px; } .stage { padding: 10px; border-radius: 18px; }
     .masthead { grid-template-columns: 84px 1fr 84px; margin-bottom: 8px; } .icon { width: 36px; height: 36px; }
     .top { margin-bottom: 8px; gap: 8px; } .pill { padding: 5px 12px; } .pill b { font-size: 1rem; } .lvname { font-size: .78rem; }
+    .hbars { display: block; margin-bottom: 8px; } .playrow .vbar { display: none; } .playrow { display: block; }
     .playrow { gap: 8px; } .vbar { flex-basis: 40px; } .vb-track { min-height: 120px; width: 20px; } .vb-name { font-size: .64rem; margin-bottom: 3px; }
-    .vb-stat { display: none; } .masthead .mark { font-size: 1.35rem; } .icon { width: 32px; height: 32px; } .preview { font-size: .8rem; height: 2.7rem; } .preview.one { height: 1.5rem; }
+    .vb-stat { display: none; } .masthead .mark { font-size: 1.35rem; } .icon { width: 32px; height: 32px; } .preview { font-size: .82rem; height: 1.6rem; } .preview.one { height: 1.5rem; }
     .vb-num { margin-top: 5px; font-size: 1rem; } .vb-sub { font-size: .6rem; } .vb-delta { font-size: .66rem; min-height: 1em; } .vb-stat { font-size: .85rem; min-height: 1em; }
     .slots { padding: 22px 8px 8px; margin-bottom: 8px; gap: 8px; } .slot { min-height: 52px; padding: 5px 4px; } .slot .txt { font-size: 1.15rem; }
     .timer { padding: 5px 20px 7px; font-size: 1.6rem; margin-bottom: -16px; }
@@ -618,7 +639,7 @@ function roundScreen() {
   const [bodyTop, bodyBottom] = Array.isArray(body) ? body : [body, ''];
   const compact = role === 'giver1' || role === 'giver2' || handoff;
   const head = compact ? '' : `${timerPill()}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
-  return `<div class="stage">${topBar()}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}</div>${vbar(mt === null ? 1 : 1 - mt)}</div>${bodyBottom}</div>`;
+  return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}</div>${vbar(mt === null ? 1 : 1 - mt)}</div>${bodyBottom}</div>`;
 }
 
 // One tall bar per team: my team on the left, the opponents on the right.
@@ -652,6 +673,31 @@ function vbar(t) {
     <div class="vb-stat">${icon}</div></div>`;
 }
 
+// Phones: the same two bars, lying across the top (my team first) so the play area gets the whole width.
+function hbar(t) {
+  const st = V.settings, byWords = st.mode === 'words', own = V.round && V.myTeam === t;
+  const T = V.round && V.round.teams[t], other = V.round && V.round.teams[1 - t];
+  const active = own && V.phase === 'round' && T && ['giver1', 'giver2', 'guess'].includes(T.stage) && T.spent !== undefined;
+  const firstLeft = active && !st.sequential && !(other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
+  const roundReward = V.round ? V.round.reward : st.reward, longBonus = V.round ? V.round.longBonus : 0;
+  const reward = active ? roundReward : 0, longWord = active ? longBonus : 0;
+  const scale = Math.max(byWords ? 0 : st.target, Math.max(...V.scores, 0) + roundReward + longBonus + st.firstBonus + st.speedSecs, 1);
+  const pct = v => v / scale * 100;
+  const quick = active ? (T.stage === 'guess' ? Math.ceil((T.speedLeft || 0) / 1000) : st.speedSecs) : 0;
+  const dataAttrs = active ? ` data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + longWord + firstLeft}" data-stage="${T.stage}" data-await="${T.awaitReady ? 1 : 0}"` : '';
+  return `<div class="hb${own ? ' me' : ''}"${dataAttrs}>
+    <span class="hb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</span>
+    <div class="hb-track">
+      <i class="hb-score" style="width:${pct(Math.max(0, V.scores[t]))}%;background:${TEAM_COLORS[t]}">${active ? '<b class="hb-shadow" id="tubeShadowH"></b>' : ''}</i>
+      ${active ? `<i class="hb-reward" style="width:${pct(reward)}%"></i>${longWord ? `<i class="hb-long" style="width:${pct(longWord)}%"></i>` : ''}${firstLeft ? `<i class="hb-first" style="width:${pct(firstLeft)}%"></i>` : ''}<i class="hb-quick" data-qbh style="width:${pct(quick)}%"></i>` : ''}
+    </div>
+    <b class="hb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</b>
+    <span class="hb-sub">${active ? `up to <b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</span>
+    <span class="hb-delta"${active ? ' id="tubeDeltaH"' : ''}></span>
+  </div>`;
+}
+const hbars = mine => `<div class="hbars">${hbar(mine)}${hbar(1 - mine)}</div>`;
+
 function logHtml(T) {
   return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
 }
@@ -662,8 +708,8 @@ function giverPanel(T, theme, blanks) {
   const count = r.blanks.filter(Boolean).length;
   const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}</span>${timerPill(true)}</div>
     <div class="secret">
-      <div class="sec-theme">Theme: <b>${esc(r.cat)}</b></div>
-      <div class="sec-key"><span class="kw">Keyword</span><span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span><small>banned: ${ban.join(' ') || 'none'}</small></div>
+      <div class="sec-theme">Theme: <b>${esc(r.cat)}</b> · banned: <b>${ban.join(' ') || 'none'}</b></div>
+      <div class="sec-key"><span class="kw">Keyword:</span> <span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span></div>
     </div>
     ${used}
     <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your clue" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
@@ -686,7 +732,7 @@ function roundEndScreen() {
   const r = V.round;
   const left = V.myTeam === null ? 0 : V.myTeam;
   // The clues are the fun part: each team's two get big tiles that pop in one after the other.
-  return `<div class="stage">${topBar()}<div class="playrow">${vbar(left)}<div class="playmain">
+  return `<div class="stage">${topBar()}${hbars(left)}<div class="playrow">${vbar(left)}<div class="playmain">
     <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">THE KEYWORD WAS</div><div class="brand" style="font-size:2rem;color:var(--accent-text)">${esc(r.word)}</div></div>
     ${[left, 1 - left].map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || [''].concat(V.settings.teamSize === 2 ? [] : ['']); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
       <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat">${esc(statusLine(t))}</span></h3>
@@ -730,6 +776,12 @@ function tick() {
     el.style.height = q / +d.scale * 100 + '%';
     bar.querySelector('[data-gain]').textContent = +d.base + q;
   });
+  document.querySelectorAll('[data-qbh]').forEach(el => {
+    const bar = el.closest('.hb'), d = bar.dataset;
+    const q = d.stage === 'guess' && d.await !== '1' ? (S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0) : +d.qmax;
+    el.style.width = q / +d.scale * 100 + '%';
+    bar.querySelector('[data-gain]').textContent = +d.base + q;
+  });
   document.querySelectorAll('[data-bonus]').forEach(el => { el.textContent = S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0; });
   // Auto-submit whatever's typed when the writing time runs out (the host falls back to an empty clue shortly after).
   if (V && !S.preview && V.phase === 'round' && V.myTeam !== null && $('clue')) {
@@ -743,11 +795,14 @@ function updatePreview() {
   const el = $('preview'), inp = $('clue'); if (!el || !inp || !V || !V.round) return;
   const T = V.round.teams[V.myTeam], used = T.used || 0, n = lettersOnly(inp.value), c = clueCost(inp.value, used);
   const bank = V.scores[V.myTeam], debt = c > Math.max(0, bank), lose = V.settings.belowZero === 'lose';
-  el.innerHTML = (c ? `This clue costs <b class="${debt ? 'red' : ''}">${c}</b>${debt ? (lose ? ' (you would go bankrupt and lose!)' : ' (into debt!)') : ''} · ` : '') + `next letter costs <b>${V.costs.start + V.costs.step * (used + n)}</b>`;
+  el.innerHTML = (c ? `Costs <b class="${debt ? 'red' : ''}">${c}</b>${debt ? (lose ? ' (bankrupt!)' : ' (debt)') : ''} · next letter ` : 'Next letter costs ') + `<b>${V.costs.start + V.costs.step * (used + n)}</b>`;
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta');
   if (sh) sh.style.height = (bank > 0 ? Math.min(c, bank) / bank * 100 : 0) + '%';
   if (dl) dl.textContent = c ? `−${c}${debt ? (lose ? ' (bankrupt!)' : ' (debt)') : ''}` : '';
+  const shH = $('tubeShadowH'), dlH = $('tubeDeltaH');
+  if (shH) shH.style.width = (bank > 0 ? Math.min(c, bank) / bank * 100 : 0) + '%';
+  if (dlH) { dlH.textContent = c ? `−${c}${debt ? (lose ? ' bankrupt!' : ' debt') : ''}` : ''; dlH.closest('.hb').classList.toggle('hasdelta', !!c); }
 }
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
