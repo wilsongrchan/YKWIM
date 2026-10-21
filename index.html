@@ -560,7 +560,7 @@ function roundScreen() {
         body = `<div class="well center">${oDone ? `<p class="sub" style="margin:0 0 6px">${esc(V.names[1 - mt])}: ${esc(statusLine(1 - mt))}</p>` : ''}
           <h2 style="color:${TEAM_TEXT[mt]}">${esc(V.names[mt])}</h2><h2>Pass the device to ${esc(r.roleNames[stageRole])}</h2>
           <p class="sub">${stageRole === 'guesser' ? 'Clue-givers: look away!' : stageRole === 'giver2' ? 'The guesser must look away!' : 'Everyone else, look away!'}</p>
-          <button class="big" data-act="ready" data-key="${key}">I'm ready</button></div>`;
+          <button class="big" data-act="ready" data-key="${key}"${stageRole === 'guesser' ? ' data-guess="1"' : ''}>I'm ready</button></div>`;
       } else {
         role = stageRole;
         body = stageRole === 'guesser' ? guesserPanel(T, theme, blanks) : giverPanel(T, theme, blanks);
@@ -592,7 +592,7 @@ function vbar(t) {
   const pct = v => v / scale * 100, score = pct(Math.max(0, V.scores[t]));
   const quick = active ? (T.stage === 'guess' ? Math.ceil((T.speedLeft || 0) / 1000) : st.speedSecs) : 0;
   const icon = V.phase !== 'round' ? '' : T.stage === 'done' ? (T.result === 'correct' ? '✓' : '✕') : { giver1: '✎', giver2: '✎', guess: '💭', waiting: '⏳' }[T.stage];
-  const dataAttrs = active ? ` data-stage="${T.stage}" data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + firstLeft}"` : '';
+  const dataAttrs = active ? ` data-stage="${T.stage}" data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + firstLeft}" data-await="${T.awaitReady ? 1 : 0}"` : '';
   return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' ? ': ' + esc(statusLine(t)) : ''}">
     <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t].slice(0, 8))}</div>
     <div class="vb-track">
@@ -678,7 +678,7 @@ function tick() {
   });
   document.querySelectorAll('[data-qb]').forEach(el => {
     const bar = el.closest('.vbar'), d = bar.dataset;
-    const q = d.stage === 'guess' ? (S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0) : +d.qmax;
+    const q = d.stage === 'guess' && d.await !== '1' ? (S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0) : +d.qmax;
     el.style.height = q / +d.scale * 100 + '%';
     bar.querySelector('[data-gain]').textContent = +d.base + q;
   });
@@ -770,7 +770,7 @@ document.addEventListener('click', e => {
     case 'resetSettings':
     case 'start': case 'next': case 'toLobby': case 'skip': case 'giveup': return send({ type: d.act });
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('Link copied!')); return;
-    case 'ready': S.shownRole = d.key; return render();
+    case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
     case 'sendClue': S.draft.clue = ''; return send({ type: 'clue', text: $('clue').value });
     case 'sendGuess': { const g = $('guess').value; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
     case 'key': {

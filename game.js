@@ -104,7 +104,7 @@
 
     // ---------- round flow ----------
     function newTeamState() {
-      return { stage: 'giver1', deadline: null, timer: null, clues: [], spent: 0, used: 0, log: [], result: null, earned: 0, breakdown: null, guessDeadline: null, guessStart: null };
+      return { stage: 'giver1', deadline: null, timer: null, clues: [], spent: 0, used: 0, log: [], result: null, earned: 0, breakdown: null, guessDeadline: null, guessStart: null, awaitReady: false };
     }
     function arm(t, ms, fn) { const T = G.teams[t]; clearT(T.timer); T.timer = setT(fn, ms); }
 
@@ -145,9 +145,13 @@
       change();
       return {};
     }
+    // When the guesser shares a device with other people, they see a "pass the device" screen first.
+    // The quick-guess clock (and any last-chance timer) must only start once they tap "I'm ready".
+    const needsReady = t => { const id = holder(t, 'guesser'); return G.seats[t].filter(s => s === id).length > 1; };
     function enterGuess(t) {
-      const T = G.teams[t]; T.stage = 'guess'; T.guessStart = now();
-      if (G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
+      const T = G.teams[t]; T.stage = 'guess';
+      T.awaitReady = needsReady(t); T.guessStart = T.awaitReady ? null : now();
+      if (!T.awaitReady && G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
     }
     function startFinal(t) {
       // last chance: once one team guesses it, the other has settings.lastChance seconds
@@ -183,7 +187,7 @@
         finishTeam(t, 'correct', T.breakdown.base + T.breakdown.first + T.breakdown.speed);
         if (first) {
           G.firstCorrect = t;
-          const o = 1 - t; if (G.teams[o].stage === 'guess') startFinal(o);
+          const o = 1 - t; if (G.teams[o].stage === 'guess' && !G.teams[o].awaitReady) startFinal(o);
         }
       } else {
         spend(t, G.settings.penalty); T.log.push({ text, ok: false, cost: G.settings.penalty });
@@ -278,7 +282,16 @@
         case 'guess': {
           if (G.phase !== 'round') return {};
           const t = actTeam(id); if (t < 0 || G.teams[t].stage !== 'guess' || !rolesOf(id).includes('guesser')) return {};
+          if (G.teams[t].awaitReady) return {};   // still on the "pass the device" screen
           return guess(t, m.text);
+        }
+        case 'guessReady': { // the guesser tapped "I'm ready": the clocks start now
+          if (G.phase !== 'round') return {};
+          const t = actTeam(id), T = t < 0 ? null : G.teams[t];
+          if (!T || T.stage !== 'guess' || !T.awaitReady || !rolesOf(id).includes('guesser')) return {};
+          T.awaitReady = false; T.guessStart = now();
+          if (G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
+          change(); return {};
         }
         case 'giveup': {
           if (G.phase !== 'round') return {};
@@ -313,7 +326,8 @@
           if (mine || reveal) { tv.log = T.log; tv.spent = T.spent; }
           if (mine) {
             tv.used = T.used;
-            if (T.stage === 'guess') tv.speedLeft = Math.max(0, T.guessStart + G.settings.speedSecs * 1000 - now());
+            tv.awaitReady = T.awaitReady;
+            if (T.stage === 'guess') tv.speedLeft = T.awaitReady ? G.settings.speedSecs * 1000 : Math.max(0, T.guessStart + G.settings.speedSecs * 1000 - now());
           }
           return tv;
         }),
