@@ -479,18 +479,21 @@ applyDisplay();
 (function costDiagram() {
   const price = i => YKWIM.START_COST + YKWIM.STEP * i, sum = n => YKWIM.costOf(n, 0);
   const tiles = (word, cls) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
-  const one = 'TRNSPRNT', a = 'TRNS', b = 'PRNT', full = 'TRANSPARENT';
+  const one = 'TRNSPRNT', full = 'TRANSPARENT', g1 = 'CHI', g2 = 'BMBO';   // PANDA bans P, N and D, so CHINA's N isn't allowed there
   $('costdiag').innerHTML = `
     <div class="cd-title">Spelling it out: <b>${full}</b></div>
     <div class="cd-row">${tiles(full, '')}</div>
     <div class="cd-total">${full.length} letters = <b>${sum(full.length)}</b> points</div>
-    <div class="cd-title">Squeezed, one giver: <b>${one}</b></div>
+    <div class="cd-title">Squeezed: <b>${one}</b></div>
     <div class="cd-row">${tiles(one, '')}</div>
     <div class="cd-total">${one.length} letters = <b>${sum(one.length)}</b> points</div>
-    <div class="cd-title">Squeezed and split: <b>Clue-giver 1</b> then <b>Clue-giver 2</b></div>
-    <div class="cd-row">${tiles(a, '')}<span class="cd-gap"></span>${tiles(b, 'two')}</div>
-    <div class="cd-total">${sum(a.length)} + ${sum(b.length)} = <b>${sum(a.length) + sum(b.length)}</b> points</div>
-    <div class="cd-note">Same letters, but the price starts again at ${price(0)} for Clue-giver 2, so splitting saves ${sum(one.length) - sum(a.length) - sum(b.length)}.</div>`;
+    <div class="cd-title">Keyword PANDA, one giver: <b>${g1 + g2}</b></div>
+    <div class="cd-row">${tiles(g1 + g2, '')}</div>
+    <div class="cd-total">${(g1 + g2).length} letters = <b>${sum((g1 + g2).length)}</b> points</div>
+    <div class="cd-title">PANDA, split: Clue-giver 1 types <b>${g1}</b>, Clue-giver 2 sees C H I and adds <b>${g2}</b></div>
+    <div class="cd-row">${tiles(g1, '')}<span class="cd-gap"></span>${tiles(g2, 'two')}</div>
+    <div class="cd-total">${sum(g1.length)} + ${sum(g2.length)} = <b>${sum(g1.length) + sum(g2.length)}</b> points</div>
+    <div class="cd-note">The price starts again at ${price(0)} for Clue-giver 2, so splitting saves ${sum((g1 + g2).length) - sum(g1.length) - sum(g2.length)}.</div>`;
 })();
 
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
