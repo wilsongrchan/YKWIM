@@ -168,6 +168,7 @@
   .th { display: flex; align-items: flex-end; gap: 12px; margin: 6px 0 4px; }
   .av { flex: 0 0 38px; width: 38px; height: 38px; }
   .bub { position: relative; flex: 1; background: #fff; border-radius: 14px; padding: 6px 10px; font-size: .82rem; font-style: italic; line-height: 1.3; }
+  .bub .em { font-size: 1.25rem; font-style: normal; vertical-align: -2px; } .bub b { font-style: normal; }
   .bub::before { content: ""; position: absolute; left: -8px; bottom: 6px; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
   .bub::after { content: ""; position: absolute; left: -13px; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #fff; }
   .fs-cost { align-self: center; margin-left: 8px; font-weight: 600; font-size: .85rem; color: #b5472b; }
@@ -504,19 +505,20 @@ function renderFlow(which) {
   const MOUTH = { hope: 'M14 20q6 4 12 0', puzzled: 'M15 21.5q5-2 10 0', happy: 'M13 19q7 7 14 0' };
   const think = (color, mood, text) => `<div class="th"><svg class="av" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 40c0-9 6-13 15-13s15 4 15 13z" fill="${color}"/><circle cx="20" cy="15" r="10" fill="#f6dcc0" stroke="#123f43" stroke-width="1.5"/><circle cx="16" cy="14" r="1.5" fill="#123f43"/><circle cx="24" cy="14" r="1.5" fill="#123f43"/><path d="${MOUTH[mood]}" fill="none" stroke="#123f43" stroke-width="1.5" stroke-linecap="round"/></svg><div class="bub">${text}</div></div>`;
   const cost = n => `<span class="fs-cost">−${n}</span>`;
+  const EM = e => `<span class="em">${e}</span>`;
   const ban = `<span class="fs-ban">can't use <s>P</s><s>N</s><s>D</s></span>`;
   const second = which === 'a' ? 'BOO' : 'KUGFU';
   const step2 = which === 'a'
-    ? think('#6fc7bd', 'happy', 'A, B, M… bam! BAM-BOO, bamboo! I\'ll add BOO.')
-    : think('#6fc7bd', 'puzzled', 'A, B, M… amber??? No idea. I\'ll go my own way: kung fu panda! No N allowed, so KUGFU.');
+    ? think('#6fc7bd', 'happy', `A, B, M… ${EM('🎋')} bam-boo, bamboo! I'll add <b>BOO</b>.`)
+    : think('#6fc7bd', 'puzzled', `A, B, M… amber??? No idea. I'll go my own way: ${EM('🥋')} kung fu panda! No N allowed, so <b>KUGFU</b>.`);
   const step3 = which === 'a'
-    ? 'Animals, 5 letters… bamboo… PANDA!'
-    : 'Animals, 5 letters… bamboo… kung fu… PANDA!';
+    ? `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🐼')} PANDA!`
+    : `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🥋')} kung fu… ${EM('🐼')} PANDA!`;
   $('flowdiag').innerHTML = `<div class="seg" style="margin:6px 0 2px">
       <button type="button" class="${which === 'a' ? 'on' : ''}" data-act="flow" data-v="a">They get it</button>
       <button type="button" class="${which === 'b' ? 'on' : ''}" data-act="flow" data-v="b">They don't get it</button></div>` +
     box(1, 'Clue-giver 1 sees the keyword', `<span class="fs-kw">PANDA</span>${ban}
-      ${think('#f5b942', 'hope', 'Bam… bamboo! I hope Clue-giver 2 gets it.')}
+      ${think('#f5b942', 'hope', `${EM('🎋')} Bamboo! But I'll only give <b>BAM</b>, and hope Clue-giver 2 thinks of the same thing and adds <b>BOO</b>.`)}
       <div class="fs-row">${tiles('BAM')}${cost(sum(3))}</div>`) +
     box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span>${ban}
       <div class="fs-used">A B M <span class="fs-not">not BAM</span></div>
