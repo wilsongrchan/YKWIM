@@ -21,7 +21,7 @@
     }
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, pot: 200, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   const ROLES = ['giver1', 'giver2', 'guesser'];
@@ -65,7 +65,8 @@
       return live === undefined ? ts[0] : live;
     };
     const rolesOf = (id, t = actTeam(id)) => t < 0 ? [] : ROLES.filter(r => holder(t, r) === id);
-    const pot = t => Math.max(0, G.settings.pot - G.teams[t].spent);
+    // Letters and wrong guesses cost real points: they come straight out of the team's score (which can go negative).
+    const spend = (t, amount) => { G.scores[t] -= amount; G.teams[t].spent += amount; };
     function seatName(t, seatIdx) {
       const id = G.seats[t][seatIdx]; if (!id || !G.players[id]) return `Seat ${seatIdx + 1}`;
       const mine = G.seats[t].map((s, i) => s === id ? i : -1).filter(i => i >= 0);
@@ -129,10 +130,9 @@
         if (norm(text).includes(answer)) text = '';
       }
       const n = letterCount(text), sym = text.length - n;
-      T.spent += costOf(n, T.used) + sym * SYMBOL_COST; T.used += n; T.clues.push(text);
+      spend(t, costOf(n, T.used) + sym * SYMBOL_COST); T.used += n; T.clues.push(text);
       clearT(T.timer); T.deadline = null;
-      if (pot(t) === 0) finishTeam(t, 'out', 0);
-      else if (T.stage === 'giver1' && G.settings.teamSize === 3) beginWriting(t, 'giver2');   // teams of two: a single clue
+      if (T.stage === 'giver1' && G.settings.teamSize === 3) beginWriting(t, 'giver2');   // teams of two: a single clue
       else enterGuess(t);
       change();
       return {};
@@ -166,20 +166,19 @@
       if (!text) return {};
       if (text.toLowerCase() === norm(G.card.word)) {
         T.log.push({ text, ok: true });
-        // Score = what's left of the pot (after letter costs and wrong guesses) + first-to-guess bonus + quick-guess bonus.
+        // A correct guess pays the reward plus the first-to-guess and quick-guess bonuses (letters were already paid for).
         // (no first-to-guess bonus or 10s limit in pass-and-play: the teams don't play at the same time)
         const s = G.settings, first = G.firstCorrect === null && !s.sequential;
         // Quick bonus counts down: speedSecs points at the start, 1 fewer for every full second since the clues appeared.
         const quick = Math.max(0, s.speedSecs - Math.floor((now() - T.guessStart) / 1000));
-        T.breakdown = { base: pot(t), first: first ? s.firstBonus : 0, speed: quick };
+        T.breakdown = { base: s.reward, first: first ? s.firstBonus : 0, speed: quick, spent: T.spent };
         finishTeam(t, 'correct', T.breakdown.base + T.breakdown.first + T.breakdown.speed);
         if (first) {
           G.firstCorrect = t;
           const o = 1 - t; if (G.teams[o].stage === 'guess') startFinal(o);
         }
       } else {
-        T.spent += G.settings.penalty; T.log.push({ text, ok: false, cost: G.settings.penalty });
-        if (pot(t) === 0) finishTeam(t, 'out', 0);
+        spend(t, G.settings.penalty); T.log.push({ text, ok: false, cost: G.settings.penalty });
       }
       change();
       return {};
@@ -221,7 +220,8 @@
           }
           else if (m.key === 'target' && n >= 50 && n <= 2000) s.target = n;
           else if (m.key === 'words' && n >= 1 && n <= 50) s.words = n;
-          else if (m.key === 'pot' && n >= 40 && n <= 300) s.pot = n;
+          else if (m.key === 'reward' && n >= 40 && n <= 400) s.reward = n;
+          else if (m.key === 'bank' && n >= 0 && n <= 600) s.bank = n;
           else if (m.key === 'writeSecs' && n >= 10 && n <= 120) s.writeSecs = n;
           else if (m.key === 'penalty' && n >= 0 && n <= 20) s.penalty = n;
           else if (m.key === 'firstBonus' && n >= 0 && n <= 100) s.firstBonus = n;
@@ -241,8 +241,8 @@
         }
         case 'start': {
           if (!isHost || G.phase !== 'lobby') return {};
-          if (G.seats.some(t => t.some(s => !s))) return { error: 'Fill all 6 seats first.' };
-          G.scores = [0, 0]; G.round = 0; G.deck = []; G.winner = null; startRound(); change(); return {};
+          if (G.seats.some(t => t.some(s => !s))) return { error: 'Fill every seat first.' };
+          G.scores = [G.settings.bank, G.settings.bank]; G.round = 0; G.deck = []; G.winner = null; startRound(); change(); return {};
         }
         case 'next': {
           if (!isHost || G.phase !== 'roundEnd') return {};
@@ -255,7 +255,7 @@
         }
         case 'skip': { // host ends a stuck word
           if (!isHost || G.phase !== 'round') return {};
-          [0, 1].forEach(t => { if (G.teams[t].stage !== 'done') finishTeam(t, 'skipped', 0); });
+          [0, 1].forEach(t => { if (G.teams[t].stage !== 'done') { G.scores[t] += G.teams[t].spent; G.teams[t].spent = 0; finishTeam(t, 'skipped', 0); } });   // a skipped word refunds what was spent on it
           change(); return {};
         }
         case 'clue': {
@@ -300,9 +300,9 @@
           const rem = T.deadline ? T.deadline - now() : T.guessDeadline ? T.guessDeadline - now() : null;
           const tv = { stage: T.stage, result: T.result, earned: T.earned, breakdown: T.breakdown, remaining: rem === null ? null : Math.max(0, rem) };
           if (mine || reveal) tv.clues = (T.stage === 'guess' || T.stage === 'done' || reveal) ? T.clues : null;
-          if (mine || reveal) tv.log = T.log;
+          if (mine || reveal) { tv.log = T.log; tv.spent = T.spent; }
           if (mine) {
-            tv.pot = pot(t); tv.used = T.used;
+            tv.used = T.used;
             if (T.stage === 'guess') tv.speedLeft = Math.max(0, T.guessStart + G.settings.speedSecs * 1000 - now());
           }
           return tv;
