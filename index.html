@@ -830,7 +830,7 @@ function guesserPanel(T, theme, blanks) {
     <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your guess" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
     <div class="preview one">Wrong guess −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">give up</button> (no penalty)</div>`;
   return [top, `<div class="keys">${keyboard([], 'guess', seen)}</div>
-    ${seen.length ? `<div class="keyhint"><b>Dimmed</b> letters are in the clues, so probably not in the keyword.</div>` : ''}
+    ${seen.length ? `<div class="keyhint"><b>Dimmed</b> letters showed up in the clues, so there's a chance they're not in the keyword.</div>` : ''}
     ${logHtml(T)}`];
 }
 
