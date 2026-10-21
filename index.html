@@ -745,7 +745,7 @@ function roundScreen() {
   const [bodyTop, bodyBottom] = Array.isArray(body) ? body : [body, ''];
   const compact = role === 'giver1' || role === 'giver2' || handoff;
   const head = compact ? '' : `${timerPill()}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
-  return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}</div>${vbar(mt === null ? 1 : 1 - mt)}</div>${bodyBottom}</div>`;
+  return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${vbar(mt === null ? 1 : 1 - mt)}</div></div>`;   // phones hide the side bars, so the keyboard here is full width anyway
 }
 
 // One tall bar per team: my team on the left, the opponents on the right.
