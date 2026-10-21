@@ -45,7 +45,7 @@
   // with ~6 ~480; solving 4 of 5 ~420-440; 3 of 5 ~285; 2 of 5 ~175.
   const RATING_CUTS = [75, 200, 300, 400];
   // The five grades are YKWIM > KWIM > WIM > IM > M, each with its own little quote, from confident down to a shrug.
-  const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!'], [RATING_CUTS[2], 'KWIM', 'Kinda what I meant'],
+  const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!'], [RATING_CUTS[2], 'KWIM', 'Kinda what I meant :)'],
     [RATING_CUTS[1], 'WIM', 'Wait, I meant…'], [RATING_CUTS[0], 'IM', 'I mean…'], [-Infinity, 'M', 'Meh…']];
   function rating(score, bank, words) {
     const net = (score - bank) * 5 / words, r = RATINGS.find(x => net > x[0]);
