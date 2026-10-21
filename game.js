@@ -42,8 +42,8 @@
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the
   // starting bank (they scale with the number of words and the bank). Worked out for a 1 + 2 team where a solved word pays ~128
   // (reward plus bonuses), letters cost 5, 8, 10, 12... per clue-giver, and a word the team doesn't get costs nothing (letters refunded):
-  // all 5 solved with 4 letters a word ~510 gained, 5 letters ~460, 6 letters ~410; 4 of 5 solved ~330-370; 3 of 5 ~250-275; 2 of 5 ~165-185.
-  const RATING_CUTS = [260, 350, 430, 490];
+  // grades go by the average gained a word: 75 for YKWIM, 65 for KWIM, 50 for WIM, 35 for IM (so 5 words: 375 / 325 / 250 / 175).
+  const RATING_CUTS = [175, 250, 325, 375];   // points gained per 5 words: an average of 35 / 50 / 65 / 75 a word
   // The five grades are YKWIM > KWIM > WIM > IM > M, each with its own little quote, from confident down to a shrug.
   const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!'], [RATING_CUTS[2], 'KWIM', 'Kinda wild, I\'m mind-reading!'],
     [RATING_CUTS[1], 'WIM', 'Wait, I meant…'], [RATING_CUTS[0], 'IM', 'Interesting misunderstandings…'], [-Infinity, 'M', 'Muddled…']];
@@ -54,6 +54,7 @@
     return { label: r[1], quote: r[2], rank: RATINGS.length - 1 - RATINGS.indexOf(r), score, words };   // rank 4 = best, 0 = worst
   }
   const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
+  const LONG_WORD_MIN = 6;            // letters (spaces don't count) a word needs before it pays the long-word bonus
   const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;   // longer words pay a bonus on top of the reward: +25% of it per level
   const FIRST_COST = 5, START_COST = 6, STEP = 2;   // a clue-giver's letters cost 5, 8, 10, 12, 14...: the first is a gentle 5, then START + STEP * index
   const priceOf = i => i === 0 ? FIRST_COST : START_COST + STEP * i;   // price of the letter at index i (0 = the first one that clue-giver types)
@@ -164,11 +165,11 @@
       // if the ticked categories have no words at that level, use the nearest level that does (lower first)
       const order = [want, ...Array.from({ length: want - 1 }, (_, i) => want - 1 - i), ...Array.from({ length: TIERS.length - want }, (_, i) => want + 1 + i)];
       G.level = order.find(l => tierWords(l, s.categories).length) || want;
-      G.longBonus = longWordBonus(s.reward, G.level);
       const pool = tierWords(G.level, s.categories);
       let fresh = pool.filter(e => !G.used.has(e.word));
       if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
       G.card = fresh[Math.floor(Math.random() * fresh.length)]; G.used.add(G.card.word);
+      G.longBonus = norm(G.card.word).length >= LONG_WORD_MIN ? longWordBonus(s.reward, G.level) : 0;   // only a long word pays it, whatever level it was drawn from
       G.firstCorrect = null; G.gaveUp = null; G.phase = 'round';
       if (G.pass) { clearT(G.pass.timer); G.pass = null; }
       G.teams = [newTeamState(), newTeamState()];
@@ -471,7 +472,7 @@
           const rem = T.deadline ? T.deadline - now() : T.guessDeadline ? T.guessDeadline - now() : null;
           const tv = { stage: T.stage, result: T.result, earned: T.earned, breakdown: T.breakdown, remaining: rem === null ? null : Math.max(0, rem) };
           if (mine || reveal) tv.clues = (T.stage === 'guess' || T.stage === 'done' || reveal) ? T.clues : null;
-          if (mine || reveal) { tv.log = T.log; tv.spent = T.spent; }
+          if (mine || reveal) { tv.log = T.log; tv.spent = T.spent; tv.clueSpent = T.clueSpent; }
           if (mine) {
             tv.used = T.used;
             tv.awaitReady = T.awaitReady;
