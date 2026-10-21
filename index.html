@@ -84,14 +84,16 @@
     box-shadow: 0 10px 34px rgba(0,0,0,.28); }
   h1, h2, .display { font-family: var(--display); font-weight: 500; font-style: normal; margin: 0; letter-spacing: .02em; }
   .logo { font-size: clamp(3rem, 14vw, 5.5rem); text-align: center; line-height: 1; margin: 18px 0 4px; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
-  /* landing page only: two layers of dots drifting at different speeds */
-  .stage.home { background:
-      radial-gradient(circle at 2px 2px, rgba(255,255,255,.09) 2px, transparent 2.5px) 0 0 / 28px 28px,
-      radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 1.5px) 0 0 / 7px 7px,
-      linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%);
-    animation: drift 60s linear infinite; }
-  @keyframes drift { to { background-position: -112px 56px, 70px -35px, 0 0; } }
-  @media (prefers-reduced-motion: reduce) { .stage.home { animation: none; } }
+  /* landing page only: two layers of dots sliding past each other. They move with transform (GPU-composited),
+     not background-position, so there is no per-frame repaint. Each loop travels exactly one tile, so it never jumps. */
+  .stage.home { background: linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%); }
+  .stage.home > * { position: relative; z-index: 1; }
+  .stage.home::before, .stage.home::after { content: ""; position: absolute; inset: -60px; pointer-events: none; will-change: transform; }
+  .stage.home::before { background: radial-gradient(circle at 3px 3px, rgba(255,255,255,.16) 3px, transparent 3.5px) 0 0 / 60px 60px; animation: dots-a 3s linear infinite; }
+  .stage.home::after { background: radial-gradient(circle at 2px 2px, rgba(255,255,255,.10) 2px, transparent 2.5px) 0 0 / 30px 30px; animation: dots-b 2.5s linear infinite; }
+  @keyframes dots-a { to { transform: translate3d(-60px, 60px, 0); } }
+  @keyframes dots-b { to { transform: translate3d(30px, -30px, 0); } }
+  @media (prefers-reduced-motion: reduce) { .stage.home::before, .stage.home::after { animation: none; } }
   .logo, .masthead .mark, .secret .w, .brand { font-family: var(--brand); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .05em; }
   .logo { text-shadow: 3px 3px 0 var(--navy); }
   .tag { text-align: center; color: var(--soft); margin: 0 0 22px; font-weight: 500; }
