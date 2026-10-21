@@ -21,9 +21,8 @@
     }
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
-  const FINAL_MS = 10000;            // once one team guesses it, the other team has this long
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   const ROLES = ['giver1', 'giver2', 'guesser'];
   const STAGE_ROLE = { giver1: 'giver1', giver2: 'giver2', guess: 'guesser' };
@@ -143,8 +142,9 @@
       if (G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
     }
     function startFinal(t) {
-      const T = G.teams[t]; T.guessDeadline = now() + FINAL_MS;
-      arm(t, FINAL_MS, () => { if (T.stage === 'guess') { finishTeam(t, 'timeout', 0); change(); } });
+      // last chance: once one team guesses it, the other has settings.lastChance seconds
+      const T = G.teams[t], ms = G.settings.lastChance * 1000; T.guessDeadline = now() + ms;
+      arm(t, ms, () => { if (T.stage === 'guess') { finishTeam(t, 'timeout', 0); change(); } });
     }
     function finishTeam(t, result, earned) {
       const T = G.teams[t]; clearT(T.timer);
@@ -214,6 +214,7 @@
           if (m.key === 'lang' && DATA[m.value]) s.lang = m.value;
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value)) s.mode = m.value;
           else if (m.key === 'banCount' && [2, 3, 4].includes(n)) s.banCount = n;
+          else if (m.key === 'lastChance' && [5, 10, 15].includes(n)) s.lastChance = n;
           else if (m.key === 'teamSize' && [2, 3].includes(n)) {
             s.teamSize = n; // seats beyond the new size are dropped
             G.seats = G.seats.map(t => Array.from({ length: n }, (_, i) => t[i] || null));
@@ -319,6 +320,6 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP, FINAL_MS };
+  const api = { createGame, norm, costOf, SYMBOLS, SYMBOL_COST, START_COST, STEP };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);

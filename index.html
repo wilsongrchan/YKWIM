@@ -255,7 +255,7 @@
       <li>The keyword's first few consonants are banned.</li>
       <li>Teams of three: Clue-giver 2 sees which letters Clue-giver 1 used, and their prices start over. Teams of two: one clue.</li>
       <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
-      <li>When one team guesses it, the other has <b>10 seconds</b>.</li>
+      <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
     </ul>
     <div class="ex"><b>Score:</b> what's left of your points + a first-to-guess bonus + a quick-guess bonus that shrinks every second. Wrong guesses cost points.</div>
     <button class="big" data-act="closeHelp">Got it</button>
@@ -455,6 +455,7 @@ function lobbyScreen() {
       <div class="settings">
         <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
         <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty)}</div>
+        <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec')}</div>
         <div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
       </div>
@@ -673,7 +674,7 @@ function mockView(kind) {
   const names = ['Team Gold', 'Team Blue'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { start: 10, step: 2, symbol: 5 }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
+    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
