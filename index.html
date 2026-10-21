@@ -214,6 +214,10 @@
   .symrow button { background: color-mix(in srgb, var(--ov) 8%, transparent); width: 34px; height: 32px; font-size: .85rem; }
   .symrow::before { content: "Symbols cost 5 each"; width: 100%; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
   .keys button:hover { background: color-mix(in srgb, var(--ov) 24%, transparent); }
+  .keys button.seen { opacity: .4; }
+  .keys button.seen:hover { opacity: .7; }
+  .keyhint { text-align: center; font-size: .78rem; color: var(--soft); margin-top: 8px; }
+  .keyhint b { font-weight: 500; opacity: .8; }
   .keys button:disabled { background: rgba(0,0,0,.2); color: var(--soft); opacity: .5; box-shadow: none; }
   .msg { min-height: 1.3em; font-size: .9rem; margin-top: 8px; color: var(--bad); font-weight: 500; text-align: center; }
   .preview { text-align: center; color: var(--soft); font-size: .88rem; font-weight: 500; margin-top: 8px; }
@@ -402,8 +406,9 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const lettersOnly = s => (String(s).match(/\p{L}/gu) || []).length;
 const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += V.costs.start + V.costs.step * (used + i); return c; };
 const clueCost = (text, used) => { const n = lettersOnly(text); return costOf(n, used) + V.costs.symbol * ([...text].length - n); };
-const keyboard = (ban = [], target) =>
-  [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(c => `<button data-act="key" data-target="${target}" data-k="${c}"${ban.includes(c) ? ' disabled' : ''}>${c}</button>`).join('')
+// ban: keys that can't be used (disabled). seen: keys to flag but leave usable (guesser's hint).
+const keyboard = (ban = [], target, seen = []) =>
+  [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(c => `<button data-act="key" data-target="${target}" data-k="${c}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')
   + `<button class="wide" data-act="key" data-target="${target}" data-k="⌫">⌫</button>`
   // symbols cost a flat 5 each in clues, so only the clue keyboard gets them
   + (target === 'clue' ? `<div class="symrow">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
@@ -627,10 +632,13 @@ function giverPanel(T, theme, blanks) {
 }
 
 function guesserPanel(T, theme, blanks) {
+  // Clue-givers can't type the keyword's first few consonants, so a consonant that shows up in a clue is a poor guess.
+  const seen = [...new Set([...(T.clues || []).join('')].filter(c => /[A-Z]/.test(c) && !'AEIOU'.includes(c)))];
   return `${theme}${blanks}
     <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Write the keyword…" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
     <div class="preview">Wrong guess −${V.settings.penalty}${T.speedLeft ? ` · <b>⚡ quick bonus +<span data-bonus>${Math.ceil(T.speedLeft / 1000)}</span></b>` : ''} · <button class="linkbtn" data-act="giveup">give up</button></div>
-    <div class="keys">${keyboard([], 'guess')}</div>
+    <div class="keys">${keyboard([], 'guess', seen)}</div>
+    ${seen.length ? `<div class="keyhint"><b>Dimmed</b> consonants appear in the clues, so they can't be among the keyword's first ${V.settings.banCount} consonants.</div>` : ''}
     ${logHtml(T)}`;
 }
 
