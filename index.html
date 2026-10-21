@@ -115,7 +115,6 @@
   .catchip { padding: 7px 12px; font-size: .88rem; font-weight: 500; border-radius: 999px; background: transparent; color: var(--soft); border: 2px solid color-mix(in srgb, var(--ov) 25%, transparent); }
   .catchip.on { background: var(--lime); color: var(--ink); border-color: var(--lime); }
   .catchip:disabled { opacity: .8; cursor: default; }
-  .cathint { width: 100%; font-size: .75rem; color: var(--soft); opacity: .8; }
   .dd { position: relative; }
   .dd-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; padding: 12px 14px; border-radius: 12px;
     background: var(--field); color: var(--ink); font: 500 1.05rem var(--body); border: 2px solid transparent; }
@@ -653,8 +652,7 @@ function lobbyScreen() {
       <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
     </div>
     <div class="cats"><div class="catshead">Categories</div>
-      ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}
-      <div class="cathint">Celebrities, Characters, Historical figures, Brands &amp; companies and Sayings only appear at the top word level, and so do multi-word entries like hot dog (Food) or San Francisco (Cities).</div></div>
+      ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}</div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>Advanced settings</summary>
       <div class="settings">
