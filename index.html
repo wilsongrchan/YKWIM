@@ -264,7 +264,7 @@
       <li>Guessers see only their own team's clues, plus the theme and letter count.</li>
       <li>When one team guesses it, the other gets a short <b>last-chance timer</b> (10 seconds by default).</li>
     </ul>
-    <div class="ex"><b>Points:</b> each team starts with a bank (200). Every letter comes straight out of it, so spend wisely. Guess the keyword to earn a reward, plus a first-to-guess bonus and a quick-guess bonus that shrinks every second. Wrong guesses cost points too.</div>
+    <div class="ex"><b>Points:</b> each team starts with a bank (200). Every letter comes straight out of it, so spend wisely. Guess the keyword to earn a reward, plus a first-to-guess bonus and a quick-guess bonus that shrinks every second. Wrong guesses cost points too. Dropping below zero means debt, or an instant loss if the host picks that.</div>
     <button class="big" data-act="closeHelp">Got it</button>
   </div>
 </div>
@@ -455,6 +455,7 @@ function lobbyScreen() {
         ? `<label>Number of words</label>${sel('words', [5, 10, 15], st.words, x => x + ' words')}`
         : `<label>Play to</label>${sel('target', [500, 800, 1200], st.target)}`}</div>
       <div><label>Starting points</label>${sel('bank', [100, 200, 300], st.bank)}</div>
+      <div><label>Below zero points</label>${sel('belowZero', [['debt', 'Go into debt (easy)'], ['lose', 'Lose immediately (hard)']], st.belowZero)}</div>
       <div><label>Points per correct guess</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
       <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
       <div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec' + (x === 5 ? ' (hard)' : x === 15 ? ' (easy)' : ''))}</div>
@@ -633,6 +634,7 @@ function overScreen() {
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">GAME OVER</div>
     <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]}">${esc(V.names[V.winner])} wins!</div>
+    ${V.bankrupt !== null && V.bankrupt !== undefined ? `<div class="sub" style="color:var(--bad)">${esc(V.names[V.bankrupt])} fell below zero</div>` : ''}
     <div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>
     ${V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">Back to lobby</button>` : `<p class="sub">Waiting for the host…</p>`}
   </div>`;
@@ -670,12 +672,12 @@ setInterval(tick, 250);
 function updatePreview() {
   const el = $('preview'), inp = $('clue'); if (!el || !inp || !V || !V.round) return;
   const T = V.round.teams[V.myTeam], used = T.used || 0, n = lettersOnly(inp.value), c = clueCost(inp.value, used);
-  const bank = V.scores[V.myTeam], debt = c > Math.max(0, bank);
-  el.innerHTML = (c ? `This clue costs <b class="${debt ? 'red' : ''}">${c}</b>${debt ? ' (into debt!)' : ''} · ` : '') + `next letter costs <b>${V.costs.start + V.costs.step * (used + n)}</b>`;
+  const bank = V.scores[V.myTeam], debt = c > Math.max(0, bank), lose = V.settings.belowZero === 'lose';
+  el.innerHTML = (c ? `This clue costs <b class="${debt ? 'red' : ''}">${c}</b>${debt ? (lose ? ' (you would lose the game!)' : ' (into debt!)') : ''} · ` : '') + `next letter costs <b>${V.costs.start + V.costs.step * (used + n)}</b>`;
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta');
   if (sh) sh.style.height = (bank > 0 ? Math.min(c, bank) / bank * 100 : 0) + '%';
-  if (dl) dl.textContent = c ? `−${c}${debt ? ' (debt)' : ''}` : '';
+  if (dl) dl.textContent = c ? `−${c}${debt ? (lose ? ' (bust!)' : ' (debt)') : ''}` : '';
 }
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
@@ -686,7 +688,7 @@ function mockView(kind) {
   const names = ['Team Gold', 'Team Blue'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { start: 10, step: 2, symbol: 5 }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
+    settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };

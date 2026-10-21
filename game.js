@@ -21,7 +21,7 @@
     }
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 800, words: 10, bank: 200, belowZero: 'debt', reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   const ROLES = ['giver1', 'giver2', 'guesser'];
@@ -47,7 +47,7 @@
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
-      scores: [0, 0], round: 0, deck: [], card: null, teams: [null, null], firstCorrect: null, winner: null
+      scores: [0, 0], bankrupt: null, round: 0, deck: [], card: null, teams: [null, null], firstCorrect: null, winner: null
     };
     const change = () => onChange();
 
@@ -67,6 +67,13 @@
     const rolesOf = (id, t = actTeam(id)) => t < 0 ? [] : ROLES.filter(r => holder(t, r) === id);
     // Letters and wrong guesses cost real points: they come straight out of the team's score (which can go negative).
     const spend = (t, amount) => { G.scores[t] -= amount; G.teams[t].spent += amount; };
+    // Optional rule: dropping below zero ends the game on the spot and the other team wins.
+    function bust(t) {
+      if (G.settings.belowZero !== 'lose' || G.scores[t] >= 0) return false;
+      G.teams.forEach(T => T && clearT(T.timer));
+      G.phase = 'over'; G.winner = 1 - t; G.bankrupt = t;
+      return true;
+    }
     function seatName(t, seatIdx) {
       const id = G.seats[t][seatIdx]; if (!id || !G.players[id]) return `Seat ${seatIdx + 1}`;
       const mine = G.seats[t].map((s, i) => s === id ? i : -1).filter(i => i >= 0);
@@ -132,6 +139,7 @@
       const n = letterCount(text), sym = text.length - n;
       spend(t, costOf(n, T.used) + sym * SYMBOL_COST); T.used += n; T.clues.push(text);
       clearT(T.timer); T.deadline = null;
+      if (bust(t)) { change(); return {}; }
       if (T.stage === 'giver1' && G.settings.teamSize === 3) beginWriting(t, 'giver2');   // teams of two: a single clue
       else enterGuess(t);
       change();
@@ -179,6 +187,7 @@
         }
       } else {
         spend(t, G.settings.penalty); T.log.push({ text, ok: false, cost: G.settings.penalty });
+        if (bust(t)) { change(); return {}; }
       }
       change();
       return {};
@@ -222,6 +231,7 @@
           else if (m.key === 'words' && n >= 1 && n <= 50) s.words = n;
           else if (m.key === 'reward' && n >= 40 && n <= 400) s.reward = n;
           else if (m.key === 'bank' && n >= 0 && n <= 600) s.bank = n;
+          else if (m.key === 'belowZero' && ['debt', 'lose'].includes(m.value)) s.belowZero = m.value;
           else if (m.key === 'writeSecs' && n >= 10 && n <= 120) s.writeSecs = n;
           else if (m.key === 'penalty' && n >= 0 && n <= 20) s.penalty = n;
           else if (m.key === 'firstBonus' && n >= 0 && n <= 100) s.firstBonus = n;
@@ -242,7 +252,7 @@
         case 'start': {
           if (!isHost || G.phase !== 'lobby') return {};
           if (G.seats.some(t => t.some(s => !s))) return { error: 'Fill every seat first.' };
-          G.scores = [G.settings.bank, G.settings.bank]; G.round = 0; G.deck = []; G.winner = null; startRound(); change(); return {};
+          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.deck = []; G.winner = null; startRound(); change(); return {};
         }
         case 'next': {
           if (!isHost || G.phase !== 'roundEnd') return {};
@@ -284,7 +294,7 @@
       const reveal = G.phase === 'roundEnd' || G.phase === 'over';
       const v = {
         phase: G.phase, me: id, isHost: id === hostId, hostId, settings: G.settings, names: G.names, scores: G.scores,
-        winner: G.winner, costs: { start: START_COST, step: STEP, symbol: SYMBOL_COST },
+        winner: G.winner, bankrupt: G.phase === 'over' ? G.bankrupt : null, costs: { start: START_COST, step: STEP, symbol: SYMBOL_COST },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
         myTeam: actTeam(id) < 0 ? null : actTeam(id),
