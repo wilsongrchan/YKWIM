@@ -72,6 +72,11 @@
   .breakdown { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; font-size: .85rem; color: var(--soft); }
   .breakdown .tot { color: var(--lime); font-weight: 500; }
   @keyframes popin { from { opacity: 0; transform: scale(.7) translateY(8px); } to { opacity: 1; transform: none; } }
+  details#adv { margin-top: 12px; border-top: 1px solid rgba(255,255,255,.15); padding-top: 10px; }
+  details#adv summary { cursor: pointer; color: var(--soft); font-size: .9rem; font-weight: 500; list-style: none; }
+  details#adv summary::-webkit-details-marker { display: none; }
+  details#adv summary::before { content: "▸"; display: inline-block; margin-right: 8px; transition: transform .15s; }
+  details#adv[open] summary::before { transform: rotate(90deg); }
   .settingshead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0 8px; }
   .settingshead h2 { margin: 0; font-size: 1.2rem; }
   .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 4px; }
@@ -408,17 +413,22 @@ function lobbyScreen() {
     <div class="settingshead"><h2>Game settings</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">Reset to defaults</button>` : ''}</div>
     <div class="well"><div class="settings">
       <div><label>Players per team</label>${sel('teamSize', [[3, '3 per team (6 players)'], [2, '2 per team (4 players)']], st.teamSize)}</div>
-      <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
       <div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'After a set number of words']], st.mode)}</div>
       <div>${st.mode === 'words'
         ? `<label>Number of words</label>${sel('words', [5, 10, 15], st.words, x => x + ' words')}`
         : `<label>Play to</label>${sel('target', [300, 500, 800], st.target)}`}</div>
       <div><label>Points per correct guess</label>${sel('pot', [100, 120, 150, 200], st.pot)}</div>
-      <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty)}</div>
       <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
-      <div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>
-      <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
-    </div></div>
+    </div>
+    <details id="adv" ${S.advOpen ? 'open' : ''}>
+      <summary>Advanced settings</summary>
+      <div class="settings">
+        <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
+        <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty)}</div>
+        <div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>
+        <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
+      </div>
+    </details></div>
     <div style="margin-top:14px">${V.isHost
       ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? 'Start game' : 'Fill every seat to start'}</button>
          <button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? '✓ Pass-and-play on this device' : 'Or: pass-and-play on this one device'}</button>
@@ -704,6 +714,7 @@ document.addEventListener('input', e => {
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
+document.addEventListener('toggle', e => { if (e.target.id === 'adv') S.advOpen = e.target.open; }, true);
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.dataset.set && net) net.send({ type: 'settings', key: t.dataset.set, value: t.value });
