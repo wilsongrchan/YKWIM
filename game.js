@@ -62,7 +62,7 @@
     const actTeam = id => {
       const ts = [0, 1].filter(t => G.seats[t].includes(id));
       if (ts.length < 2) return ts.length ? ts[0] : -1;
-      const live = G.teams[0] && ts.find(t => !['done', 'waiting'].includes(G.teams[t].stage));
+      const live = G.teams[0] ? ts.find(t => !['done', 'waiting'].includes(G.teams[t].stage)) : undefined;   // no teams yet in the lobby
       return live === undefined ? ts[0] : live;
     };
     const rolesOf = (id, t = actTeam(id)) => t < 0 ? [] : ROLES.filter(r => holder(t, r) === id);

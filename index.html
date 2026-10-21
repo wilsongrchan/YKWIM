@@ -347,6 +347,7 @@ applyTheme(safeGet('ykwim-theme') || 'citrus');
 
 // ---------- helpers ----------
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const lettersOnly = s => (String(s).match(/\p{L}/gu) || []).length;
 const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += V.costs.start + V.costs.step * (used + i); return c; };
 const clueCost = (text, used) => { const n = lettersOnly(text); return costOf(n, used) + V.costs.symbol * ([...text].length - n); };
@@ -453,7 +454,7 @@ function topBar() {
 function slots(t, role) {
   const T = V.round.teams[t], st = T.stage, clues = T.clues;
   const hidden = n => `<div class="slot"><div class="ic off">🔒</div><small>Clue ${n}</small></div>`;
-  const shown = (n, txt) => `<div class="slot"><div class="txt">${esc(txt || '—')}</div><small>Clue ${n} · ${lettersOnly(txt)} letters</small></div>`;
+  const shown = (n, txt) => `<div class="slot"><div class="txt">${esc(txt || '—')}</div><small>Clue ${n} · ${plural(lettersOnly(txt), 'letter')}</small></div>`;
   const sent = n => `<div class="slot"><div class="ic">✓</div><small>Clue ${n} sent</small></div>`;
   const live = n => `<div class="slot live"><div class="ic">✎</div><small>Clue ${n}</small></div>`;
   const wait = n => `<div class="slot"><div class="ic">🔍</div><small>Clue ${n}</small></div>`;
@@ -578,7 +579,7 @@ function roundEndScreen() {
     <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">THE KEYWORD WAS</div><div class="brand" style="font-size:2rem;color:var(--lime)">${esc(r.word)}</div></div>
     ${[left, 1 - left].map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || [''].concat(V.settings.teamSize === 2 ? [] : ['']); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
       <h3 style="color:${TEAM_COLORS[t]}">${esc(V.names[t])} <span class="rstat">${esc(statusLine(t))}</span></h3>
-      <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * 2 + i) * .3}s"><div class="bc-txt">${esc(c || '—')}</div><small>Clue ${i + 1} · ${lettersOnly(c)} letters</small></div>`).join('')}</div>
+      <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * 2 + i) * .3}s"><div class="bc-txt">${esc(c || '—')}</div><small>Clue ${i + 1} · ${plural(lettersOnly(c), 'letter')}</small></div>`).join('')}</div>
       ${b ? `<div class="breakdown"><span>pot ${b.base}</span>${b.first ? `<span>first +${b.first}</span>` : ''}${b.speed ? `<span>quick +${b.speed}</span>` : ''}<span class="tot">= +${T.earned}</span></div>` : ''}
     </div>`; }).join('')}
     ${V.settings.mode === 'words' && r.n + 1 >= V.settings.words && V.scores[0] === V.scores[1] ? `<p class="sub center" style="color:var(--lime)">Tied! One more word decides it.</p>` : ''}
