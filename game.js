@@ -21,6 +21,7 @@
     }
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
+  const DEFAULT_SETTINGS = { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false };
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
   const FINAL_MS = 10000;            // once one team guesses it, the other team has this long
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
@@ -43,7 +44,7 @@
 
     const G = {
       phase: 'lobby',                         // lobby | round | roundEnd | over
-      settings: { lang: 'en', banCount: 3, teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
+      settings: { ...DEFAULT_SETTINGS },
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
@@ -224,6 +225,13 @@
           else if (m.key === 'penalty' && n >= 0 && n <= 20) s.penalty = n;
           else if (m.key === 'firstBonus' && n >= 0 && n <= 100) s.firstBonus = n;
           else if (m.key === 'speedSecs' && n >= 0 && n <= 30) s.speedSecs = n;
+          change(); return {};
+        }
+        case 'resetSettings': { // back to the defaults (pass-and-play stays on if it was chosen)
+          if (!isHost || G.phase !== 'lobby') return {};
+          const keep = G.settings.sequential;
+          G.settings = { ...DEFAULT_SETTINGS, sequential: keep };
+          G.seats = G.seats.map(t => Array.from({ length: G.settings.teamSize }, (_, i) => t[i] || null));
           change(); return {};
         }
         case 'teamName': {

@@ -72,6 +72,8 @@
   .breakdown { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; font-size: .85rem; color: var(--soft); }
   .breakdown .tot { color: var(--lime); font-weight: 500; }
   @keyframes popin { from { opacity: 0; transform: scale(.7) translateY(8px); } to { opacity: 1; transform: none; } }
+  .settingshead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0 8px; }
+  .settingshead h2 { margin: 0; font-size: 1.2rem; }
   .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 4px; }
   .sw { display: block; width: 100%; text-align: left; padding: 10px; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; font-size: .9rem; }
   .sw.on { border-color: var(--ink); }
@@ -402,6 +404,7 @@ function lobbyScreen() {
     </div>`).join('')}</div>
     ${unseated.length ? `<p class="sub">Waiting to sit: ${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
     <p class="sub">${st.teamSize === 2 ? 'One player writes a single clue and the other guesses. You swap every word.' : 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.'}</p>
+    <div class="settingshead"><h2>Game settings</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">Reset to defaults</button>` : ''}</div>
     <div class="well"><div class="settings">
       <div><label>Players per team</label>${sel('teamSize', [[3, '3 per team (6 players)'], [2, '2 per team (4 players)']], st.teamSize)}</div>
       <div><label>Banned consonants</label>${sel('banCount', [[2, 'First 2 (easy)'], [3, 'First 3'], [4, 'First 4 (hard)']], st.banCount)}</div>
@@ -681,6 +684,7 @@ document.addEventListener('click', e => {
     case 'sit': return send({ type: 'sit', team: +d.team, seat: +d.seat });
     case 'sitAll': return send({ type: 'sitAll', team: +d.team });
     case 'stand': return send({ type: 'stand' });
+    case 'resetSettings':
     case 'start': case 'next': case 'toLobby': case 'skip': case 'giveup': return send({ type: d.act });
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('Link copied!')); return;
     case 'ready': S.shownRole = d.key; return render();
