@@ -43,7 +43,7 @@
 
     const G = {
       phase: 'lobby',                         // lobby | round | roundEnd | over
-      settings: { lang: 'en', mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
+      settings: { lang: 'en', teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
@@ -53,7 +53,10 @@
 
     // ---------- helpers ----------
     const teamOf = id => G.seats.findIndex(t => t.includes(id));
-    const holder = (t, role) => G.seats[t][(G.round + ROLES.indexOf(role)) % 3];
+    // Teams of 3: giver 1, giver 2 and the guesser are three different seats. Teams of 2: one player writes both clues.
+    // Either way the seats rotate every round.
+    const seatIdx = (t, role) => G.settings.teamSize === 2 ? (G.round + (role === 'guesser' ? 1 : 0)) % 2 : (G.round + ROLES.indexOf(role)) % 3;
+    const holder = (t, role) => G.seats[t][seatIdx(t, role)];
     // A device normally sits on one team. In pass-and-play it holds both; then the team whose turn it is is "its" team.
     const actTeam = id => {
       const ts = [0, 1].filter(t => G.seats[t].includes(id));
@@ -68,7 +71,7 @@
       const mine = G.seats[t].map((s, i) => s === id ? i : -1).filter(i => i >= 0);
       return mine.length > 1 ? `${G.players[id].name} (${mine.indexOf(seatIdx) + 1})` : G.players[id].name;
     }
-    const roleName = (t, role) => seatName(t, (G.round + ROLES.indexOf(role)) % 3);
+    const roleName = (t, role) => seatName(t, seatIdx(t, role));
     const banned = () => { const n = norm(G.card.word); return n.length >= 4 ? [...new Set([...n].filter(c => !'aeiou'.includes(c)).slice(0, 4))] : []; };
     const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
@@ -189,7 +192,7 @@
         case 'sit': {
           if (G.phase !== 'lobby') return { error: 'Game already started.' };
           const { team, seat } = m;
-          if (![0, 1].includes(team) || ![0, 1, 2].includes(seat)) return {};
+          if (![0, 1].includes(team) || !(Number.isInteger(seat) && seat >= 0 && seat < G.settings.teamSize)) return {};
           const cur = G.seats[team][seat]; if (cur && cur !== id) return { error: 'Seat taken.' };
           vacate(id, team); G.seats[team][seat] = id; G.settings.sequential = false; change(); return {};
         }
@@ -197,18 +200,22 @@
           if (G.phase !== 'lobby') return { error: 'Game already started.' };
           const { team } = m; if (![0, 1].includes(team)) return {};
           if (G.seats[team].some(s => s && s !== id)) return { error: 'Some seats on that team are taken.' };
-          vacate(id, team); G.seats[team] = [id, id, id]; G.settings.sequential = false; change(); return {};
+          vacate(id, team); G.seats[team] = Array(G.settings.teamSize).fill(id); G.settings.sequential = false; change(); return {};
         }
         case 'stand': if (G.phase === 'lobby') { vacate(id, -1); G.settings.sequential = false; change(); } return {};
         case 'passAndPlay': { // everyone shares the host's device; teams take turns
           if (!isHost || G.phase !== 'lobby') return {};
-          G.seats = [[id, id, id], [id, id, id]]; G.settings.sequential = true; change(); return {};
+          G.seats = [0, 1].map(() => Array(G.settings.teamSize).fill(id)); G.settings.sequential = true; change(); return {};
         }
         case 'settings': {
           if (!isHost || G.phase !== 'lobby') return {};
           const s = G.settings, n = Number(m.value);
           if (m.key === 'lang' && DATA[m.value]) s.lang = m.value;
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value)) s.mode = m.value;
+          else if (m.key === 'teamSize' && [2, 3].includes(n)) {
+            s.teamSize = n; // seats beyond the new size are dropped
+            G.seats = G.seats.map(t => Array.from({ length: n }, (_, i) => t[i] || null));
+          }
           else if (m.key === 'target' && n >= 50 && n <= 2000) s.target = n;
           else if (m.key === 'words' && n >= 1 && n <= 50) s.words = n;
           else if (m.key === 'pot' && n >= 40 && n <= 300) s.pot = n;
@@ -270,7 +277,8 @@
         winner: G.winner, costs: { start: START_COST, step: STEP, symbol: SYMBOL_COST },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
-        myTeam: actTeam(id) < 0 ? null : actTeam(id)
+        myTeam: actTeam(id) < 0 ? null : actTeam(id),
+        sharedDevice: actTeam(id) >= 0 && G.seats[actTeam(id)].filter(s => s === id).length > 1   // one device, several people
       };
       if (G.phase === 'lobby' || !G.card) return v;
 
@@ -294,7 +302,7 @@
       const isGiver = roles.includes('giver1') || roles.includes('giver2');
       if (reveal || (G.phase === 'round' && isGiver)) { v.round.word = G.card.word; }
       if (G.phase === 'round' && isGiver) v.round.banned = banned().map(c => c.toUpperCase());
-      if (mt !== null && G.phase === 'round' && roles.includes('giver2') && G.teams[mt].stage === 'giver2')
+      if (mt !== null && G.phase === 'round' && roles.includes('giver2') && G.teams[mt].stage === 'giver2' && seatIdx(mt, 'giver1') !== seatIdx(mt, 'giver2'))
         v.round.usedLetters = [...G.teams[mt].clues[0]].filter(c => /[A-Z]/.test(c)).sort().join(' ');
       return v;
     }

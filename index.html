@@ -84,6 +84,14 @@
     box-shadow: 0 10px 34px rgba(0,0,0,.28); }
   h1, h2, .display { font-family: var(--display); font-weight: 500; font-style: normal; margin: 0; letter-spacing: .02em; }
   .logo { font-size: clamp(3rem, 14vw, 5.5rem); text-align: center; line-height: 1; margin: 18px 0 4px; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
+  /* landing page only: two layers of dots drifting at different speeds */
+  .stage.home { background:
+      radial-gradient(circle at 2px 2px, rgba(255,255,255,.09) 2px, transparent 2.5px) 0 0 / 28px 28px,
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 1.5px) 0 0 / 7px 7px,
+      linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%);
+    animation: drift 60s linear infinite; }
+  @keyframes drift { to { background-position: -112px 56px, 70px -35px, 0 0; } }
+  @media (prefers-reduced-motion: reduce) { .stage.home { animation: none; } }
   .logo, .masthead .mark, .secret .w, .brand { font-family: var(--brand); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .05em; }
   .logo { text-shadow: 3px 3px 0 var(--navy); }
   .tag { text-align: center; color: var(--soft); margin: 0 0 22px; font-weight: 500; }
@@ -218,7 +226,7 @@
   <div class="sheet">
     <button class="x" data-act="closeHelp" aria-label="Close">✕</button>
     <h2>How to play</h2>
-    <p>Two teams of three race to guess the same keyword. Every round, each team has a <b>Clue-giver 1</b>, a <b>Clue-giver 2</b> and a <b>Guesser</b> (roles rotate).</p>
+    <p>Two teams of three race to guess the same keyword. Every round, each team has a <b>Clue-giver 1</b>, a <b>Clue-giver 2</b> and a <b>Guesser</b> (roles rotate). In a team of two, one player writes both clues and the other guesses, and you swap every round.</p>
     <ul>
       <li>You see the <b>theme</b> and how many letters the word has.</li>
       <li>Clue-givers type clues in <b>letters, not words</b>. Every letter costs points, and each one costs more than the last (10, 12, 14…). Symbols like <b>. ? ! @ # $</b> cost a flat 5 each.</li>
@@ -358,9 +366,9 @@ function render() {
 }
 
 function homeScreen() {
-  return `<div class="stage">
+  return `<div class="stage home">
     <div class="logo display">YKWIM</div>
-    <p class="tag">you know what i mean? · a word game for two teams of three</p>
+    <p class="tag">you know what i mean? · a word game for two teams of two or three</p>
     <label>Your name</label>
     <input id="name" maxlength="14" placeholder="Name" value="${esc(S.name)}">
     <div style="margin-top:18px"><button class="big" data-act="create" ${S.busy ? 'disabled' : ''}>Create room</button></div>
@@ -387,12 +395,13 @@ function lobbyScreen() {
     <p class="sub center">Share this link: <b style="color:var(--white)">${esc(link)}</b> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">Copy</button></p>
     <div class="seatgrid">${[0, 1].map(t => `<div class="seatcol">
       <h3 style="color:${TEAM_COLORS[t]}">${V.isHost ? `<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16" style="padding:6px 10px;font-size:1rem">` : esc(V.names[t])}</h3>
-      ${[0, 1, 2].map(i => seatBtn(t, i)).join('')}
+      ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
       <button class="ghost" data-act="sitAll" data-team="${t}">This device plays the whole team</button>
     </div>`).join('')}</div>
     ${unseated.length ? `<p class="sub">Waiting to sit: ${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
-    <p class="sub">Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.</p>
+    <p class="sub">${st.teamSize === 2 ? 'One player writes both clues and the other guesses. You swap every word.' : 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.'}</p>
     <div class="well"><div class="settings">
+      <div><label>Players per team</label>${sel('teamSize', [[3, '3 per team (6 players)'], [2, '2 per team (4 players)']], st.teamSize)}</div>
       <div><label>Language</label>${sel('lang', [['en', 'English'], ['fr', 'Français']], st.lang)}</div>
       <div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'After a set number of words']], st.mode)}</div>
       <div>${st.mode === 'words'
@@ -405,7 +414,7 @@ function lobbyScreen() {
       <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
     </div></div>
     <div style="margin-top:14px">${V.isHost
-      ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? 'Start game' : 'Fill all 6 seats to start'}</button>
+      ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? 'Start game' : 'Fill every seat to start'}</button>
          <button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? '✓ Pass-and-play on this device' : 'Or: pass-and-play on this one device'}</button>
          ${st.sequential ? `<p class="sub center" style="margin-top:8px">Everyone shares this screen and the teams take turns (no first-to-guess bonus or 10-second limit).</p>` : ''}`
       : `<p class="sub center">Waiting for the host to start…</p>`}</div>
@@ -464,8 +473,8 @@ function roundScreen() {
     } else if (T.stage === 'done') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…</p></div>${logHtml(T)}`;
     } else if (holds) {
-      const multi = V.myRoles.length > 1;
-      const key = r.n + ':' + mt + ':' + stageRole;
+      const multi = V.sharedDevice;   // one device, several people: hide the screen between them
+      const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
       const oDone = r.teams[1 - mt].stage === 'done' && V.settings.sequential;
       if (multi && S.shownRole !== key) {
         handoff = true;
@@ -526,7 +535,7 @@ function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = T.stage === 'giver2' ? 2 : 1;
   const used = r.usedLetters !== undefined ? `<div class="used">${esc(r.usedLetters) || '(none)'}<small>letters Clue-giver 1 used (shuffled)</small></div>` : '';
   const count = r.blanks.filter(Boolean).length;
-  return `<div class="giverhead"><span class="rolechip">You're Clue-giver ${n}</span>${timerPill(true)}</div>
+  return `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue ${n} of 2` : `You're Clue-giver ${n}`}</span>${timerPill(true)}</div>
     <div class="secret">
       <div class="sec-theme"><small>Theme</small><b>${esc(r.cat)}</b></div>
       <div class="sec-key"><div><span class="kw">Keyword:</span> <span class="w">${esc(r.word)}</span></div><small>${count} letters · banned: ${ban.join(' ') || 'none'}</small></div>
@@ -617,7 +626,7 @@ function mockView(kind) {
   const names = ['Team Gold', 'Team Blue'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { start: 10, step: 2, symbol: 5 }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
+    settings: { lang: 'en', teamSize: 3, mode: 'score', target: 500, words: 10, pot: 120, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
