@@ -40,6 +40,7 @@
   const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
   const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;   // longer words pay a bonus on top of the reward: +25% of it per level
   const START_COST = 10, STEP = 2;   // nth letter a clue-giver types costs START + STEP * (n - 1)
+  const PASS_MS = 20000;              // how long the other team's Clue-giver 1 has to answer a request to pass a word
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
   const ROLES = ['giver1', 'giver2', 'guesser'];
   const STAGE_ROLE = { giver1: 'giver1', giver2: 'giver2', guess: 'guesser' };
@@ -72,7 +73,8 @@
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team Gold', 'Team Blue'],
-      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, winner: null
+      scores: [0, 0], bankrupt: null, round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, winner: null,
+      pass: null, passUsed: [false, false], passNote: null   // a request to pass the word: { from, to, expires, timer }; each team may ask once per word
     };
     const change = () => onChange();
 
@@ -145,6 +147,7 @@
       if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
       G.card = fresh[Math.floor(Math.random() * fresh.length)]; G.used.add(G.card.word);
       G.firstCorrect = null; G.phase = 'round';
+      if (G.pass) { clearT(G.pass.timer); G.pass = null; }
       G.teams = [newTeamState(), newTeamState()];
       if (G.settings.sequential) { // pass-and-play: teams take turns, alternating who goes first
         const first = G.round % 2;
@@ -173,6 +176,7 @@
       const n = letterCount(text), sym = text.length - n;
       spend(t, costOf(n, T.used) + sym * SYMBOL_COST); T.used += n; T.clues.push(text);
       clearT(T.timer); T.deadline = null;
+      if (G.pass && G.pass.from === t) { clearT(G.pass.timer); G.pass = null; }   // they decided to write after all
       if (bust(t)) { change(); return {}; }
       if (T.stage === 'giver1' && G.settings.teamSize === 3) beginWriting(t, 'giver2');   // teams of two: a single clue
       else enterGuess(t);
@@ -233,6 +237,23 @@
       }
       change();
       return {};
+    }
+
+    // ---------- passing a word ----------
+    // Clue-giver 1 can ask to pass a word they don't know. The other team's Clue-giver 1 says yes or no. On yes, both teams get a
+    // fresh word (same word number, letters already spent are refunded). Each team may ask once per word.
+    let noteId = 0;
+    const note = (type, from) => { G.passNote = { id: ++noteId, type, from }; };
+    function declinePass(type) {
+      if (!G.pass) return {};
+      clearT(G.pass.timer); const from = G.pass.from; G.pass = null; note(type, from); change(); return {};
+    }
+    function acceptPass() {
+      if (!G.pass) return {};
+      clearT(G.pass.timer); const from = G.pass.from; G.pass = null;
+      G.teams.forEach(T => T && clearT(T.timer));
+      G.scores[0] += G.teams[0].spent; G.scores[1] += G.teams[1].spent;   // like a host skip: nobody pays for a word that was thrown out
+      note('accepted', from); startRound(); change(); return {};
     }
 
     // ---------- intents ----------
@@ -298,11 +319,11 @@
         case 'start': {
           if (!isHost || G.phase !== 'lobby') return {};
           if (G.seats.some(t => t.some(s => !s))) return { error: 'Fill every seat first.' };
-          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.used = new Set(); G.winner = null; startRound(); change(); return {};
+          G.scores = [G.settings.bank, G.settings.bank]; G.bankrupt = null; G.round = 0; G.used = new Set(); G.winner = null; G.passUsed = [false, false]; G.passNote = null; startRound(); change(); return {};
         }
         case 'next': {
           if (!isHost || G.phase !== 'roundEnd') return {};
-          G.round++; startRound(); change(); return {};
+          G.round++; G.passUsed = [false, false]; startRound(); change(); return {};
         }
         case 'toLobby': {
           if (!isHost || !['over', 'roundEnd', 'round'].includes(G.phase)) return {};
@@ -334,6 +355,24 @@
           T.awaitReady = false; T.guessStart = now();
           if (G.firstCorrect !== null && G.firstCorrect !== t) startFinal(t);
           change(); return {};
+        }
+        case 'proposePass': {
+          if (G.phase !== 'round' || G.settings.sequential) return {};
+          const t = actTeam(id); if (t < 0) return {};
+          if (G.teams[t].stage !== 'giver1' || !rolesOf(id).includes('giver1')) return {};
+          const o = 1 - t, to = holder(o, 'giver1');
+          if (G.teams[o].stage === 'done') return { error: `${G.names[o]} is already done with this word.` };
+          if (G.pass && G.pass.from === o) return acceptPass();   // both teams want to pass: done
+          if (G.passUsed[t]) return { error: 'You already asked to pass this word.' };
+          if (G.pass) return {};
+          if (!to || !G.players[to] || !G.players[to].connected) return { error: `${G.names[o]}'s Clue-giver 1 isn't connected.` };
+          G.passUsed[t] = true;
+          G.pass = { from: t, to, expires: now() + PASS_MS, timer: setT(() => { if (G.pass && G.phase === 'round') declinePass('expired'); }, PASS_MS) };
+          change(); return {};
+        }
+        case 'answerPass': {
+          if (G.phase !== 'round' || !G.pass || G.pass.to !== id) return {};
+          return m.yes ? acceptPass() : declinePass('declined');
         }
         case 'giveup': {
           if (G.phase !== 'round') return {};
@@ -375,6 +414,15 @@
         }),
         roleNames: mt === null ? null : Object.fromEntries(ROLES.map(r => [r, roleName(mt, r)]))
       };
+      if (G.phase === 'round') {
+        const p = G.pass, t = mt, o = mt === null ? null : 1 - mt;
+        v.round.pass = mt === null ? null : {
+          can: !G.settings.sequential && roles.includes('giver1') && G.teams[t].stage === 'giver1' && G.teams[o].stage !== 'done' && (!G.passUsed[t] || (!!p && p.from === o)) && (!p || p.from === o),
+          asking: !!p && p.from === t,
+          toAnswer: p && p.to === id ? { by: seatName(p.from, seatIdx(p.from, 'giver1')), team: p.from } : null
+        };
+      }
+      v.round.passNote = G.passNote;
       const isGiver = roles.includes('giver1') || roles.includes('giver2');
       if (reveal || (G.phase === 'round' && isGiver)) { v.round.word = G.card.word; }
       if (G.phase === 'round' && isGiver) v.round.banned = banned().map(c => c.toUpperCase());

@@ -259,7 +259,12 @@
   .blanks span.gap { background: none; border: 0; width: 10px; }
   .secret { text-align: center; background: var(--lime); color: var(--ink); border-radius: 14px; padding: 8px 12px 10px; margin-bottom: 10px; }
   .secret .w { font-size: 2rem; line-height: 1.15; letter-spacing: .08em; }
-  .secret { text-align: center; }
+  .secret { text-align: center; position: relative; }
+  .passbtn { position: absolute; top: 4px; right: 6px; padding: 5px 11px; font-size: .76rem; border-radius: 999px; background: rgba(0,0,0,.14); color: var(--ink); }
+  .passbtn.asked { background: transparent; border: 1px dashed rgba(0,0,0,.4); opacity: .85; }
+  .passask { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 15; max-width: 520px; margin: 0 auto; background: var(--field); color: var(--ink); border-radius: 16px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  .passask p { margin: 0 0 8px; font-size: .92rem; line-height: 1.35; }
+  .passask .row button { padding: 10px; }
   .sec-theme { font-size: .85rem; font-weight: 500; opacity: .8; }
   .sec-theme b { font-weight: 500; opacity: 1; }
   .sec-key .kw { font-size: .85rem; font-weight: 500; opacity: .75; }
@@ -362,6 +367,7 @@
     <ul>
       <li>Type letters that hint at the keyword. Shortening words saves letters.</li>
       <li>The keyword's first few consonants are banned.</li>
+      <li>Don't know the word? Clue-giver 1 can tap Pass? and the other team's Clue-giver 1 decides. If they agree, everyone gets a new word.</li>
       <li>Clue-giver 1 gives a clue first, then Clue-giver 2 gives theirs, seeing which letters Clue-giver 1 used. Add something new.</li>
       <li>Guessers see only their team's clues.</li>
     </ul>
@@ -464,6 +470,13 @@ function onView(v) {
     S.speedDl = mt !== null && v.round.teams[mt].speedLeft ? now + v.round.teams[mt].speedLeft : null;
     const key = v.round.n + ':' + (mt !== null ? v.round.teams[mt].stage : '');
     if (key !== S.stageKey) { S.stageKey = key; S.draft.clue = ''; S.draft.guess = ''; }
+    const pn = v.round.passNote;
+    if (S.passNoteId === undefined) S.passNoteId = pn ? pn.id : 0;   // joining or reconnecting: don't replay old news
+    else if (pn && pn.id !== S.passNoteId) {
+      S.passNoteId = pn.id;
+      if (pn.type === 'accepted') { S.draft.clue = ''; S.draft.guess = ''; S.sentKey = ''; S.shownRole = ''; setTimeout(() => toast('Word passed! Here is a new one.'), 0); }
+      else if (mt === pn.from) setTimeout(() => toast(pn.type === 'expired' ? 'No answer, so keep going.' : `${v.names[1 - mt]} said no. Give it a go!`), 0);
+    }
   }
   render();
 }
@@ -740,12 +753,14 @@ function roundScreen() {
         <p class="sub">${stageRole === 'guesser' ? 'Think about the clues together!' : 'Hang tight.'}</p></div>${T.stage === 'guess' ? logHtml(T) : ''}`;
     }
   }
+  const pa = r.pass && r.pass.toAnswer;
+  const askBar = pa ? `<div class="passask"><p><b>${esc(pa.by)}</b> (${esc(V.names[pa.team])}) doesn't know this word. Pass it for both teams? You'd both get a new word, and nobody pays for letters already typed.</p><div class="row"><button data-act="answerPass" data-yes="1">Yes, pass</button><button class="ghost" style="background:#e6e6ec;color:var(--ink)" data-act="answerPass" data-yes="0">No</button></div></div>` : '';
   const mine = mt === null ? null : r.teams[mt];
   // clue-givers get a compact layout (their panel carries its own role label and timer); everyone else sees the clue slots
   const [bodyTop, bodyBottom] = Array.isArray(body) ? body : [body, ''];
   const compact = role === 'giver1' || role === 'giver2' || handoff;
   const head = compact ? '' : `${timerPill()}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
-  return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${vbar(mt === null ? 1 : 1 - mt)}</div></div>`;   // phones hide the side bars, so the keyboard here is full width anyway
+  return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${vbar(mt === null ? 1 : 1 - mt)}</div></div>${askBar}`;   // phones hide the side bars, so the keyboard here is full width anyway
 }
 
 // One tall bar per team: my team on the left, the opponents on the right.
@@ -814,6 +829,7 @@ function giverPanel(T, theme, blanks) {
   const count = r.blanks.filter(Boolean).length;
   const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
     <div class="secret">
+      ${r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="Don't know the word? Ask the other team to pass it for both teams">Pass?</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">Asking ${esc(V.names[1 - V.myTeam])}…</span>` : ''}
       <div class="sec-theme">Theme: <b>${esc(r.cat)}</b> · banned: <b>${ban.join(' ') || 'none'}</b></div>
       <div class="sec-key"><span class="kw">Keyword:</span> <span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span></div>
     </div>
@@ -912,7 +928,7 @@ function updatePreview() {
 }
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
-const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['ready', 'Guesser: ready screen'], ['lastchance', 'Guesser: last 10s'],
+const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['passask', 'Pass request'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['ready', 'Guesser: ready screen'], ['lastchance', 'Guesser: last 10s'],
   ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over']];
 function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
@@ -928,7 +944,8 @@ function mockView(kind) {
   const secret = { word: 'ZEBRA', banned: ['Z', 'B', 'R'] };
   switch (kind) {
     case 'lobby': v.phase = 'lobby'; v.myTeam = 0; return v;
-    case 'giver1': v.myRoles = ['giver1']; v.round = { ...round, ...secret, teams: [team('giver1', { remaining: 24000, spent: 0, used: 0 }), other] }; return v;
+    case 'giver1': v.myRoles = ['giver1']; v.round = { ...round, ...secret, pass: { can: true }, teams: [team('giver1', { remaining: 24000, spent: 0, used: 0 }), other] }; return v;
+    case 'passask': v.myRoles = ['giver1']; v.round = { ...round, ...secret, pass: { can: false, asking: false, toAnswer: { by: 'Sam', team: 1 } }, teams: [team('giver1', { remaining: 24000, spent: 0, used: 0 }), other] }; return v;
     case 'giver2': v.myRoles = ['giver2']; v.round = { ...round, ...secret, usedLetters: 'A E', usedSymbols: '? !', usedLetterCount: 3, usedSymbolCount: 2, teams: [team('giver2', { remaining: 21000, spent: 22, used: 0 }), other] }; return v;
     case 'guesser': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 9000, log: [{ text: 'HORSE', ok: false, cost: 5 }] }), other] }; return v;
     case 'ready': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues: ['AE', 'S'], spent: 37, speedLeft: 15000, awaitReady: true, log: [] }), other] }; return v;
@@ -979,6 +996,8 @@ document.addEventListener('click', e => {
     case 'sitAll': return send({ type: 'sitAll', team: +d.team });
     case 'stand': return send({ type: 'stand' });
     case 'resetSettings':
+    case 'proposePass': return send({ type: 'proposePass' });
+    case 'answerPass': return send({ type: 'answerPass', yes: d.yes === '1' });
     case 'start': case 'next': case 'toLobby': case 'skip': case 'giveup': return send({ type: d.act });
     case 'newCode': if (V && V.phase === 'lobby' && room && confirm('Make a new room code? Anyone who already joined will need to join again with the new code.')) hostRoom(S.name, 0, true); return;
     case 'flow': return renderFlow(d.v);
