@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.png">
 <title>YKWIM – You Know What I Mean</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +23,7 @@
   }
   :root[data-theme="bubblegum"] { --navy: #38142c; --indigo: #b83a68; --deep: #962f55; --well: #78243f; --lime: #f5d27a; --ink: #38142c; --soft: #f5bfd5; --t0: #9ee3b4; --t1: #7ed0ea; }
   :root[data-theme="mint"]      { --navy: #0c1424; --indigo: #1f4274; --deep: #17325a; --well: #112746; --lime: #6fe0be; --ink: #0c1424; --soft: #a3bbe0; --t0: #f291ab; --t1: #f0c978; }
-  :root[data-theme="cobalt"]    { --navy: #12204f; --indigo: #2c55c4; --deep: #23449d; --well: #1b3680; --lime: #f5806b; --ink: #12204f; --soft: #b8ccf5; --t0: #f2c46e; --t1: #6fe0d0; }
+  :root[data-theme="charcoal"]  { --navy: #1f1c1a; --indigo: #5b4c42; --deep: #483c34; --well: #302a26; --lime: #e8c99b; --ink: #1f1c1a; --soft: #d6c8ba; --t0: #e8c99b; --t1: #c07f52; }
   /* light mode: every palette gets a pale background and darker text/accent-text; fills keep the brand colours */
   :root[data-mode="dark"] { color-scheme: dark; }
   :root[data-mode="light"] { color-scheme: light; --navy: #e6f1f0; --indigo: #d3e9e7; --deep: #c3e0de; --well: #b5d6d3; --soft: #4f716f;
@@ -29,7 +31,7 @@
     --accent-text: #9a6700; --t0: #f28b6e; --t1: #e8c94a; --t0t: #b5472b; --t1t: #8a6d00; }
   :root[data-theme="bubblegum"][data-mode="light"] { --navy: #f8e6ee; --indigo: #f2d3e1; --deep: #ecc3d6; --well: #e3b3ca; --soft: #8a4a66; --text: #38142c; --accent-text: #8a5a00; --t0: #4fbf86; --t1: #5bb8d9; --t0t: #1f7a50; --t1t: #1f6f8f; }
   :root[data-theme="mint"][data-mode="light"] { --navy: #e8eef8; --indigo: #d5e0f2; --deep: #c5d4ec; --well: #b6c8e6; --soft: #4b6285; --text: #0c1424; --accent-text: #1b7a5e; --t0: #f291ab; --t1: #f0c978; --t0t: #b0345a; --t1t: #8a6200; }
-  :root[data-theme="cobalt"][data-mode="light"] { --navy: #e7edfa; --indigo: #d3def5; --deep: #c3d2f0; --well: #b3c5ea; --soft: #4a5f93; --text: #12204f; --accent-text: #b0381f; --t0: #e8b04a; --t1: #4fc4b4; --t0t: #8a5a00; --t1t: #1a7a6e; }
+  :root[data-theme="charcoal"][data-mode="light"] { --navy: #f2ece5; --indigo: #e5dacd; --deep: #d9ccbd; --well: #cdbdab; --soft: #6b5a4d; --text: #231d19; --lime: #5b4132; --ink: #fff; --accent-text: #5b3d28; --t0: #a67848; --t1: #6c432a; --t0t: #8a6232; --t1t: #6b4026; }
   html { font-size: 16px; } html[data-size="s"] { font-size: 14px; } html[data-size="l"] { font-size: 18px; }
   * { box-sizing: border-box; }
   body { margin: 0; min-height: 100vh; background: var(--navy); color: var(--text); font-family: var(--body);
@@ -38,7 +40,10 @@
   #app { width: 100%; }
   /* NYT-Games-style masthead: centered title, thin rule, icon buttons at the edges */
   .masthead { display: grid; grid-template-columns: 92px 1fr 92px; align-items: center; padding: 0 2px 8px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--ov) 18%, transparent); }
+  .roomchip { justify-self: start; padding: 5px 10px; border-radius: 999px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; font-size: .85rem; letter-spacing: .12em; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); }
+  .roomchip small { font-family: var(--body); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-right: 6px; }
   .masthead .mark { text-align: center; font-family: var(--display); font-style: normal; font-size: 1.7rem; letter-spacing: .06em; line-height: 1; }
+  .masthead .mark #markIcon svg { height: .95em; width: auto; vertical-align: -.1em; margin-left: .1em; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; }
   .masthead .mark small { display: block; font-family: var(--body); font-style: normal; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--soft); margin-top: 3px; }
   .icon svg { display: block; }
   .icons { display: flex; gap: 8px; justify-content: flex-end; }
@@ -201,11 +206,42 @@
   .stage.home > * { position: relative; z-index: 1; }
   .stage.home::before { content: ""; position: absolute; inset: -80px; pointer-events: none; will-change: transform; }
   .stage.home::before { background: color-mix(in srgb, var(--ov) 12%, transparent); animation: dots 4s linear infinite;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='22' text-anchor='middle'%3E%3Ctext x='20' y='30' transform='rotate(-14 20 30)'%3E%3F%3C/text%3E%3Ctext x='60' y='70' transform='rotate(12 60 70)'%3E%3F%3C/text%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='22' text-anchor='middle'%3E%3Ctext x='20' y='30' transform='rotate(-14 20 30)'%3E%3F%3C/text%3E%3Ctext x='60' y='70' transform='rotate(12 60 70)'%3E%3F%3C/text%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; }
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg transform='translate(20 22) rotate(-14) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3Cg transform='translate(60 62) rotate(12) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg transform='translate(20 22) rotate(-14) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3Cg transform='translate(60 62) rotate(12) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; }
+  .intro { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: var(--navy); pointer-events: none; animation: introBg .7s ease-in 1.45s forwards; }
+  .introWord { display: flex; align-items: center; justify-content: center; gap: .08em; font-family: var(--brand); font-style: italic; text-transform: uppercase; font-size: clamp(2.8rem, 15vw, 5rem); line-height: 1; color: #f6f2ea; animation: introWordOut .35s ease-in 1.45s forwards; }
+  .introWord span { display: inline-block; padding: .05em .16em; margin: -.05em -.16em; opacity: 0; animation: introPop .38s cubic-bezier(.3,1.6,.5,1) forwards; animation-delay: calc(var(--i) * .15s); }
+  .introWord svg { height: 1.3em; width: auto; margin-left: .12em; overflow: visible; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; opacity: 0; animation: introPop .45s cubic-bezier(.3,1.7,.5,1) .85s forwards, introZoom .75s cubic-bezier(.6,0,.9,.4) 1.45s forwards; }
+  @keyframes introPop { 0% { opacity: 0; transform: translateY(.5em) scale(.3) rotate(-12deg); } 100% { opacity: 1; transform: none; } }
+  @keyframes introZoom { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: scale(30) rotate(8deg); } }
+  @keyframes introWordOut { to { opacity: 0; } }
+  @keyframes introBg { to { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .intro { display: none; } }
+  .ldr { display: flex; align-items: center; justify-content: center; gap: .06em; font-family: var(--brand); font-style: italic; text-transform: uppercase; color: #f6f2ea; font-size: 2.6rem; line-height: 1; overflow: visible; }
+  .ldr { clip-path: inset(-600% -60% 0 -60%); }   /* the invisible ground: nothing of the icon is ever drawn below the word's baseline box */
+  .ldr.small { font-size: 1.7rem; margin: 6px 0 8px; }
+  .ldr.big { font-size: clamp(2.8rem, 15vw, 5rem); }
+  .ldr > span { display: inline-block; padding: .05em .16em; margin: -.05em -.16em; }
+  .ldrX { display: inline-block; margin-left: .12em; transform-origin: 50% 97.7%; animation: ldrJump 2.4s linear infinite; }
+  .ldrY { display: block; animation: ldrSpin 2.4s linear infinite; }
+  .ldrY svg { display: block; height: 1.2em; width: auto; overflow: visible; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; }
+  @keyframes ldrJump { 0%, 12% { transform: none; animation-timing-function: ease-out; }
+    25% { transform: scale(1.16, .76); animation-timing-function: ease-out; }                    /* crouch */
+    38% { transform: translateY(-.7em) scale(.9, 1.14); animation-timing-function: ease-out; }  /* launch */
+    50% { transform: translateY(-1.05em); animation-timing-function: ease-in; }                  /* top of the jump */
+    68% { transform: translateY(-.2em) scale(.94, 1.08); animation-timing-function: ease-in; }
+    76% { transform: scale(1.2, .74); animation-timing-function: ease-out; }                    /* land */
+    86% { transform: scale(.96, 1.05); }
+    94%, 100% { transform: none; } }
+  @keyframes ldrSpin { 0%, 34% { transform: rotate(0); animation-timing-function: ease-in-out; } 62%, 100% { transform: rotate(-360deg); } }   /* only spins while clear of the ground */
+  @media (prefers-reduced-motion: reduce) { .ldrX, .ldrY { animation: none; } }
+  .loadOv { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: var(--navy); pointer-events: none; }
   @keyframes dots { to { transform: translate3d(-80px, 80px, 0); } }
   @media (prefers-reduced-motion: reduce) { .stage.home::before { animation: none; } }
+  html.typing .stage.home::before { animation: none; will-change: auto; }   /* hold still while the keyboard is up: redrawing the drifting layer made phones stutter */
   .logo, .masthead .mark, .secret .w, .brand { font-family: var(--brand); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .05em; }
   .logo { text-shadow: 3px 3px 0 var(--navy); }
+  .logo { position: relative; }
+  .logoBg { position: absolute; z-index: -1; left: 50%; top: 50%; height: 2.4em; width: auto; transform: translate(-50%, -34%); fill: var(--navy); stroke: var(--navy); stroke-width: 3.3; stroke-linejoin: round; opacity: .55; pointer-events: none; overflow: visible; }
   .tag { text-align: center; color: var(--soft); margin: 0 0 22px; font-weight: 500; }
   h2 { font-size: 1.5rem; margin-bottom: 10px; }
   .sub { color: var(--soft); font-size: .92rem; font-weight: 500; margin: 0 0 12px; }
@@ -261,6 +297,9 @@
   .slot .ic.off { background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--soft); }
   .slot .txt { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 500; font-size: 1.5rem; letter-spacing: .16em; word-break: break-all; }
   .slot small { color: var(--soft); font-size: .7rem; font-weight: 500; margin-top: 4px; }
+  .slot.got { background: var(--lime); color: var(--ink); min-height: 84px; }   /* same as the keyword on the clue-giver's screen */
+  .slot.got .txt { font-size: 2.1rem; font-weight: 600; letter-spacing: .12em; line-height: 1.1; }
+  .slot.got small { color: var(--ink); opacity: .75; margin-top: 6px; }
   .slot.live { box-shadow: inset 0 0 0 2px var(--lime); }
 
   .themebar { display: flex; border-radius: 12px; overflow: hidden; background: var(--field); color: var(--ink); margin-bottom: 8px; }
@@ -379,8 +418,10 @@
     #wrap.landing { height: 100vh; height: 100dvh; max-width: none; position: relative; }
     #wrap.landing #app, #wrap.landing .stage.home { height: 100%; }
     #wrap.landing .masthead { position: absolute; top: 0; left: 0; right: 0; z-index: 5; border-bottom: 0; margin: 0; padding: 10px 12px 0; }
-    #wrap.landing .masthead .mark { visibility: hidden; }   /* the big logo is right there */
-    #wrap.landing .stage.home { display: flex; flex-direction: column; justify-content: center; border-radius: 0; box-shadow: none; overflow: hidden; }   /* the drifting ? layer is bigger than the screen on purpose, so clip it: nothing scrolls */
+    /* the card scrolls only when it has to (the keyboard takes half the screen, so the name box must be able to scroll into view); the drifting ? layer is fixed, so it never makes the card scrollable */
+    #wrap.landing .stage.home { display: flex; flex-direction: column; border-radius: 0; box-shadow: none; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+    #wrap.landing .stage.home::before { position: fixed; }
+    #wrap.landing .stage.home > :first-child { margin-top: auto; } #wrap.landing .stage.home > :last-child { margin-bottom: auto; }   /* centred when there's room, top-aligned (and reachable) when there isn't */
     body { padding: 8px; } .stage { padding: 10px; border-radius: 18px; }
     .masthead { grid-template-columns: 84px 1fr 84px; margin-bottom: 8px; } .icon { width: 36px; height: 36px; }
     .top { margin-bottom: 8px; gap: 8px; } .pill { padding: 5px 12px; } .pill b { font-size: 1rem; } .lvname { font-size: .78rem; }
@@ -388,7 +429,7 @@
     .playrow { gap: 8px; } .vbar { flex-basis: 40px; } .vb-track { min-height: 120px; width: 20px; } .vb-name { font-size: .64rem; margin-bottom: 3px; }
     .vb-stat { display: none; } .masthead .mark { font-size: 1.35rem; } .icon { width: 32px; height: 32px; } .preview { font-size: .82rem; height: 1.6rem; } .preview.one { height: 1.5rem; }
     .vb-num { margin-top: 5px; font-size: 1rem; } .vb-sub { font-size: .6rem; } .vb-delta { font-size: .66rem; min-height: 1em; } .vb-stat { font-size: .85rem; min-height: 1em; }
-    .slots { padding: 22px 8px 8px; margin-bottom: 8px; gap: 8px; } .slot { min-height: 52px; padding: 5px 4px; } .slot .txt { font-size: 1.15rem; }
+    .slots { padding: 22px 8px 8px; margin-bottom: 8px; gap: 8px; } .slot { min-height: 52px; padding: 5px 4px; } .slot .txt { font-size: 1.15rem; } .slot.got { min-height: 70px; } .slot.got .txt { font-size: 1.7rem; }
     .timer { padding: 5px 20px 7px; font-size: 1.6rem; margin-bottom: -16px; }
     .themebar div { padding: 5px; font-size: .92rem; } .blanks { margin: 0 0 8px; gap: 5px; } .blanks span { width: 26px; height: 30px; }
     .secret { padding: 5px 10px 7px; margin-bottom: 8px; } .secret .w { font-size: 1.7rem; }
@@ -408,8 +449,8 @@
 <div id="wrap">
   <div id="previewbar" class="pvbar hide"></div>
   <header class="masthead">
-    <span></span>
-    <div class="mark">YKWIM<small>you know what i mean</small></div>
+    <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="Room code: anyone can rejoin with it. Tap to copy."></button>
+    <div class="mark"><span class="markT">YKWIM</span><span id="markIcon"></span><small>you know what i mean</small></div>
     <div class="icons">
       <button class="icon" data-act="themes" aria-label="Display settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button class="icon" data-act="help" aria-label="How to play">?</button>
@@ -538,29 +579,79 @@ function hostRoom(name, attempt = 0, renew = false) {
   });
 }
 
-function joinRoom(name, code) {
-  const peer = new Peer();
-  peer.on('error', e => fail(e.type === 'peer-unavailable' ? `No room "${code}" found. Check the code.` : `Connection problem (${e.type}).`));
+// A guest who drops (phone locked, wifi blip, page reloaded) keeps retrying the same room; their device token gives them their old seat back.
+const SESSION_KEY = 'ykwim-room', SESSION_MS = 12 * 3600e3;
+const saveSession = code => safeSet(SESSION_KEY, JSON.stringify({ code, t: Date.now() }));
+const clearSession = () => { try { localStorage.removeItem(SESSION_KEY); } catch {} };
+const loadSession = () => { try { const s = JSON.parse(safeGet(SESSION_KEY)); return s && s.code && Date.now() - s.t < SESSION_MS ? s : null; } catch { return null; } };
+let guestPeer = null, guestConn = null, retryTimer = null;
+function showReconnect(code) {
+  hideReconnect();
+  const o = document.createElement('div');
+  o.className = 'loadOv'; o.style.pointerEvents = 'auto';
+  o.innerHTML = loaderHtml('big') + `<p class="sub">Reconnecting to room <b>${esc(code)}</b>…</p><button class="ghost" data-act="leaveRoom">Leave room</button>`;
+  document.body.appendChild(o);
+}
+const hideReconnect = () => document.querySelectorAll('.loadOv').forEach(o => o.remove());
+function leaveRoom() {
+  clearTimeout(retryTimer); S.rejoin = null; clearSession();
+  if (guestPeer) try { guestPeer.destroy(); } catch {}
+  guestPeer = guestConn = net = null; V = null; hideReconnect(); render();
+}
+function startRejoin(code, maxTries = 25) {
+  S.rejoin = { code, tries: 0, max: maxTries };
+  showReconnect(code);
+  connectGuest(S.name || 'Player', code);
+}
+function retryRejoin() {
+  const r = S.rejoin; if (!r) return;
+  if (++r.tries > r.max) { clearTimeout(retryTimer); S.rejoin = null; hideReconnect(); V = null; net = null; S.code = r.code; return fail(`Couldn't get back into room ${r.code}. Check the code, or ask the host if the room is still open.`); }
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(() => S.rejoin && connectGuest(S.name || 'Player', r.code), 2000);
+}
+function joinRoom(name, code) { S.rejoin = null; connectGuest(name, code); }
+function connectGuest(name, code) {
+  if (guestPeer) try { guestPeer.destroy(); } catch {}
+  const peer = guestPeer = new Peer();
+  const lost = msg => { if (peer !== guestPeer) return; if (S.rejoin) retryRejoin(); else { clearSession(); fail(msg); } };
+  peer.on('error', e => lost(e.type === 'peer-unavailable' ? `No room "${code}" found. Check the code.` : `Connection problem (${e.type}).`));
   peer.on('open', () => {
-    const conn = peer.connect('ykwim-' + code, { reliable: true });
+    const conn = guestConn = peer.connect('ykwim-' + code, { reliable: true });
     conn.on('open', () => {
+      if (peer !== guestPeer) return;
       net = { code, isHost: false, send: m => conn.open && conn.send(m) };
       conn.send({ type: 'hello', name, token });
-      S.busy = false;
+      saveSession(code); S.busy = false;
     });
-    conn.on('data', m => { if (m.type === 'view') onView(m.view); else if (m.type === 'error') toast(m.msg); });
-    conn.on('close', () => { net = null; V = null; fail('Disconnected from the room.'); });
+    conn.on('data', m => { if (peer !== guestPeer) return; if (m.type === 'view') { if (S.rejoin) { S.rejoin = null; hideReconnect(); } onView(m.view); } else if (m.type === 'error') toast(m.msg); });
+    conn.on('close', () => { if (peer !== guestPeer) return; net = null; if (S.rejoin) return retryRejoin(); if (V) startRejoin(code); else fail('Disconnected from the room.'); });
   });
 }
+// coming back to a phone that went to sleep: the connection is usually dead even if the page doesn't know yet
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && guestConn && !guestConn.open && !S.rejoin && V && net === null && !S.preview) startRejoin(guestConn.peer.replace('ykwim-', ''));
+});
 
 function fail(msg) { S.busy = false; S.err = msg; V = null; render(); }
 let toastTimer;
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.remove('hide'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add('hide'), 2600); }
 
 const FEEDBACK_MS = 3500;   // pass-and-play: how long the guesser's result screen stays up before the "pass the device" screen
+const ICON_SVG = '<svg viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>';
+$('markIcon').innerHTML = ICON_SVG;
+// the YKWIM word with the icon hopping along it, for any waiting screen
+const loaderHtml = (cls = '') => `<div class="ldr ${cls}" role="status" aria-label="Loading">${[...'YKWIM'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
+function playIntro() {
+  const el = document.createElement('div');
+  el.className = 'intro';
+  el.innerHTML = '<div class="introWord">' + [...'YKWIM'].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2300);
+}
 function onView(v) {
   const prev = V;
   V = v;
+  if (prev && prev.phase === 'lobby' && v.phase === 'round') playIntro();   // game start, for everyone
   // Pass-and-play: the moment a guesser's turn ends, the device already belongs to the next team, so remember to show them how it went first
   if (prev && prev.round && v.round && prev.round.n === v.round.n && v.settings.sequential && prev.myTeam !== null && (prev.myRoles || []).includes('guesser')) {
     const t = prev.myTeam, was = prev.round.teams[t], now = v.round.teams[t];
@@ -592,10 +683,11 @@ const THEMES = {
   citrus:    { name: 'Lagoon',   colors: ['#123f43', '#1f8083', '#f5b942', '#f28b6e', '#f2d96b'] },
   bubblegum: { name: 'Rose',     colors: ['#38142c', '#b83a68', '#f5d27a', '#9ee3b4', '#7ed0ea'] },
   mint:      { name: 'Midnight', colors: ['#0c1424', '#1f4274', '#6fe0be', '#f291ab', '#f0c978'] },
-  cobalt:    { name: 'Cobalt',   colors: ['#12204f', '#2c55c4', '#f5806b', '#f2c46e', '#6fe0d0'] }
+  charcoal:  { name: 'Terracotta', colors: ['#1f1c1a', '#5b4c42', '#e8c99b', '#c07f52', '#d6c8ba'] }
 };
 // light / dark / follow-the-device, text size, and palette: remembered per device
 const DISPLAY = { mode: safeGet('ykwim-mode') || 'dark', size: safeGet('ykwim-size') || 'm', keys: safeGet('ykwim-keys') || 'qwerty', theme: safeGet('ykwim-theme') || 'citrus' };
+if (!THEMES[DISPLAY.theme]) DISPLAY.theme = 'citrus';   // a palette that no longer exists (Cobalt)
 const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 function applyDisplay() {
   const D = DISPLAY, el = document.documentElement;
@@ -707,6 +799,7 @@ const EASY_HARD = (easy, hard) => v => v === easy ? 'easy' : v === hard ? 'hard'
 function render() {
   const active = document.activeElement, focus = active && active.id;
   const start = active && active.selectionStart;
+  const chip = $('roomchip'); chip.style.visibility = V && net && net.code ? '' : 'hidden'; if (V && net && net.code) chip.innerHTML = `<small>Room</small>${esc(net.code)}`;
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
   $('wrap').classList.toggle('landing', !V);
   document.documentElement.classList.toggle('landing', !V);
@@ -726,7 +819,7 @@ function render() {
 
 function homeScreen() {
   return `<div class="stage home">
-    <div class="logo display">YKWIM</div>
+    <div class="logo display"><svg class="logoBg" viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>YKWIM</div>
     <p class="tag" style="margin-bottom:6px">Do you know what I mean, though?</p>
     <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">A word game for 3–8 players</p>
     <label>Your name</label>
@@ -791,7 +884,7 @@ function lobbyScreen() {
       ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? 'Start game' : 'Fill every seat to start'}</button>
          ${st.teams === 'one' ? '' : `<button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? '✓ Pass-and-play both teams on this device' : 'Or: pass-and-play both teams on this device'}</button>`}
          ${st.sequential ? `<p class="sub center" style="margin-top:8px">Everyone shares this screen and the teams take turns. The team that guesses faster gets the first-to-guess bonus; there's no last-chance timer.</p>` : ''}`
-      : `<p class="sub center">Waiting for the host to start…</p>`}</div>
+      : `${loaderHtml('small')}<p class="sub center">Waiting for the host to start…</p>`}</div>
   </div>`;
 }
 
@@ -814,11 +907,14 @@ function topBar() {
 
 function slots(t, role) {
   const T = V.round.teams[t], st = T.stage, clues = T.clues, n = V.settings.teamSize - 1;   // n clue-givers
-  const hidden = i => `<div class="slot"><div class="ic off">🔒</div><small>Clue ${i}</small></div>`;
-  const shown = (i, txt) => `<div class="slot"><div class="txt">${esc(txt || '—')}</div><small>Clue ${i} · ${plural(lettersOnly(txt), 'letter')}</small></div>`;
-  const sent = i => `<div class="slot"><div class="ic">✓</div><small>Clue ${i} sent</small></div>`;
-  const live = i => `<div class="slot live"><div class="ic">✎</div><small>Clue ${i}</small></div>`;
-  const wait = i => `<div class="slot"><div class="ic">🔍</div><small>Clue ${i}</small></div>`;
+  // name the clue-giver where we know who it is (our own team); the other team's clues stay "Clue 1", "Clue 2"
+  const nm = i => t === V.myTeam && V.round.roleNames && V.round.roleNames['giver' + i];
+  const lbl = i => nm(i) ? (nm(i) === 'You' ? 'Your clue' : `${esc(nm(i))}'s clue`) : `Clue ${i}`;
+  const hidden = i => `<div class="slot"><div class="ic off">🔒</div><small>${lbl(i)}</small></div>`;
+  const shown = (i, txt) => `<div class="slot got"><div class="txt">${esc(txt || '—')}</div><small>${lbl(i)} · ${plural(lettersOnly(txt), 'letter')}</small></div>`;
+  const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)} sent</small></div>`;
+  const live = i => `<div class="slot live"><div class="ic">✎</div><small>${lbl(i)}</small></div>`;
+  const wait = i => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small></div>`;
   return Array.from({ length: n }, (_, k) => {
     const i = k + 1;
     if (clues) return shown(i, clues[k]);
@@ -862,7 +958,7 @@ function roundScreen() {
     if (T.stage === 'waiting') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])} is playing</h2><p class="sub">You're up next.</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2><p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
@@ -1036,7 +1132,7 @@ function roundEndScreen() {
         return parts ? `<div class="breakdown">${parts}<span class="tot">= ${net < 0 ? '−' : '+'}${Math.abs(net)}</span></div>` : ''; })()}
     </div>`; }).join('')}
     ${!SOLO() && V.settings.mode === 'words' && r.n + 1 >= V.settings.words && V.scores[0] === V.scores[1] ? `<p class="sub center" style="color:var(--accent-text)">Tied! One more word decides it.</p>` : ''}
-    ${V.isHost ? `<button class="big" data-act="next">${SOLO() && r.n + 2 === V.settings.words ? 'Last word' : 'Next word'}</button>` : `<p class="sub center">Waiting for the host…</p>`}
+    ${V.isHost ? `<button class="big" data-act="next">${SOLO() && r.n + 2 === V.settings.words ? 'Last word' : 'Next word'}</button>` : `${loaderHtml('small')}<p class="sub center">Waiting for the host…</p>`}
   </div>${SOLO() ? '' : vbar(1 - left)}</div></div>`;
 }
 
@@ -1064,7 +1160,7 @@ function climb(history) {
 }
 
 function overScreen() {
-  const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">Back to lobby</button>` : `<p class="sub">Waiting for the host…</p>`;
+  const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">Back to lobby</button>` : `${loaderHtml('small')}<p class="sub">Waiting for the host…</p>`;
   if (SOLO()) {
     const R = V.rating;
     return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0]).toUpperCase()} · ${V.settings.words} WORDS</div>
@@ -1138,7 +1234,7 @@ function updatePreview() {
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
 const PREVIEWS = [['lobby', 'Lobby'], ['giver1', 'Clue-giver 1'], ['passask', 'Pass request'], ['giver2', 'Clue-giver 2'], ['guesser', 'Guesser'], ['ready', 'Guesser: ready screen'], ['lastchance', 'Guesser: last 10s'],
-  ['waiting', 'Waiting'], ['roundEnd', 'Round end'], ['over', 'Game over'], ['coopEnd', 'Co-op: round end'], ['grade4', 'Co-op: YKWIM'], ['grade3', 'Co-op: KWIM'], ['grade2', 'Co-op: WIM'], ['grade1', 'Co-op: IM'], ['grade0', 'Co-op: M']];
+  ['waiting', 'Waiting'], ['intro', 'Game-start animation'], ['loading', 'Loading / reconnecting'], ['roundEnd', 'Round end'], ['over', 'Game over'], ['coopEnd', 'Co-op: round end'], ['grade4', 'Co-op: YKWIM'], ['grade3', 'Co-op: KWIM'], ['grade2', 'Co-op: WIM'], ['grade1', 'Co-op: IM'], ['grade0', 'Co-op: M']];
 function mockRecord() {   // two fake words for the game review in the preview tool
   const people = [{ role: 'giver1', name: 'Alex' }, { role: 'giver2', name: 'Sam' }, { role: 'guesser', name: 'Kai' }];
   return [{ n: 0, word: 'panda', cat: 'Animals', levelName: '4–6 letters', teams: [
@@ -1188,7 +1284,15 @@ function showPreview(kind) {
   if (!IS_LOCAL) return;
   S.preview = kind; S.shownRole = ''; S.draft = { clue: '', guess: '' };
   net = { code: 'ABCD', isHost: true, send: () => toast('Preview only: buttons do nothing here') };
-  onView(mockView(kind));
+  document.querySelectorAll('.loadOv').forEach(o => o.remove());
+  onView(mockView(kind === 'intro' || kind === 'loading' ? 'lobby' : kind));
+  if (kind === 'intro') playIntro();
+  if (kind === 'loading') {   // what a dropped connection looks like: the hopping loader over everything
+    const o = document.createElement('div');
+    o.className = 'loadOv';
+    o.innerHTML = loaderHtml('big') + '<p class="sub">Reconnecting…</p>';
+    document.body.appendChild(o);
+  }
 }
 
 // ---------- events ----------
@@ -1206,8 +1310,10 @@ document.addEventListener('click', e => {
       S.err = ''; S.busy = true; render();
       return d.act === 'create' ? hostRoom(S.name) : joinRoom(S.name, S.code);
     }
+    case 'leaveRoom': return leaveRoom();
+    case 'copyCode': if (navigator.clipboard && net) navigator.clipboard.writeText(net.code).then(() => toast('Room code copied'), () => {}); return;
     case 'preview': return showPreview(d.kind);
-    case 'previewExit': S.preview = null; net = null; V = null; return render();
+    case 'previewExit': document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render();
     case 'themes': $('themes').classList.remove('hide'); return;
     case 'closeThemes': $('themes').classList.add('hide'); return;
     case 'theme': return setDisplay({ theme: d.theme });
@@ -1250,6 +1356,9 @@ document.addEventListener('input', e => {
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
+// landing page: freeze the drifting background while a text box has focus (the phone keyboard is up)
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('typing'); });
+document.addEventListener('focusout', () => document.documentElement.classList.remove('typing'));
 document.addEventListener('toggle', e => { if (e.target.id === 'adv') S.advOpen = e.target.open; }, true);
 document.addEventListener('change', e => {
   const t = e.target;
@@ -1319,6 +1428,10 @@ function gradeTable() {   // built when the Results tab opens, so nothing here c
 }
 const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
 render();
+{   // reloaded or reopened while in a room: go straight back (a few tries, then fall back to the join form)
+  const s = loadSession();
+  if (s && S.name && !S.code && !new URLSearchParams(location.search).has('preview')) { S.code = s.code; startRejoin(s.code, 4); }
+}
 if (IS_LOCAL && new URLSearchParams(location.search).has('preview')) showPreview('giver1');
 </script>
 </body>
