@@ -162,8 +162,8 @@
   // (they scale with the number of words). A solved word pays the reward plus bonuses (about 100-150 as the words get longer), and clues cost
   // 0-40, so a team that gets nearly everything lands in the top grades. Numbers to be tuned by playtesting.
   const RATING_CUTS = [200, 325, 425, 500];   // points gained per 5 words: an average of 40 / 65 / 85 / 100 a word
-  const RATINGS = [[RATING_CUTS[3], 'YKWIM', '你懂我的意思！'], [RATING_CUTS[2], 'KWIM', '心有靈犀，只差一點點！'],
-    [RATING_CUTS[1], 'WIM', '等等，我是說…'], [RATING_CUTS[0], 'IM', '有趣的誤會…'], [-Infinity, 'M', '一頭霧水…']];
+  const RATINGS = [[RATING_CUTS[3], '字字珠璣！', ''], [RATING_CUTS[2], '屢創佳績！', ''],
+    [RATING_CUTS[1], '有危也有機⋯⋯', ''], [RATING_CUTS[0], '唧唧復唧唧⋯⋯', ''], [-Infinity, '菜雞⋯⋯', '']];
   const gradeNeed = (cut, words) => Math.round(cut * words / 25) * 5;
   function rating(score, bank, words) {
     const gained = score - bank, r = RATINGS.find(x => x[0] === -Infinity || gained > gradeNeed(x[0], words));

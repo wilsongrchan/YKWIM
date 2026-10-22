@@ -670,7 +670,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022v"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022w"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1385,7 +1385,7 @@ function overScreen() {
   if (SOLO()) {
     const R = V.rating;
     return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0])} · ${V.settings.words} 個詞</div>
-      <div class="gradehead"><div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--g${R.rank})">${esc(R.label)}</div><div class="quote">「${esc(R.quote)}」</div></div>
+      <div class="gradehead"><div class="logo display" style="font-size:clamp(1.7rem,8vw,2.8rem);color:var(--g${R.rank})">${esc(R.label)}</div>${R.quote ? `<div class="quote">「${esc(R.quote)}」</div>` : ''}</div>
       <div class="finalscore"><b>${R.score}</b> 點</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
       ${gameReviewHtml([0])}${back}</div>`;
@@ -1393,7 +1393,7 @@ function overScreen() {
   return `<div class="stage center">
     <div class="sub" style="margin-top:14px">遊戲結束</div>
     <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]};font-style:normal">${esc(V.names[V.winner])}獲勝！</div>
-    ${V.ratings ? `<div class="vsgrades">${[0, 1].map(t => { const R = V.ratings[t]; return `<div class="vsg${t === V.winner ? ' won' : ''}"><div class="n" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</div><div class="s">${V.scores[t]} 點</div><div class="g" style="color:var(--g${R.rank})">${esc(R.label)}</div><div class="q">「${esc(R.quote)}」</div></div>`; }).join('')}</div>` : `<div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>`}
+    ${V.ratings ? `<div class="vsgrades">${[0, 1].map(t => { const R = V.ratings[t]; return `<div class="vsg${t === V.winner ? ' won' : ''}"><div class="n" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</div><div class="s">${V.scores[t]} 點</div><div class="g" style="color:var(--g${R.rank})">${esc(R.label)}</div>${R.quote ? `<div class="q">「${esc(R.quote)}」</div>` : ''}</div>`; }).join('')}</div>` : `<div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>`}
     ${gameReviewHtml([0, 1])}${back}
   </div>`;
 }
@@ -1697,7 +1697,7 @@ function barDiagram() {
 // The co-op grades for the How to play page, straight from the game's own table so the numbers never drift
 function gradeTable() {   // built when the Results tab opens, so nothing here can stop the page from loading
   return `<table class="gt"><caption>需要賺到的點數</caption><tr><th>評級</th>${GRADE_WORDS.map(w => `<th>${w} 個詞</th>`).join('')}</tr>`
-  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr class="gr1"><th><b class="gchip" style="background:var(--gd${YKWIM.RATINGS.length - 1 - i})">${label}</b></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) + '<small class="gor">以下</small>' : '超過 ' + YKWIM.gradeNeed(cut, w)}</td>`).join('')}</tr><tr class="gr2"><td colspan="${GRADE_WORDS.length + 1}" class="gq">「${quote}」</td></tr>`).join('')
+  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr class="gr1"><th><b class="gchip" style="background:var(--gd${YKWIM.RATINGS.length - 1 - i})">${label}</b></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) + '<small class="gor">以下</small>' : '超過 ' + YKWIM.gradeNeed(cut, w)}</td>`).join('')}</tr>${quote ? `<tr class="gr2"><td colspan="${GRADE_WORDS.length + 1}" class="gq">「${quote}」</td></tr>` : ''}`).join('')
   + '</table><p style="font-size:.8rem;margin:4px 0 0">賺到的點數 = 最後點數減起始點數。玩的詞越多，每個評級需要的點數也越多。</p>';
 }
 const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
