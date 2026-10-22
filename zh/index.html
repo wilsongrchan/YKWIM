@@ -658,7 +658,7 @@
         <li><b>合作：</b>一隊玩固定個數的詞，依得分拿評級。</li>
       </ul>
     <h3>評級</h3>
-    <p>結束時每隊都有評級，從 M 到 YKWIM。比起始點數多賺越多，評級越高。對戰還是看誰的分數高。</p>
+    <p>結束時每隊都有評級，從「菜雞」到「字字珠璣」。比起始點數多賺越多，評級越高。對戰還是看誰的分數高。</p>
     <div id="gradediag"></div>
     </div>
     <div id="help-bar" class="hide"><p>遊戲旁邊的長條顯示你們隊的點數，以及這個詞還可以賺多少。</p><div id="bardiag" style="--lime:var(--t0)"></div><p style="font-size:.85rem">滑鼠移到（或點一下）真正的長條，就會顯示每一段的名稱。</p></div>
@@ -1362,7 +1362,7 @@ function roundEndScreen() {
 // gained per 5 words (see RATING_CUTS in game.js), so they hold for any number of words and any starting bank.
 function climb(history) {
   const bank = V.settings.bank, words = V.settings.words, cut = i => bank + YKWIM.gradeNeed(YKWIM.RATING_CUTS[i - 1], words);   // where each grade starts
-  const COL = ['#f2766b', '#f29a5b', '#f5c84a', '#9fd77a', '#4fc08a'], GRADE = ['M', 'IM', 'WIM', 'KWIM', 'YKWIM'];
+  const COL = ['#f2766b', '#f29a5b', '#f5c84a', '#9fd77a', '#4fc08a'], GRADE = YKWIM.RATINGS.map(r => r[1].replace(/[！⋯]+$/, '')).reverse();   // worst to best, without the punctuation
   const pts = [{ total: bank, word: 'start' }].concat(history);
   const lo = Math.min(0, ...pts.map(p => p.total)), hi = Math.max(cut(4) + 100 * words / 5, ...pts.map(p => p.total));
   const longest = Math.max(2, ...history.map(p => [...String(p.word)].length)), PH = 120, W = 320, L = 36, R = 74, T = 24, B = Math.round(18 + longest * 6.5), H = T + PH + B, X = i => L + (W - L - R) * i / (pts.length - 1), Y = v => T + PH * (1 - (v - lo) / (hi - lo));
@@ -1488,7 +1488,7 @@ function updatePreview() {
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
 const PREVIEWS = [['lobby', '大廳'], ['giver1', '提示人 1'], ['passask', '跳過請求'], ['giver2', '提示人 2'], ['guesser', '猜謎人'], ['ready', '猜謎人：準備畫面'], ['lastchance', '猜謎人：最後機會'],
-  ['waiting', '等待'], ['intro', '開場動畫'], ['loading', '載入／重新連線'], ['roundEnd', '一個詞結束'], ['over', '遊戲結束'], ['coopEnd', '合作：一個詞結束'], ['grade4', '合作：YKWIM'], ['grade3', '合作：KWIM'], ['grade2', '合作：WIM'], ['grade1', '合作：IM'], ['grade0', '合作：M']];
+  ['waiting', '等待'], ['intro', '開場動畫'], ['loading', '載入／重新連線'], ['roundEnd', '一個詞結束'], ['over', '遊戲結束'], ['coopEnd', '合作：一個詞結束'], ['grade4', '合作：字字珠璣'], ['grade3', '合作：屢創佳績'], ['grade2', '合作：有危也有機'], ['grade1', '合作：唧唧復唧唧'], ['grade0', '合作：菜雞']];
 const MOCK = han => ({ han });   // one character of a clue
 function mockRecord() {   // two fake words for the game review in the preview tool
   const people = [{ role: 'giver1', name: '小明' }, { role: 'giver2', name: '小華' }, { role: 'guesser', name: '阿凱' }];
