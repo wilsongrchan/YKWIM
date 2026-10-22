@@ -1736,7 +1736,7 @@ function gradeTable() {   // built when the Results tab opens, so nothing here c
   + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr class="gr1"><th><b class="gchip" style="background:var(--gd${YKWIM.RATINGS.length - 1 - i})">${label}</b></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) + '<small class="gor">以下</small>' : '超過 ' + YKWIM.gradeNeed(cut, w)}</td>`).join('')}</tr>${quote ? `<tr class="gr2"><td colspan="${GRADE_WORDS.length + 1}" class="gq">「${quote}」</td></tr>` : ''}`).join('')
   + '</table><p style="font-size:.8rem;margin:4px 0 0">賺到的點數 = 最後點數減起始點數。玩的詞越多，每個評級需要的點數也越多。</p>';
 }
-const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
+const GRADE_WORDS = [6, 8, 10];   // the word counts the lobby offers for Co-op
 render();
 {   // reloaded or reopened while in a room: go straight back (a few tries, then fall back to the join form)
   const s = loadSession();
