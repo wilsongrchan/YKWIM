@@ -573,7 +573,7 @@
 <div id="tip" class="tip hide" role="tooltip"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="game.js?v=20261022c"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022e"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -896,6 +896,7 @@ function homeScreen() {
     <p class="sub center" style="margin:16px 0 8px">or join a friend's room</p>
     <div class="bar"><input id="code" class="caps" maxlength="4" placeholder="ROOM CODE" value="${esc(S.code)}"><button data-act="join" style="font-size:1.05rem" ${S.busy ? 'disabled' : ''}>Join</button></div>
     <div class="msg">${esc(S.err)}${S.busy ? 'Connecting…' : ''}</div>
+    <p class="sub center" style="font-size:.8rem;margin:0 0 8px"><a href="zh/" style="color:inherit">中文版 →</a></p>
     ${IS_LOCAL ? `<button class="ghost" style="width:100%;font-size:.85rem" data-act="preview" data-kind="giver1">👀 Preview the screens (no game needed)</button>` : ''}
   </div>`;
 }
@@ -931,9 +932,9 @@ function lobbyScreen() {
     <div class="well"><div class="settings main">
       <div style="grid-column:1 / -1" class="modepick"><label>Game mode</label><div class="modes">${[['two', 'VS', 'Two teams race to guess the same word.', 't0'], ['one', 'Co-op', 'One team plays a set number of words and earns a grade.', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
       <div><label>Team</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 guesser, 1 clue-giver', 3: '1 guesser, 2 clue-givers', 4: '1 guesser, 3 clue-givers' })[v])}</div>
-      ${st.teams === 'one' ? `<div><label>Number of words</label>${sel('words', [5, 8, 10], st.words, x => x + ' words')}</div>` : `<div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'Set number of words']], st.mode)}</div>
+      ${st.teams === 'one' ? `<div><label>Number of words</label>${sel('words', [5, 6, 8, 10], st.words, x => x + ' words')}</div>` : `<div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'Set number of words']], st.mode)}</div>
       <div>${st.mode === 'words'
-        ? `<label>Number of words</label>${sel('words', [5, 8, 10], st.words, x => x + ' words')}`
+        ? `<label>Number of words</label>${sel('words', [5, 6, 8, 10], st.words, x => x + ' words')}`
         : `<label>Play to</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
       <div><label>Starting points</label>${sel('bank', [100, 200, 300], st.bank)}</div>
       <div><label>Points per correct guess</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
@@ -1050,7 +1051,10 @@ function roundScreen() {
       }
     } else {
       const who = r.roleNames[stageRole];
-      body = `${theme}${blanks}<div class="well center"><h2>${esc(who)} is ${stageRole === 'guesser' ? 'about to guess' : 'writing…'}</h2>
+      // a clue-giver whose turn is still to come studies the keyword while the one before them writes (not in pass-and-play, where the screen is shared)
+      if (r.word && V.myRoles.some(x => x.startsWith('giver')) && isWriting(T.stage)) {
+        body = `${secretHtml(r)}<div class="well center"><h2>${esc(who)} is writing…</h2><p class="sub">Study the keyword: you're up after them.</p></div>`;
+      } else body = `${theme}${blanks}<div class="well center"><h2>${esc(who)} is ${stageRole === 'guesser' ? 'about to guess' : 'writing…'}</h2>
         <p class="sub">${stageRole === 'guesser' ? 'Think about the clues together!' : 'Hang tight.'}</p></div>${T.stage === 'guess' ? logHtml(T) : ''}`;
     }
   }
@@ -1135,16 +1139,21 @@ function logHtml(T) {
   return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
 }
 
+// the keyword box a clue-giver sees: theme, banned letters, the keyword (with the Pass? button for Clue-giver 1 when `canPass`)
+function secretHtml(r, canPass) {
+  const ban = r.banned || [];
+  return `<div class="secret">
+      ${canPass && r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? 'Swap this word for a new one' : "Don't know the word? Ask the other team to pass it for both teams"}">Pass?</button>` : canPass && r.pass && r.pass.asking ? `<span class="passbtn asked">Asking ${esc(V.names[1 - V.myTeam])}…</span>` : ''}
+      <div class="sec-theme">Theme: <b>${esc(r.cat)}</b> · banned: <b>${ban.join(' ') || 'none'}</b></div>
+      <div class="sec-key"><span class="kw">Keyword:</span> <span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span></div>
+    </div>`;
+}
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
   const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">Used in Clue ${p.n}</div>${esc(p.letters) || '(none)'}${p.symbols ? ` <span class="usym">${esc(p.symbols)}</span>` : ''}<small>The clue has ${plural(p.letterCount, 'letter')} and ${plural(p.symbolCount, 'symbol')}. Shown in alphabetical order, repeats only once.</small></div>`).join('');
   const count = r.blanks.filter(Boolean).length;
   const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
-    <div class="secret">
-      ${r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? 'Swap this word for a new one' : "Don't know the word? Ask the other team to pass it for both teams"}">Pass?</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">Asking ${esc(V.names[1 - V.myTeam])}…</span>` : ''}
-      <div class="sec-theme">Theme: <b>${esc(r.cat)}</b> · banned: <b>${ban.join(' ') || 'none'}</b></div>
-      <div class="sec-key"><span class="kw">Keyword:</span> <span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span></div>
-    </div>
+    ${secretHtml(r, true)}
     ${used}
     <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your clue" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
     <div class="preview" id="preview"></div>
@@ -1514,7 +1523,7 @@ function gradeTable() {   // built when the Results tab opens, so nothing here c
   + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr class="gr1"><th><b class="gchip" style="background:var(--gd${YKWIM.RATINGS.length - 1 - i})">${label}</b></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) + '<small class="gor">or under</small>' : 'over ' + YKWIM.gradeNeed(cut, w)}</td>`).join('')}</tr><tr class="gr2"><td colspan="${GRADE_WORDS.length + 1}" class="gq">“${quote}”</td></tr>`).join('')
   + '</table><p style="font-size:.8rem;margin:4px 0 0">Points gained = your final points minus your starting points. The more words you play, the more points each grade needs.</p>';
 }
-const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
+const GRADE_WORDS = [6, 8, 10];   // the word counts the lobby offers for Co-op
 render();
 {   // reloaded or reopened while in a room: go straight back (a few tries, then fall back to the join form)
   const s = loadSession();

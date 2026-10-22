@@ -58,6 +58,7 @@
   const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;   // longer words pay a bonus on top of the reward: +25% of it per level
   const FIRST_COST = 5, START_COST = 6, STEP = 2;   // a clue-giver's letters cost 5, 8, 10, 12, 14...: the first is a gentle 5, then START + STEP * index
   const priceOf = i => i === 0 ? FIRST_COST : START_COST + STEP * i;   // price of the letter at index i (0 = the first one that clue-giver types)
+  const LATE_GIVER_MS = 10000;        // pass-and-play: extra writing time for Clue-giver 2 and 3, who haven't been able to study the keyword while Clue-giver 1 wrote
   const PASS_MS = 20000;              // how long the other team's Clue-giver 1 has to answer a request to pass a word
   const FEEDBACK_MS = 4000;          // pass-and-play: how long the guesser's result screen shows before the device is passed on
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
@@ -181,7 +182,7 @@
       } else [0, 1].forEach(t => beginWriting(t, 'giver1'));
     }
     function beginWriting(t, stage, extraMs = 0) {   // extraMs: breathing room before the clock starts (the pass-and-play feedback screen)
-      const T = G.teams[t], ms = G.settings.writeSecs * 1000;
+      const T = G.teams[t], ms = G.settings.writeSecs * 1000 + (G.settings.sequential && +stage.slice(5) >= 2 ? LATE_GIVER_MS : 0);   // pass-and-play: a later clue-giver only sees the keyword when their turn starts, so they get longer
       T.stage = stage; T.used = 0; T.deadline = now() + extraMs + ms;
       arm(t, extraMs + ms + GRACE_MS, () => { if (T.stage === stage) submitClue(t, '', true); }); // client's own auto-submit normally wins
     }
@@ -336,13 +337,14 @@
           else if (m.key === 'teams' && ['two', 'one'].includes(m.value)) {
             s.teams = m.value;
             if (m.value === 'one' && s.teamSize === 2) { s.teamSize = 3; G.seats = G.seats.map(t => Array.from({ length: 3 }, (_, i) => t[i] || null)); }
-            if (m.value === 'one') { s.mode = 'words'; s.words = 5; if (s.sequential) { s.sequential = false; G.seats = [0, 1].map(() => Array(s.teamSize).fill(null)); } G.seats[1] = Array(s.teamSize).fill(null); }
+            if (m.value === 'one') { s.mode = 'words'; s.words = 2 * s.teamSize; if (s.sequential) { s.sequential = false; G.seats = [0, 1].map(() => Array(s.teamSize).fill(null)); } G.seats[1] = Array(s.teamSize).fill(null); }
             else { s.mode = 'score'; s.words = 8; }
           }
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value) && s.teams === 'two') s.mode = m.value;
           else if (m.key === 'banCount' && [1, 2, 3].includes(n)) s.banCount = n;
           else if (m.key === 'lastChance' && [5, 10, 15].includes(n)) s.lastChance = n;
           else if (m.key === 'teamSize' && [2, 3, 4].includes(n) && !(n === 2 && s.teams === 'one')) {   // playing without an opponent needs at least 2 clue-givers
+            if (s.teams === 'one' && s.words === 2 * s.teamSize) s.words = 2 * n;   // co-op: two words per player, until the host picks another number
             s.teamSize = n; // seats beyond the new size are dropped
             G.seats = G.seats.map(t => Array.from({ length: n }, (_, i) => t[i] || null));
           }
@@ -472,7 +474,7 @@
           const rem = T.deadline ? T.deadline - now() : T.guessDeadline ? T.guessDeadline - now() : null;
           const tv = { stage: T.stage, result: T.result, earned: T.earned, breakdown: T.breakdown, remaining: rem === null ? null : Math.max(0, rem) };
           if (mine || reveal) tv.clues = (T.stage === 'guess' || T.stage === 'done' || reveal) ? T.clues : null;
-          if (mine || reveal) { tv.log = T.log; tv.spent = T.spent; tv.clueSpent = T.clueSpent; }
+          if (mine || reveal) { tv.log = T.log.slice(); tv.spent = T.spent; tv.clueSpent = T.clueSpent; }
           if (mine) {
             tv.used = T.used;
             tv.awaitReady = T.awaitReady;
