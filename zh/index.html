@@ -520,6 +520,8 @@
   .bn { display: inline-block; background: rgba(0,0,0,.18); border-radius: 6px; padding: 0 7px; margin: 2px 2px; font-weight: 600; }
   .tiles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
   .ctile { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 56px; padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--on-lime) 14%, transparent); line-height: 1.15; }
+  .ctile { position: relative; } .obub { display: none; position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 3px; box-sizing: border-box; border-radius: 10px; background: var(--accent-text); color: var(--on-lime, #123); font: 700 .72rem/20px var(--cjk); font-style: normal; text-align: center; cursor: help; z-index: 3; outline: none; }
+  .ctile.chg .obub { display: block; }
   .ctile .han { font: 700 2.1rem var(--cjk); line-height: 1.1; }
   .ctile .ph { display: flex; flex-direction: column; align-items: center; font-size: 1.25rem; }
   .ctile .ph .py + .zy { margin-left: 0; }
@@ -909,15 +911,15 @@ function watchScript(on) {
   scriptObs = new MutationObserver(muts => {
     if (scriptApplying) return;
     scriptApplying = true; scriptObs.disconnect();
-    try { for (const m of muts) { if (m.type === 'characterData') convText(m.target); else if (m.type === 'attributes') convAttrs(m.target); else m.addedNodes.forEach(convTree); } } finally { scriptApplying = false; scriptObs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS }); }
+    try { for (const m of muts) { if (m.type === 'characterData') convText(m.target); else if (m.type === 'attributes') convAttrs(m.target); else m.addedNodes.forEach(convTree); } markOrig(); } finally { scriptApplying = false; scriptObs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS }); }
   });
   scriptObs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
 }
 function syncScript() {
   const sc = DISPLAY.script === 'sc', el = document.documentElement;
   el.lang = sc ? 'zh-Hans' : 'zh-Hant'; el.dataset.script = sc ? 'sc' : 'tc';
-  if (!sc) { if (toSimp) { watchScript(false); scriptApplying = true; revertScript(); scriptApplying = false; } return; }
-  const go = () => { if (DISPLAY.script !== 'sc' || !window.OpenCC) return; toSimp = toSimp || window.OpenCC.Converter({ from: 'tw', to: 'cn' }); scriptApplying = true; convTree(document.body); scriptApplying = false; watchScript(true); };
+  if (!sc) { if (toSimp) { watchScript(false); scriptApplying = true; revertScript(); scriptApplying = false; } markOrig(); return; }
+  const go = () => { if (DISPLAY.script !== 'sc' || !window.OpenCC) return; toSimp = toSimp || window.OpenCC.Converter({ from: 'tw', to: 'cn' }); scriptApplying = true; convTree(document.body); scriptApplying = false; markOrig(); watchScript(true); };
   if (window.OpenCC) go();
   else if (!document.getElementById('opencc')) { const s = document.createElement('script'); s.id = 'opencc'; s.src = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/t2cn.js'; s.onload = go; document.head.appendChild(s); }
   else document.getElementById('opencc').addEventListener('load', go, { once: true });
@@ -950,7 +952,14 @@ applyDisplay();
 const ph = r => DISPLAY.phon === 'py' ? `<span class="py">${esc(r.py)}</span>` : DISPLAY.phon === 'zy' ? `<span class="zy">${esc(r.zy)}</span>` : `<span class="py">${esc(r.py)}</span><span class="zy">${esc(r.zy)}</span>`;
 const phText = r => DISPLAY.phon === 'py' ? r.py : DISPLAY.phon === 'zy' ? r.zy : r.py + ' ' + r.zy;
 // one character (or symbol) of a clue, as the guesser sees it
-const tile = it => `<div class="ctile hz"><b class="han">${esc(it.han || it.sym)}</b></div>`;
+// A clue character. In the simplified interface a character typed in traditional is shown converted, with a small bubble in the corner
+// holding what was actually written (shown by markOrig below, once the converter has run). The tip is already in simplified: it only ever shows there.
+const tile = it => it.han
+  ? `<div class="ctile hz" data-orig="${esc(it.han)}"><b class="han">${esc(it.han)}</b><i class="obub" data-keep tabindex="0" data-tip="提示人写的是繁体字，这里为你转成了简体">${esc(it.han)}</i></div>`
+  : `<div class="ctile hz"><b class="han">${esc(it.sym)}</b></div>`;
+function markOrig() {
+  document.querySelectorAll('.ctile[data-orig]').forEach(t => { const han = t.querySelector('.han'); t.classList.toggle('chg', DISPLAY.script === 'sc' && !!han && han.textContent !== t.dataset.orig); });
+}
 const clueText = items => (items || []).map(it => it.han || it.sym).join('') || '沒給字';
 const price = i => V.costs.prices[Math.min(i, V.costs.prices.length - 1)];
 
