@@ -873,7 +873,7 @@ const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: 
 // host chose, the same for everybody), the name of the game, and the guesses as they were typed. opencc-js (traditional -> simplified, 70 KB) is
 // only downloaded when someone picks 简体; until it arrives, and if it can't load, the page just stays in traditional.
 let toSimp = null, scriptApplying = false, scriptObs = null;
-const TIP_SC = '提示人写的是繁体字，这里为你转成了简体', TIP_TC = '提示人寫的是簡體字，這裡為你轉成了繁體';
+const TIP_SC = '提示人写的是繁体字，这里为你转成了简体。注意转换未必准确', TIP_TC = '提示人寫的是簡體字，這裡為你轉成了繁體。注意轉換未必準確';
 let toTrad = null, tradAsked = false;
 // The two opencc-js builds both call themselves window.OpenCC, so they are loaded one after the other and each kept under its own name.
 const LIB = {}, LIBP = {}; let libQ = Promise.resolve();
@@ -960,7 +960,7 @@ const phText = r => DISPLAY.phon === 'py' ? r.py : DISPLAY.phon === 'zy' ? r.zy 
 // A clue character. In the simplified interface a character typed in traditional is shown converted, with a small bubble in the corner
 // holding what was actually written (shown by markOrig below, once the converter has run). The tip is already in simplified: it only ever shows there.
 const tile = it => it.han
-  ? `<div class="ctile hz" data-orig="${esc(it.han)}"><b class="han">${esc(it.han)}</b><i class="obub" data-keep tabindex="0" data-tip="提示人写的是繁体字，这里为你转成了简体">${esc(it.han)}</i></div>`
+  ? `<div class="ctile hz" data-orig="${esc(it.han)}"><b class="han">${esc(it.han)}</b><i class="obub" data-keep tabindex="0" data-tip="提示人写的是繁体字，这里为你转成了简体。注意转换未必准确">${esc(it.han)}</i></div>`
   : `<div class="ctile hz"><b class="han">${esc(it.sym)}</b></div>`;
 function markOrig() {
   const sc = DISPLAY.script === 'sc', tiles = document.querySelectorAll('.ctile[data-orig]');
