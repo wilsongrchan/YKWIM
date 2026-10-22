@@ -522,6 +522,7 @@
   .sec-read { display: flex; gap: .2em .9em; justify-content: center; flex-wrap: wrap; font-weight: 500; font-size: .9rem; opacity: .85; margin-top: 2px; }
   .sec-ban { font-size: .8rem; font-weight: 500; margin-top: 6px; }
   .bn { display: inline-block; background: rgba(0,0,0,.18); border-radius: 6px; padding: 0 7px; margin: 2px 2px; font-weight: 600; }
+  .gwrap { position: relative; } .gwarn { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; padding: 7px 10px; border-radius: 10px; background: var(--bad); color: #fff; font: 600 .8rem/1.3 var(--body); box-shadow: 0 3px 10px rgba(0, 0, 0, .3); pointer-events: none; } .gwarn[hidden] { display: none; }
   .tiles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
   .ctile { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 56px; padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--on-lime) 14%, transparent); line-height: 1.15; }
   .ctile { position: relative; } .obub { display: none; position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 3px; box-sizing: border-box; border-radius: 10px; background: var(--accent-text); color: var(--on-lime, #123); font: 700 .72rem/20px var(--cjk); font-style: normal; text-align: center; cursor: help; z-index: 3; outline: none; }
@@ -1067,7 +1068,7 @@ function render() {
   pv.classList.toggle('hide', !S.preview);
   if (S.preview) pv.innerHTML = PREVIEWS.map(([k, label]) => `<button class="${k === S.preview ? 'on' : ''}" data-act="preview" data-kind="${k}">${label}</button>`).join('')
     + `<button data-act="previewExit">✕ 離開</button>`;
-  updatePreview(); tick(); centreStamp(); markOrig();
+  updatePreview(); tick(); centreStamp(); markOrig(); updateGuessWarn();
   if (S.shake) {
     S.shake = false;
     const bar = $('guess') && $('guess').closest('.bar');
@@ -1353,9 +1354,23 @@ function giverPanel(T, theme, blanks) {
   return [top, ''];
 }
 
+// The keyword never shares a sound with a clue (those characters are banned), so an answer with a character that sounds like a clue character
+// can't be right: warn before it is sent and costs a wrong guess.
+const GUESS_WARN = '這個答案含有與提示同音的字', GUESS_ASK = '這個答案含有與提示同音的字，是否確定提交？';
+function guessWarn(text) {
+  const T = V && V.round && V.myTeam !== null && V.round.teams[V.myTeam];
+  if (!T || !T.clues || !READ) return false;
+  const keys = new Set();
+  T.clues.flat().forEach(it => { const rs = it.han && readingsOf(it.han); if (rs) rs.forEach(x => keys.add(YKWIM.soundKey(x))); });
+  return [...String(text || '')].some(ch => { if (!YKWIM.isHan(ch)) return false; const rs = readingsOf(ch); return !!rs && rs.some(x => keys.has(YKWIM.soundKey(x))); });
+}
+function updateGuessWarn() {
+  const w = $('gwarn'), g = $('guess'); if (!w || !g) return;
+  const on = guessWarn(g.value); w.hidden = !on; if (on) w.textContent = '⚠ ' + GUESS_WARN;
+}
 function guesserPanel(T, theme, blanks) {
   const top = `${theme}${blanks}
-    <div class="bar"><input id="guess" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="輸入你的答案" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
+    <div class="gwrap"><div id="gwarn" class="gwarn" hidden></div><div class="bar"><input id="guess" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="輸入你的答案" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div></div>
     <div class="preview one">猜錯 −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">放棄</button>（${T.clueSpent ? `拿回 ${T.clueSpent} 點` : '花的點數退還'}）</div>`;
   return [top, `${logHtml(T)}`];
 }
@@ -1663,13 +1678,13 @@ document.addEventListener('click', e => {
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
     case 'pick': S.draft.picks[d.ch] = d.s; return updatePreview();
     case 'sendClue': return send({ type: 'clue', text: S.draft.clue, picks: S.draft.picks });
-    case 'sendGuess': { const g = $('guess').value; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
+    case 'sendGuess': { const g = $('guess').value; if (guessWarn(g) && !confirm(GUESS_ASK)) return; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
   }
 });
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'clue') { S.draft.clue = t.value; if (!e.isComposing) updatePreview(); return; }   // wait while a character is still being chosen in an input method
-  if (t.id === 'guess') S.draft.guess = t.value;
+  if (t.id === 'guess') { S.draft.guess = t.value; if (!e.isComposing) updateGuessWarn(); }
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
