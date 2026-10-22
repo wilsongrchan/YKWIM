@@ -157,7 +157,7 @@
   const PRICES = Array.from({ length: MAX_CHARS }, (_, i) => priceOf(i));
   const SYMBOLS = '.,?!@#$%&*+-=/()~^:;\'_。，、？！…～＋－＝（）：；';   // allowed in a clue at a flat price
   const clueCost = items => { let k = 0; return items.reduce((a, it) => a + (it.han ? priceOf(k++) : SYMBOL_COST), 0); };
-  const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the starting bank
   // (they scale with the number of words). A solved word pays the reward plus bonuses (about 100-150 as the words get longer), and clues cost
   // 0-40, so a team that gets nearly everything lands in the top grades. Numbers to be tuned by playtesting.
