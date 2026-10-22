@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="../icon.svg">
 <link rel="apple-touch-icon" href="../icon.png">
-<title>YKWIM 中文版</title>
+<title>字字珠璣 · YKWIM Chinese Version</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&family=Mochiy+Pop+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     /* "Lagoon" (default). --lime is the accent colour whatever the theme. */
@@ -252,6 +252,7 @@
   .logo, .masthead .mark, .secret .w, .brand { font-family: var(--brand); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .05em; }
   .logo { text-shadow: 3px 3px 0 var(--navy); }
   .logo { position: relative; }
+  .logosub { text-align: center; margin: -2px 0 12px; font: 500 .72rem var(--body); letter-spacing: .22em; text-transform: uppercase; color: var(--soft); }
   .logoBg { position: absolute; z-index: -1; left: 50%; top: 50%; height: 2.4em; width: auto; transform: translate(-50%, -34%); fill: var(--navy); stroke: var(--navy); stroke-width: 3.3; stroke-linejoin: round; opacity: .55; pointer-events: none; overflow: visible; }
   .tag { text-align: center; color: var(--soft); margin: 0 0 22px; font-weight: 500; }
   h2 { font-size: 1.5rem; margin-bottom: 10px; }
@@ -499,7 +500,7 @@
 <style>
   /* ---- 中文版 additions ---- */
   :root { --cjk: "Noto Sans TC", "PingFang TC", "Hiragino Sans CNS", "Microsoft JhengHei", system-ui, sans-serif;
-    --display: "Fredoka", var(--cjk); --body: "Fredoka", var(--cjk); --brand: "Lilita One", var(--cjk); }
+    --display: "Fredoka", var(--cjk); --body: "Fredoka", var(--cjk); --brand: "Lilita One", "Mochiy Pop One", var(--cjk); }   /* Latin letters stay in the English logo face; the characters get its chunky round cousin */
   .secret .w, .brand.zhword, details.rvword summary b { font-family: var(--cjk); font-style: normal; font-weight: 700; text-transform: none; letter-spacing: .1em; }
   .secret .w { font-size: 2.4rem; }
   details.rvword summary b { font-size: 1.05rem; }
@@ -568,7 +569,7 @@
   <div id="previewbar" class="pvbar hide"></div>
   <header class="masthead">
     <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="房間代碼：用它可以重新加入。點一下複製。"></button>
-    <div class="mark"><span class="markT">YKWIM</span><span id="markIcon"></span><small>你懂我的意思嗎</small></div>
+    <div class="mark"><span class="markT">字字珠璣</span><span id="markIcon"></span><small>YKWIM Chinese Version</small></div>
     <div class="icons">
       <button class="icon" data-act="themes" aria-label="顯示設定"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button class="icon" id="helpbtn" data-act="help" aria-label="玩法說明">?</button>
@@ -577,7 +578,7 @@
   </header>
   <div id="app"></div>
 </div>
-<footer class="foot">© 2026 YKWIM</footer>
+<footer class="foot">© 2026 YKWIM Chinese Version</footer>
 <div id="themes" class="modal hide">
   <div class="sheet">
     <button class="x" data-act="closeThemes" aria-label="關閉">✕</button>
@@ -594,32 +595,37 @@
     <h2>玩法說明</h2>
     <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">規則</button><button data-act="helpTab" data-tab="cost">定價</button><button data-act="helpTab" data-tab="flow">範例</button><button data-act="helpTab" data-tab="bar">分數條</button><button data-act="helpTab" data-tab="result">評級</button></div>
     <div id="help-rules">
-    <p>兩隊同時猜<b>同一個關鍵詞</b>。線索不是字母，而是漢字的<b>讀音</b>和<b>字形</b>：讀音免費，要看到漢字就得付點數，猜者負責把意思拼起來。</p>
-    <h3>線索</h3>
+    <p><b>字字珠璣</b>：兩支隊伍要用最少的提示字，最快猜出同一個謎底！提示字越少，最終得分越高。</p>
+    <h3>提示字</h3>
     <ul>
-      <li>一隊 = 1 位猜者 + 1–3 位線索者，線索者依序給線索，每個線索由一到四個「字」組成。</li>
-      <li>每個字先寫<b>讀音</b>：拼音加聲調數字（<b>zhu2</b>），或注音（<b>ㄓㄨˊ</b>）。輕聲寫 5。</li>
-      <li>想讓猜者直接看到漢字（例如「竹」），再加 10 點。猜者看到漢字時也會看到讀音，所以不怕多音字。</li>
-      <li>關鍵詞<b>每個字的同音字都不能用</b>（聲母加韻母一樣就算，不管聲調，關鍵詞本身也算）。熊貓 ➜ 熊、雄、胸、兇、貓、毛、矛…都不行。</li>
-      <li>線索者 2 看得到線索者 1 的讀音，但<b>沒有聲調、也不知道順序</b>，要靠關鍵詞推理（zhu ＋ 熊貓 ➜ 竹）。可以補字，也可以不補。補錯字會誤導猜者。</li>
-      <li>猜者只看得到自己隊的線索。</li>
-    </ul>
-    <h3>跳過</h3>
-    <ul>
-      <li>不認識這個詞？在<b>兩隊的線索者 1 都還沒送出線索</b>以前，線索者 1 可以按「跳過？」，對方線索者 1 同意就雙方換新詞，10 秒內沒回應算拒絕。</li>
-      <li>只要有一方送出線索，就不能再跳過。線索者 2 不能提議跳過。</li>
-      <li>冷門詞、專有名詞、方言詞：對方說不懂，通常該同意。常識詞（像熊貓）說不懂，對方可以拒絕。拒絕不犯規，只是可能被說勝之不武。</li>
+      <li>每名提示人可以寫下一個或多個提示字，也可以不寫直接跳過。</li>
+      <li>每隊由一名猜謎人和最多三名提示人組成。提示人依次寫下提示字。</li>
+      <li>提示字不能與謎底所包含的字<b>同音</b>。只要聲母和韻母相同，就算聲調不同，也視作同音字。例如謎底是「熊貓」，所有 xiong 音的字（「凶」「兄」「雄」等），以及所有 mao 音的字（「毛」「貓」「帽」等），全都是禁字。</li>
+      <li>第二名提示人可以看見第一名提示人所寫提示字的<b>發音</b>（不顯示聲調，也不知道順序）。例如第一名提示人寫下「竹」，第二名提示人只會看到 <b>zhu</b>。然後根據這個信息，第二名提示人可以接著寫，也可以不寫直接跳過。如果有第三名提示人，則如此類推。</li>
+      <li>等所有提示人都寫好提示字之後，猜謎人會看見所有提示字，然後作出答案。</li>
     </ul>
     <h3>點數</h3>
     <ul>
-      <li>每隊有銀行（200 點）。線索的花費先暫記，<b>猜中才真正扣掉；猜不中全數退還</b>。</li>
-      <li>猜中得到獎勵加速度獎金。兩隊都猜中時，先猜中的再得一份搶先獎金。</li>
-      <li>猜錯一次扣幾點，放棄免費。一隊猜中或放棄後，另一隊有最後機會計時。</li>
+      <li>每隊從 200 點開始。寫提示字要花點數：每名提示人的第一個字 <b>12</b> 點，第二個字 <b>24</b> 點，第三個字 <b>48</b> 點，每個字都是前一個字的兩倍。每個標點符號 5 點，不遞增。所以把一個詞拆給兩個提示人寫，會比較省。</li>
+      <li>隊伍的點數不夠付的話，就必須刪短提示字。</li>
+      <li>猜中謎底獎勵 100 點。如果兩隊都猜中，先猜中的隊伍再得 20 點。在限定時間內猜中，還有速度獎金。</li>
+      <li>猜錯一次罰 5 點。完全沒頭緒的話，放棄比亂猜好。</li>
+      <li>放棄沒有懲罰，而且提示字花掉的點數會<b>全數退還</b>。</li>
+      <li>當其中一隊猜中，或宣告放棄，另一隊有最後 10 秒作答。如果兩隊都沒猜中也沒放棄，就沒有時間限制。</li>
+    </ul>
+    <h3>跳過</h3>
+    <ul>
+      <li>不認識這個詞？在<b>兩隊的提示人 1 都還沒送出提示字</b>以前，提示人 1 可以按「跳過？」，對方提示人 1 同意就雙方換新詞，10 秒內沒回應算拒絕。</li>
+      <li>只要有一方送出提示字，就不能再跳過。提示人 2 不能提議跳過。</li>
+      <li>冷門詞、專有名詞、方言詞：對方說不懂，通常該同意。常識詞（像熊貓）說不懂，對方可以拒絕。</li>
+    </ul>
+    <h3>模式</h3>
+    <ul>
       <li>人不夠兩隊？選合作模式：一隊玩固定個數的詞，最後得到評級。對戰模式兩隊也各有評級。</li>
     </ul>
     </div>
     <div id="help-cost" class="hide">
-      <h3>線索定價</h3>
+      <h3>提示字定價</h3>
       <div id="costdiag"></div></div>
     <div id="help-flow" class="hide"><div id="flowdiag"></div></div>
     <div id="help-result" class="hide">
@@ -641,7 +647,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022b"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022g"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -653,14 +659,14 @@ const READ = window.pinyinPro ? YKWIM.makeReadings(window.pinyinPro) : null;   /
 
 let V = null, net = null;
 const S = { name: safeGet('ykwimzh-name') || '', code: (new URLSearchParams(location.search).get('room') || '').toUpperCase(), busy: false, err: '',
-  draft: { rows: [{ py: '', han: '' }], guess: '' }, stageKey: '', shownRole: '', dl: [null, null], speedDl: null, sentKey: '', lastPy: 0 };
-const resetDraft = () => { S.draft = { rows: [{ py: '', han: '' }], guess: '' }; S.lastPy = 0; };
+  draft: { clue: '', guess: '' }, stageKey: '', shownRole: '', dl: [null, null], speedDl: null, sentKey: '' };
+const resetDraft = () => { S.draft = { clue: '', guess: '' }; };
 // The screen-preview tool is a development aid: only offered when running from this machine or the local network.
 const IS_LOCAL = ['localhost', '127.0.0.1', ''].includes(location.hostname) || location.hostname.endsWith('.local') || /^(192\.168|10)\./.test(location.hostname) || /^172\.(1[6-9]|2\d|3[01])\./.test(location.hostname);
 const TEAM_COLORS = ['var(--t0)', 'var(--t1)'];          // fills
 const TEAM_BANK = TEAM_COLORS.map(c => `color-mix(in srgb, ${c} 88%, black)`);   // the bank in the score bars: a deeper shade, so the bonus segments above it stand out
 const TEAM_TEXT = ['var(--t0t)', 'var(--t1t)'];          // the same colours, readable as text in light mode
-const STAGE_TEXT = { waiting: '等待輪到', giver1: '線索者 1 寫線索中…', giver2: '線索者 2 寫線索中…', giver3: '線索者 3 寫線索中…', guess: '思考中…' };
+const STAGE_TEXT = { waiting: '等待輪到', giver1: '提示人 1 寫提示字中…', giver2: '提示人 2 寫提示字中…', giver3: '提示人 3 寫提示字中…', guess: '思考中…' };
 const isWriting = stage => /^giver\d$/.test(stage);                 // a clue-giver is typing
 const stageRoleOf = stage => stage === 'guess' ? 'guesser' : isWriting(stage) ? stage : null;
 const SOLO = () => !!V && V.settings.teams === 'one';                  // no opponent: one team plays for a score
@@ -765,11 +771,11 @@ const FEEDBACK_MS = 3500;   // pass-and-play: how long the guesser's result scre
 const ICON_SVG = '<svg viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>';
 $('markIcon').innerHTML = ICON_SVG;
 // the YKWIM word with the icon hopping along it, for any waiting screen
-const loaderHtml = (cls = '') => `<div class="ldr ${cls}" role="status" aria-label="載入中">${[...'YKWIM'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
+const loaderHtml = (cls = '') => `<div class="ldr ${cls}" role="status" aria-label="載入中">${[...'字字珠璣'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
 function playIntro() {
   const el = document.createElement('div');
   el.className = 'intro';
-  el.innerHTML = '<div class="introWord">' + [...'YKWIM'].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
+  el.innerHTML = '<div class="introWord">' + [...'字字珠璣'].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2300);
 }
@@ -801,7 +807,7 @@ function onView(v) {
     if (S.passNoteId === undefined) S.passNoteId = pn ? pn.id : 0;   // joining or reconnecting: don't replay old news
     else if (pn && pn.id !== S.passNoteId) {
       S.passNoteId = pn.id;
-      if (pn.type === 'accepted') { resetDraft(); S.sentKey = ''; S.shownRole = ''; setTimeout(() => toast('跳過了！換一個新的關鍵詞。'), 0); }
+      if (pn.type === 'accepted') { resetDraft(); S.sentKey = ''; S.shownRole = ''; setTimeout(() => toast('跳過了！換一個新的謎底。'), 0); }
       else if (mt === pn.from) setTimeout(() => toast(pn.type === 'expired' ? '對方沒回應，繼續吧。' : `${v.names[1 - mt]}不同意，加油！`), 0);
     }
   }
@@ -844,9 +850,9 @@ applyDisplay();
 // A reading shown the way this device likes it: pinyin, zhuyin or both. r = { py, zy }.
 const ph = r => DISPLAY.phon === 'py' ? `<span class="py">${esc(r.py)}</span>` : DISPLAY.phon === 'zy' ? `<span class="zy">${esc(r.zy)}</span>` : `<span class="py">${esc(r.py)}</span><span class="zy">${esc(r.zy)}</span>`;
 const phText = r => DISPLAY.phon === 'py' ? r.py : DISPLAY.phon === 'zy' ? r.zy : r.py + ' ' + r.zy;
-// one character of a clue: the written character if it was bought, and its reading
-const tile = it => `<div class="ctile${it.han ? ' hz' : ''}">${it.han ? `<b class="han">${esc(it.han)}</b>` : ''}<span class="ph">${ph(it)}</span></div>`;
-const clueText = items => (items || []).map(it => (it.han ? it.han + ' ' : '') + phText(it)).join('、') || '沒補字';
+// one character (or symbol) of a clue, as the guesser sees it
+const tile = it => `<div class="ctile hz"><b class="han">${esc(it.han || it.sym)}</b></div>`;
+const clueText = items => (items || []).map(it => it.han || it.sym).join('') || '沒給字';
 const price = i => V.costs.prices[Math.min(i, V.costs.prices.length - 1)];
 
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
@@ -858,43 +864,45 @@ function renderFlow(which) {
   const think = (color, mood, text) => `<div class="th"><svg class="av" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 40c0-9 6-13 15-13s15 4 15 13z" fill="${color}"/><circle cx="20" cy="15" r="10" fill="#f6dcc0" stroke="#123f43" stroke-width="1.5"/><circle cx="16" cy="14" r="1.5" fill="#123f43"/><circle cx="24" cy="14" r="1.5" fill="#123f43"/><path d="${MOUTH[mood]}" fill="none" stroke="#123f43" stroke-width="1.5" stroke-linecap="round"/></svg><div class="bub">${text}</div></div>`;
   const cost = n => `<span class="fs-cost">${n ? '−' + n : '免費'}</span>`;
   const EM = e => `<span class="em">${e}</span>`;
-  const ct = (han, py, zy) => `<div class="ctile fsw${han ? ' hz' : ''}">${han ? `<b class="han">${han}</b>` : ''}<span class="ph"><span class="py">${py}</span><span class="zy">${zy}</span></span></div>`;
+  const ct = han => `<div class="ctile fsw hz"><b class="han">${han}</b></div>`;
   const ban = `<span class="fs-ban">不能用 <s>xiong</s><s>mao</s></span>`;
   const step1 = which === 'c'
-    ? `${EM('🎋')} 熊貓吃竹子！我只有一個人，先給 <b>zhu2</b>，第二個字要 20 點，所以再加 <b>chuan1</b>（四川）。`
-    : `${EM('🎋')} 熊貓吃竹子！我給 <b>zhu2</b>（第一個字免費），希望線索者 2 懂我的意思。`;
-  const step2 = { a: think('#6fc7bd', 'happy', `只看到 <b>zhu</b>，沒有聲調…配上熊貓，一定是 ${EM('🎋')} 竹！熊貓還會想到 ${EM('🏔️')} 四川，我補 <b>川</b>（讀音免費，漢字 +10）。`),
+    ? `${EM('🎋')} 熊貓吃竹子！我只有一個人，先給 <b>竹</b>（12 點），再加 <b>川</b>（四川，24 點）。`
+    : `${EM('🎋')} 熊貓吃竹子！我只給 <b>竹</b>，希望提示人 2 懂我的意思。（12 點）`;
+  const step2 = { a: think('#6fc7bd', 'happy', `只看到 <b>zhu</b>，沒有聲調…配上熊貓，一定是 ${EM('🎋')} 竹！熊貓還會想到 ${EM('🏔️')} 四川，我補 <b>川</b>。`),
     b: think('#6fc7bd', 'happy', `<b>zhu</b> ＋ 熊貓…${EM('🎋')} 竹，已經夠明顯了。我<b>不補字</b>，省點數。`),
     c: '' }[which];
-  const step3 = { a: `<b>zhu2</b>…竹…還有「川」…${EM('🎋')} 竹子加四川…${EM('🐼')} 熊貓！`,
-    b: `<b>zhu2</b>…竹…${EM('🎋')} 吃竹子的…${EM('🐼')} 熊貓！`,
-    c: `<b>zhu2</b>、<b>chuan1</b>…竹和四川…${EM('🐼')} 熊貓！` }[which];
-  const first = ct('', 'zhu2', 'ㄓㄨˊ'), second = { a: ct('川', 'chuan1', 'ㄔㄨㄢ'), b: '', c: ct('', 'chuan1', 'ㄔㄨㄢ') }[which];
-  const spent = { a: 10, b: 0, c: 20 }[which];
+  const step3 = { a: `竹…川…${EM('🎋')} 竹子加四川…${EM('🐼')} 熊貓！`,
+    b: `竹…${EM('🎋')} 吃竹子的…${EM('🐼')} 熊貓！`,
+    c: `竹、川…竹和四川…${EM('🐼')} 熊貓！` }[which];
+  const first = ct('竹'), second = { a: ct('川'), b: '', c: ct('川') }[which];
+  const spent = { a: 24, b: 12, c: 36 }[which];
   const tab = (v, label) => `<button type="button" class="${which === v ? 'on' : ''}" data-act="flow" data-v="${v}">${label}</button>`;
   $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', '補字')}${tab('b', '不補字')}${tab('c', '只有一位')}</div>` +
-    box(1, '線索者 1 看得到關鍵詞', `<span class="fs-kw">熊貓</span>${ban}
+    box(1, '提示人 1 看得到謎底', `<span class="fs-kw">熊貓</span>${ban}
       ${think('#f5b942', 'hope', step1)}
-      <div class="fs-row">${first}${which === 'c' ? second : ''}${cost(which === 'c' ? 20 : 0)}</div>`) +
-    (which === 'c' ? '' : box(2, '線索者 2 看得到關鍵詞，和線索者 1 讀音的聲母韻母', `<span class="fs-kw">熊貓</span>${ban}
-      <div class="fs-h" style="margin:2px 0 0">線索者 1 給了</div><div class="fs-used">zhu</div><div class="fs-say" style="margin-top:2px">1 個字。沒有聲調，多個字的話也不知道順序。</div>
+      <div class="fs-row">${first}${which === 'c' ? second : ''}${cost(which === 'c' ? 36 : 12)}</div>`) +
+    (which === 'c' ? '' : box(2, '提示人 2 看得到謎底，和提示人 1 的字的讀音', `<span class="fs-kw">熊貓</span>${ban}
+      <div class="fs-h" style="margin:2px 0 0">提示人 1 給了</div><div class="fs-used">zhu</div><div class="fs-say" style="margin-top:2px">1 個字。只看得到讀音：沒有聲調，多個字的話也不知道順序。</div>
       ${step2}
-      ${second ? `<div class="fs-row">${second}${cost(10)}</div><div class="fs-say">線索者 2 重新從免費開始算，這裡多買了漢字，所以 +10。</div>` : `<div class="fs-row"><div class="fs-clue fs-skip">沒補字</div><span class="fs-cost">免費</span></div>`}`)) +
-    box(which === 'c' ? 2 : 3, '猜者只看得到線索', `<div class="fs-row" style="margin:0 0 6px">${first}${which === 'c' ? second : which === 'a' ? second : ''}</div>
+      ${second ? `<div class="fs-row">${second}${cost(12)}</div><div class="fs-say">提示人 2 重新從 12 點算起，所以這個字只要 12 點。</div>` : `<div class="fs-row"><div class="fs-clue fs-skip">沒補字</div><span class="fs-cost">免費</span></div>`}`)) +
+    box(which === 'c' ? 2 : 3, '猜謎人只看得到提示字', `<div class="fs-row" style="margin:0 0 6px">${first}${which === 'c' ? second : which === 'a' ? second : ''}</div>
       <div>${'<span class="fs-blank"></span>'.repeat(2)}</div>
       ${think('#f2907a', 'happy', step3)}`) +
-    box(which === 'c' ? 3 : 4, '結果', `<span class="fs-ok">熊貓 ✓</span> 猜中才真正扣款：這一輪${spent ? `花了 ${spent} 點` : '沒花點數'}，獎勵和速度獎金進帳。<br>猜不中的話，線索花的點數<b>全數退還</b>。`);
+    box(which === 'c' ? 3 : 4, '結果', `<span class="fs-ok">熊貓 ✓</span> 猜中才真正扣款：這一輪花了 ${spent} 點，獎勵和速度獎金進帳。<br>猜不中的話，提示字花的點數<b>全數退還</b>。`);
 }
 renderFlow('a');
 (function costDiagram() {
-  const P = YKWIM.PRICES, H = YKWIM.HAN_EXTRA;
+  const P = YKWIM.PRICES, S5 = YKWIM.SYMBOL_COST;
+  let run = 0;
+  const cum = P.map(p => run += p);
   $('costdiag').innerHTML = `
-    <p>每位線索者的字<b>各自計價</b>：第 1 個字讀音免費，第 2 個 ${P[1]} 點，第 3 個 ${P[2]} 點，之後每個再多 ${P[3] - P[2]} 點。想讓猜者看到實際的漢字，在該字的價錢上再加 <b>${H}</b> 點。</p>
+    <p>每位提示人的字<b>各自計價</b>：第 1 個字 ${P[0]} 點，第 2 個 ${P[1]} 點，第 3 個 ${P[2]} 點，每個字都是前一個的兩倍。符號（？！等）每個 ${S5} 點，不遞增。</p>
     <table class="gt" style="text-align:center"><tr><th style="text-align:left">第幾個字</th>${P.map((_, i) => `<th style="text-align:center">${i + 1}</th>`).join('')}</tr>
-      <tr><th style="text-align:left">只給讀音</th>${P.map(p => `<td style="text-align:center">${p || '免費'}</td>`).join('')}</tr>
-      <tr><th style="text-align:left">加漢字</th>${P.map(p => `<td style="text-align:center">${p + H}</td>`).join('')}</tr></table>
-    <div class="cd-note">線索者 2 從頭重新計價，所以補一個字的讀音是免費的，只有加漢字要花 ${H} 點。一個線索最多 ${YKWIM.MAX_CHARS} 個字。</div>
-    <div class="cd-note">這些花費只是「暫記」：你們隊猜中這個詞才會真的扣掉，猜不中全額退還。所以點數壓力只來自猜中的詞。</div>`;
+      <tr><th style="text-align:left">這個字</th>${P.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr>
+      <tr><th style="text-align:left">一個人寫，累計</th>${cum.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr></table>
+    <div class="cd-note">提示人 2 從頭重新計價（又是 ${P[0]} 點起）。所以「竹子葉」一個人寫要 ${cum[2]} 點，拆成「竹子」和「葉」兩個人寫只要 ${cum[1]} + ${P[0]} = ${cum[1] + P[0]} 點。一個提示字最多 ${YKWIM.MAX_CHARS} 個字。</div>
+    <div class="cd-note">這些花費只是「暫記」：你們隊猜中這個詞才會真的扣掉，猜不中全額退還。你們買不起的提示字，也寫不出來。</div>`;
 })();
 
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
@@ -942,8 +950,9 @@ function render() {
 
 function homeScreen() {
   return `<div class="stage home">
-    <div class="logo display"><svg class="logoBg" viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>YKWIM</div>
-    <p class="tag" style="margin-bottom:6px">中文版：你懂我的意思嗎？</p>
+    <div class="logo display"><svg class="logoBg" viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>字字珠璣</div>
+    <div class="logosub">YKWIM Chinese Version</div>
+    <p class="tag" style="margin-bottom:6px">你懂我的意思嗎？</p>
     <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">用讀音和漢字玩的猜詞遊戲，3–8 位玩家</p>
     <label>你的名字</label>
     <input id="name" maxlength="14" placeholder="名字" value="${esc(S.name)}">
@@ -982,18 +991,18 @@ function lobbyScreen() {
       ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">離開：不再用這台裝置玩這一隊</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? '共用裝置<span class="dev">（這台）</span>' : '這一隊共用這台裝置'}</button>`}
     </div>`).join('')}</div>
     ${unseated.length ? `<p class="sub">等著入座：${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
-    <p class="sub">${{ 2: '一人寫線索，一人猜，每個詞輪流換。', 3: '角色（線索者 1、線索者 2、猜者）在 3 個座位間輪流，每個詞換一次。', 4: '角色（三位線索者和一位猜者）在 4 個座位間輪流，每個詞換一次。' }[st.teamSize]}</p>
+    <p class="sub">${{ 2: '一人寫提示字，一人猜，每個詞輪流換。', 3: '角色（提示人 1、提示人 2、猜謎人）在 3 個座位間輪流，每個詞換一次。', 4: '角色（三位提示人和一位猜謎人）在 4 個座位間輪流，每個詞換一次。' }[st.teamSize]}</p>
     <div class="settingshead"><h2>遊戲設定</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">恢復預設</button>` : ''}</div>
     <div class="well"><div class="settings main">
       <div style="grid-column:1 / -1" class="modepick"><label>遊戲模式</label><div class="modes">${[['two', '對戰', '兩隊搶著猜同一個詞。', 't0'], ['one', '合作', '一隊玩固定個數的詞，拿評級。', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
-      <div><label>每隊人數</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 位猜者，1 位線索者', 3: '1 位猜者，2 位線索者', 4: '1 位猜者，3 位線索者' })[v])}</div>
+      <div><label>每隊人數</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 位猜謎人，1 位提示人', 3: '1 位猜謎人，2 位提示人', 4: '1 位猜謎人，3 位提示人' })[v])}</div>
       ${st.teams === 'one' ? `<div><label>詞的個數</label>${sel('words', [5, 8, 10], st.words, x => x + ' 個')}</div>` : `<div><label>結束條件</label>${sel('mode', [['score', '先到目標分數'], ['words', '固定個數']], st.mode)}</div>
       <div>${st.mode === 'words'
         ? `<label>詞的個數</label>${sel('words', [5, 8, 10], st.words, x => x + ' 個')}`
         : `<label>目標分數</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
       <div><label>起始點數</label>${sel('bank', [100, 200, 300], st.bank)}</div>
       <div><label>猜中的獎勵</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
-      <div><label>寫每個線索的時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
+      <div><label>寫每個提示字的時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>進階設定</summary>
@@ -1020,7 +1029,7 @@ const statusLabel = t => { const T = V.round.teams[t]; return { correct: '✓ �
 function statusLine(t, net) {
   const T = V.round.teams[t], gain = net ? (() => { const n = T.earned - (T.spent || 0); return (n < 0 ? '−' : '+') + Math.abs(n); })() : '+' + T.earned;
   if (T.stage === 'done') return { correct: `✓ 猜中了！${gain}`, out: '點數用完', gaveup: '放棄了', timeout: '時間到', skipped: '跳過' }[T.result];
-  return T.stage === 'giver1' && V.settings.teamSize === 2 ? '寫線索中…' : STAGE_TEXT[T.stage];
+  return T.stage === 'giver1' && V.settings.teamSize === 2 ? '寫提示字中…' : STAGE_TEXT[T.stage];
 }
 
 function topBar() {
@@ -1032,12 +1041,12 @@ function topBar() {
   </div>`;
 }
 
-const giverName = (stage, n) => V.settings.teamSize === 2 ? '線索者' : '線索者 ' + n;
+const giverName = (stage, n) => V.settings.teamSize === 2 ? '提示人' : '提示人 ' + n;
 function slots(t, role) {
   const T = V.round.teams[t], st = T.stage, clues = T.clues, n = V.settings.teamSize - 1;   // n clue-givers
-  // name the clue-giver where we know who it is (our own team); the other team's clues stay "線索 1", "線索 2"
+  // name the clue-giver where we know who it is (our own team); the other team's clues stay "提示字 1", "提示字 2"
   const nm = i => t === V.myTeam && V.round.roleNames && V.round.roleNames['giver' + i];
-  const lbl = i => nm(i) ? (nm(i) === '你' ? '你的線索' : `${esc(nm(i))}的線索`) : n === 1 ? '線索' : `線索 ${i}`;
+  const lbl = i => nm(i) ? (nm(i) === '你' ? '你的提示字' : `${esc(nm(i))}的提示字`) : n === 1 ? '提示字' : `提示字 ${i}`;
   const hidden = i => `<div class="slot"><div class="ic off">🔒</div><small>${lbl(i)}</small></div>`;
   const shown = (i, items) => `<div class="slot got"><div class="tiles">${items.length ? items.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${lbl(i)}${items.length ? ` · ${items.length} 個字` : ''}</small></div>`;
   const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)}已送出</small></div>`;
@@ -1054,7 +1063,7 @@ function slots(t, role) {
 function timerPill(inline) {
   const mt = V.myTeam, T = mt === null ? null : V.round.teams[mt];
   if (!T || T.stage === 'done' || T.stage === 'waiting') return '';
-  if (isWriting(T.stage)) return `<span class="timer${inline ? ' inl' : ''}" data-timer="dl${mt}">00:00${inline ? '' : '<small>寫線索的時間</small>'}</span>`;
+  if (isWriting(T.stage)) return `<span class="timer${inline ? ' inl' : ''}" data-timer="dl${mt}">00:00${inline ? '' : '<small>寫提示字的時間</small>'}</span>`;
   if (T.remaining !== null) return `<span class="timer hot${inline ? ' inl' : ''}" data-timer="dl${mt}">00:10<small>最後機會！</small></span>`;
   return `<span class="timer${inline ? ' inl' : ''}" data-timer="speed">∞<small>沒有時間限制</small></span>`;
 }
@@ -1065,7 +1074,7 @@ function feedbackScreen(fb) {
   return `<div class="stage center feedback">
     <div class="fb-emoji">${won ? '🎉' : fb.result === 'gaveup' ? '🤝' : '⏰'}</div>
     <h2 style="font-size:2rem">${won ? '太好了，猜中了！' : fb.result === 'gaveup' ? '這個詞放棄了' : '時間到'}</h2>
-    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">這個詞的獎勵</p>` : `<p class="sub">線索花的點數退還給你們。</p>`}
+    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">這個詞的獎勵</p>` : `<p class="sub">提示字花的點數退還給你們。</p>`}
     <p class="sub" style="margin-top:18px">準備把裝置傳下去…</p>
     <button class="ghost" data-act="skipFeedback">馬上繼續</button>
   </div>`;
@@ -1093,13 +1102,13 @@ function roundScreen() {
       const guesserWaiting = stageRole === 'guesser' && T.awaitReady;   // the quick-guess clock hasn't started: wait for the tap
       if (guesserWaiting && !multi) {
         handoff = true;
-        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">線索都到了！</h2>
-          <p class="sub">準備好再按，才看得到線索。按下去的同時，速度獎金開始倒數。</p>
+        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">提示字都到了！</h2>
+          <p class="sub">準備好再按，才看得到提示字。按下去的同時，速度獎金開始倒數。</p>
           <button class="big" data-act="ready" data-key="${key}" data-guess="1">我準備好了</button></div>`;
       } else if (guesserWaiting || (multi && S.shownRole !== key)) {
         handoff = true;
         body = `<div class="well center">          <h2 style="color:${TEAM_TEXT[mt]}">${esc(V.names[mt])}</h2><h2>把裝置傳給${esc(r.roleNames[stageRole])}</h2>
-          <p class="sub">${stageRole === 'guesser' ? '線索者請轉開視線！對方按下去後速度獎金開始倒數。' : stageRole !== 'giver1' ? '猜者請轉開視線！' : '其他人請轉開視線！'}</p>
+          <p class="sub">${stageRole === 'guesser' ? '提示人請轉開視線！對方按下去後速度獎金開始倒數。' : stageRole !== 'giver1' ? '猜謎人請轉開視線！' : '其他人請轉開視線！'}</p>
           <button class="big" data-act="ready" data-key="${key}"${stageRole === 'guesser' ? ' data-guess="1"' : ''}>我準備好了</button></div>`;
       } else {
         role = stageRole;
@@ -1108,7 +1117,7 @@ function roundScreen() {
     } else {
       const who = r.roleNames[stageRole];
       body = `${theme}${blanks}<div class="well center"><h2>${esc(who)}${stageRole === 'guesser' ? '準備要猜了' : '正在寫…'}</h2>
-        <p class="sub">${stageRole === 'guesser' ? '一起想想這些線索！' : '稍等一下。'}</p></div>${T.stage === 'guess' ? logHtml(T) : ''}`;
+        <p class="sub">${stageRole === 'guesser' ? '一起想想這些提示字！' : '稍等一下。'}</p></div>${T.stage === 'guess' ? logHtml(T) : ''}`;
     }
   }
   const pa = r.pass && r.pass.toAnswer;
@@ -1119,7 +1128,7 @@ function roundScreen() {
   const compact = (role && role.startsWith('giver')) || handoff;
   // everyone else gets the same header row as the clue-givers (role on the left, timer on the right), then the clue slots
   const rowT = mt === null ? null : r.teams[mt], rowRole = rowT && stageRoleOf(rowT.stage);
-  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? '猜者' : giverName(rowRole, rowRole.slice(5))}：${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · 最後機會！' : ''}</span>${timerPill(true)}</div>`;
+  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? '猜謎人' : giverName(rowRole, rowRole.slice(5))}：${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · 最後機會！' : ''}</span>${timerPill(true)}</div>`;
   const head = compact ? '' : `${headRow}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
   return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${SOLO() ? '' : vbar(mt === null ? 1 : 1 - mt)}</div></div>${askBar}`;
 }
@@ -1129,8 +1138,8 @@ function roundScreen() {
 // inside it is what the clue being typed would cost. The segments stacked above are what a correct guess
 // could still win: the reward, the first-to-guess bonus, and the quick-guess bonus (shrinks every second, see tick()).
 const PEN = '<svg class="pen" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';   // marks a box as editable
-const TIP = { score: '銀行：隊伍現在的點數', shadow: '你正在寫的線索會花多少（從銀行扣）', reward: '猜中的獎勵',
-  long: '長詞獎金：三個字以上的詞多給', first: '搶先猜中獎金：只有對方也猜中、但比你慢時才會給', quick: '速度獎金：線索出現後每秒少 1' };
+const TIP = { score: '銀行：隊伍現在的點數', shadow: '你正在寫的提示字會花多少（從銀行扣）', reward: '猜中的獎勵',
+  long: '長詞獎金：三個字以上的詞多給', first: '搶先猜中獎金：只有對方也猜中、但比你慢時才會給', quick: '速度獎金：提示字出現後每秒少 1' };
 // little marks along a bar, one every 100 points (the bar is `scale` points tall)
 const ticks = scale => `<b class="ticks" style="--M:${100 / scale * 100}%"></b>`;
 function vbar(t) {
@@ -1192,40 +1201,24 @@ function logHtml(T) {
   return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
 }
 
-// The clue-giver's screen: the keyword, then one row per character (reading, and optionally the written character).
-function crowHtml(row, i) {
-  const rs = row.han ? readingsOf(row.han) : null;
-  return `<div class="crow">
-    <span class="cn">${i + 1}</span>
-    <input class="py" id="py${i}" data-row="${i}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="讀音：zhu2 或 ㄓㄨˊ" value="${esc(row.py)}" aria-label="第 ${i + 1} 個字的讀音">
-    <input class="han" id="han${i}" data-row="${i}" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="漢字 +${V.costs.han}" value="${esc(row.han)}" aria-label="第 ${i + 1} 個字的漢字（選填）">
-    ${i > 0 ? `<button class="rm" data-act="rmChar" data-row="${i}" aria-label="刪掉這個字">✕</button>` : '<span></span>'}
-    <div class="rline"><span class="rparse" id="rp${i}"></span><span class="rc" id="rc${i}"></span></div>
-    ${rs && rs.length > 1 ? `<div class="rpick">${rs.map(x => `<button type="button" data-act="pickReading" data-row="${i}" data-r="${esc(YKWIM.pinyinOf(x))}">${esc(YKWIM.pinyinOf(x))}</button>`).join('')}</div>` : ''}
-  </div>`;
-}
 // every way a written character can be read (pinyin-pro), or null when the library isn't there
 const readingsOf = han => READ && READ(han);
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
-  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `線索者 ${p.n} 給了 `}${p.count ? `${p.count} 個字，讀音（沒有聲調、不分順序）` : '沒給字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `提示人 ${p.n} 給了 `}${p.count || p.symbols ? `${p.count} 個字${p.symbols ? `、${p.symbols} 個符號` : ''}，讀音（沒有聲調、不分順序）` : '沒給字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
   const banHtml = ban.map(s => `<span class="bn">${DISPLAY.phon === 'zy' ? esc(s.zy) : esc(s.py) + (DISPLAY.phon === 'both' ? ' ' + esc(s.zy) : '')}</span>`).join('');
   const top = `<div class="giverhead"><span class="rolechip">${giverName(T.stage, n)}${r.roleNames ? `：${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
     <div class="secret">
       ${r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? '換一個新詞' : '不認識這個詞？請對方一起跳過'}">跳過？</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">問${esc(V.names[1 - V.myTeam])}…</span>` : ''}
       <div class="sec-theme">主題：<b>${esc(r.cat)}</b></div>
-      <div class="sec-key"><span class="kw">關鍵詞：</span><span class="w">${esc(r.word)}</span></div>
+      <div class="sec-key"><span class="kw">謎底：</span><span class="w">${esc(r.word)}</span></div>
       <div class="sec-read">${(r.syl || []).map(s => `<span>${ph(s)}</span>`).join('')}</div>
       <div class="sec-ban">禁用的讀音（不管聲調）：${banHtml || '無'}</div>
     </div>
     ${used}
-    <div class="crows" id="crows">${S.draft.rows.map(crowHtml).join('')}</div>
-    <div class="crowtools">
-      ${S.draft.rows.length < V.costs.max ? `<button class="addchar" data-act="addChar">＋ 再加一個字（${price(S.draft.rows.length)} 點）</button>` : '<span></span>'}
-      <span class="tonepad" aria-label="聲調">${[['1', '一聲'], ['2', '二聲'], ['3', '三聲'], ['4', '四聲'], ['5', '輕聲']].map(([k, l]) => `<button type="button" data-act="tone" data-v="${k}" title="${l}">${k}</button>`).join('')}</span>
-    </div>
+    <div class="bar"><input id="clue" lang="zh-Hant" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="輸入漢字，例如：竹" value="${esc(S.draft.clue)}"></div>
     <div class="preview" id="preview"></div>
-    <button class="big" id="sendbtn" data-act="sendClue">送出線索</button>
+    <button class="big" id="sendbtn" data-act="sendClue">送出提示字</button>
     <div class="timenote off" id="timenote">快沒時間了！已經填好的會直接送出。</div>`;
   return [top, ''];
 }
@@ -1246,13 +1239,13 @@ function reviewTeam(t, T) {   // T: one team's record of a word (the round view 
   const wrong = (T.log || []).filter(g => !g.ok).reduce((a, g) => a + (g.cost || 0), 0), got = T.result === 'correct';
   const rows = [];
   if (b) rows.push(['獎勵', b.base], ...(b.longWord ? [['長詞', b.longWord]] : []), ...(b.first ? [['搶先', b.first]] : []), ...(b.speed ? [['速度', b.speed]] : []));
-  if (spentClues && got) rows.push(['線索', -spentClues]);
+  if (spentClues && got) rows.push(['提示字', -spentClues]);
   if (wrong) rows.push(['猜錯', -wrong]);
   const net = rows.reduce((a, x) => a + x[1], 0);
   return `<div class="rv-team" style="border-color:${TEAM_COLORS[t]}">
     <h4 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span>${esc(RESULT_TEXT[T.result]) || '沒有答案'}</span></h4>
-    ${clues.map((c, i) => `<div class="line"><span>${V.settings.teamSize === 2 ? '線索' : '線索 ' + (i + 1)} · ${esc(who('giver' + (i + 1)))}</span><span><b>${esc(clueText(c))}</b> <small>${got ? '−' + (costs[i] || 0) : costs[i] ? '（退還）' : ''}</small></span></div>`).join('')}
-    <div class="line"><span>猜者 · ${esc(who('guesser'))}</span><span>${(T.log || []).length ? T.log.map(g => `<span class="${g.ok ? 'ok' : 'no'}">${esc(g.text)}${g.ok ? ' ✓' : ''}</span>`).join('、') : '<small>沒猜</small>'}</span></div>
+    ${clues.map((c, i) => `<div class="line"><span>${V.settings.teamSize === 2 ? '提示字' : '提示字 ' + (i + 1)} · ${esc(who('giver' + (i + 1)))}</span><span><b>${esc(clueText(c))}</b> <small>${got ? '−' + (costs[i] || 0) : costs[i] ? '（退還）' : ''}</small></span></div>`).join('')}
+    <div class="line"><span>猜謎人 · ${esc(who('guesser'))}</span><span>${(T.log || []).length ? T.log.map(g => `<span class="${g.ok ? 'ok' : 'no'}">${esc(g.text)}${g.ok ? ' ✓' : ''}</span>`).join('、') : '<small>沒猜</small>'}</span></div>
     <div class="rv-sum">${rows.map(([k, v]) => `<span>${k} <b>${sign(v)}</b></span>`).join('')}<span class="tot">淨得 <b>${sign(net)}</b></span></div>
   </div>`;
 }
@@ -1267,10 +1260,10 @@ function roundEndScreen() {
   const left = V.myTeam === null ? 0 : V.myTeam, shown = SOLO() ? [left] : [left, 1 - left];
   // The clues are the fun part: each team's clues get big tiles that pop in one after the other.
   return `<div class="stage">${topBar()}${hbars(left)}<div class="playrow">${vbar(left)}<div class="playmain">
-    <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">關鍵詞是</div><div class="brand zhword" style="font-size:2.4rem;color:var(--accent-text)">${esc(r.word)}</div><div class="sec-read" style="justify-content:center">${(r.syl || []).map(s => `<span>${ph(s)}</span>`).join('')}</div></div>
+    <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">謎底是</div><div class="brand zhword" style="font-size:2.4rem;color:var(--accent-text)">${esc(r.word)}</div><div class="sec-read" style="justify-content:center">${(r.syl || []).map(s => `<span>${ph(s)}</span>`).join('')}</div></div>
     ${shown.map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || Array(n).fill([]); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
       <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat"><small>${esc(statusLabel(t))}</small><b class="netbig${(T.earned - (T.spent || 0)) < 0 ? ' neg' : ''}">${netText(T)}</b></span></h3>
-      <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * n + i) * .3}s"><div class="tiles">${c.length ? c.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${n === 1 ? '線索' : '線索 ' + (i + 1)}${c.length ? ` · ${c.length} 個字` : ''}</small></div>`).join('')}</div>
+      <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * n + i) * .3}s"><div class="tiles">${c.length ? c.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${n === 1 ? '提示字' : '提示字 ' + (i + 1)}${c.length ? ` · ${c.length} 個字` : ''}</small></div>`).join('')}</div>
       ${(() => { const spent = T.spent || 0, net = T.earned - spent;
         const parts = (b ? `<span>獎勵 +${b.base}</span>${b.longWord ? `<span>長詞 +${b.longWord}</span>` : ''}${b.first ? `<span>搶先 +${b.first}</span>` : ''}${b.speed ? `<span>速度 +${b.speed}</span>` : ''}` : '') + (spent ? `<span>花費 −${spent}</span>` : '');
         return parts ? `<div class="breakdown">${parts}<span class="tot">= ${net < 0 ? '−' : '+'}${Math.abs(net)}</span></div>` : ''; })()}
@@ -1354,48 +1347,42 @@ function tick() {
   });
   document.querySelectorAll('[data-bonus]').forEach(el => { el.textContent = S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0; });
   // Auto-submit whatever's filled in when the writing time runs out (the host falls back to an empty clue shortly after).
-  if (V && !S.preview && V.phase === 'round' && V.myTeam !== null && $('crows')) {
+  if (V && !S.preview && V.phase === 'round' && V.myTeam !== null && $('clue')) {
     const T = V.round.teams[V.myTeam], dl = S.dl[V.myTeam], key = V.round.n + ':' + T.stage;
-    if (dl && now >= dl && S.sentKey !== key) { S.sentKey = key; net.send({ type: 'clue', rows: S.draft.rows, auto: true }); }
+    if (dl && now >= dl && S.sentKey !== key) { S.sentKey = key; net.send({ type: 'clue', text: S.draft.clue, auto: true }); }
   }
 }
 setInterval(tick, 250);
 
-// What each row of the clue box means, as it is typed: the reading it parses to, what it costs, and what is wrong with it.
-// The game checks all of it again when the clue is sent; this is just so people see problems before they press the button.
-function checkRows() {
+// What the clue box holds, as it is typed: what it costs and what is wrong with it. The game checks all of it again when the clue is sent;
+// this is just so people see problems before they press the button.
+function checkClue() {
   const r = V.round, ban = (r.banned || []).map(s => s.py), kw = new Set([...(r.word || '')]);
-  let pos = 0, total = 0, bad = false;
-  const out = S.draft.rows.map(row => {
-    const py = (row.py || '').trim(), han = [...(row.han || '').trim()][0] || '';
-    if (!py && !han) return { empty: true };
-    let p = py ? YKWIM.parseReading(py) : null, msg = '';
-    if (!p && han) { const rs = readingsOf(han); p = rs && rs.length ? rs[0] : { err: rs ? `查不到「${han}」的讀音` : '請輸入讀音' }; }
-    if (p.err) msg = p.err;
-    else if (ban.includes(YKWIM.soundOf(p).py)) msg = `「${YKWIM.soundOf(p).py}」和關鍵詞同音，不能用`;
-    else if (han) {
-      const rs = readingsOf(han);
-      if (!YKWIM.isHan(han)) msg = `「${han}」不是漢字`;
-      else if (kw.has(han)) msg = `「${han}」是關鍵詞裡的字`;
-      else if (rs && (!rs.length || !rs.some(x => x.i === p.i && x.f === p.f && (x.t === p.t || x.t === 5 || p.t === 5 || '一不'.includes(han))))) msg = rs.length ? `「${han}」不讀 ${YKWIM.pinyinOf(p)}` : `查不到「${han}」的讀音`;
+  const costs = [];
+  let hans = 0, msg = '';
+  for (const ch of [...(S.draft.clue || '')]) {
+    if (/\s/.test(ch)) continue;
+    if (YKWIM.SYMBOLS.includes(ch)) { costs.push(V.costs.symbol); continue; }
+    let m = '';
+    if (!YKWIM.isHan(ch)) m = `「${ch}」不是漢字，也不是可以用的符號`;
+    else if (hans >= V.costs.max) m = `一個提示字最多 ${V.costs.max} 個字`;
+    else if (kw.has(ch)) m = `「${ch}」是謎底裡的字，不能用`;
+    else {
+      const rs = readingsOf(ch);
+      if (rs && !rs.length) m = `查不到「${ch}」的讀音`;
+      else if (rs) { const hit = rs.find(x => ban.includes(YKWIM.soundOf(x).py)); if (hit) m = `「${ch}」讀 ${YKWIM.soundOf(hit).py}，和謎底同音，不能用`; }
     }
-    const c = price(pos) + (han ? V.costs.han : 0); pos++; total += c;
-    if (msg) bad = true;
-    return { p, han, msg, cost: c };
-  });
-  return { rows: out, total, bad, count: pos };
+    if (m) { msg = msg || m; continue; }
+    costs.push(price(hans)); hans++;
+  }
+  return { total: costs.reduce((a, c) => a + c, 0), costs, count: hans, any: costs.length > 0, msg, bad: !!msg };
 }
 function updatePreview() {
   const el = $('preview'); if (!el || !V || !V.round) return;
-  const c = checkRows(), bank = V.scores[V.myTeam], over = c.total > bank;
-  c.rows.forEach((x, i) => {
-    const rc = $('rc' + i), rp = $('rp' + i); if (!rc || !rp) return;
-    rc.textContent = x.empty ? '' : x.cost ? '−' + x.cost : '免費';
-    rp.className = 'rparse' + (x.msg ? ' bad' : '');
-    rp.textContent = x.empty ? '' : x.msg || (x.p.err ? '' : `${YKWIM.pinyinOf(x.p)} · ${YKWIM.zhuyinOf(x.p)}${x.han ? ' · ' + x.han : ''}`);
-  });
-  el.innerHTML = over ? `<b class="red">要花 ${c.total}，你們只有 ${bank}</b>` : c.count ? `共 <b>${c.total}</b> 點（猜中才會扣）` : '還沒填字：直接送出就是不給字';
-  const send = $('sendbtn'); if (send) { send.disabled = over || c.bad; send.textContent = c.count ? '送出線索' : (+V.round.teams[V.myTeam].stage.slice(5) > 1 ? '不補字，直接送出' : '不給字，直接送出'); }
+  const c = checkClue(), bank = V.scores[V.myTeam], over = c.total > bank;
+  el.innerHTML = c.msg ? `<b class="red">${esc(c.msg)}</b>` : over ? `<b class="red">要花 ${c.total}，你們只有 ${bank}</b>`
+    : c.any ? `共 <b>${c.total}</b> 點${c.costs.length > 1 ? `（${c.costs.join(' + ')}）` : ''}，猜中才會扣` : '還沒填字：直接送出就是不給字';
+  const send = $('sendbtn'); if (send) { send.disabled = over || c.bad; send.textContent = c.any ? '送出提示字' : (+V.round.teams[V.myTeam].stage.slice(5) > 1 ? '不補字，直接送出' : '不給字，直接送出'); }
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta'), cost = over ? bank : c.total;
   if (sh) sh.style.height = (bank > 0 ? Math.min(cost, bank) / bank * 100 : 0) + '%';
@@ -1406,32 +1393,32 @@ function updatePreview() {
 }
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
-const PREVIEWS = [['lobby', '大廳'], ['giver1', '線索者 1'], ['passask', '跳過請求'], ['giver2', '線索者 2'], ['guesser', '猜者'], ['ready', '猜者：準備畫面'], ['lastchance', '猜者：最後機會'],
+const PREVIEWS = [['lobby', '大廳'], ['giver1', '提示人 1'], ['passask', '跳過請求'], ['giver2', '提示人 2'], ['guesser', '猜謎人'], ['ready', '猜謎人：準備畫面'], ['lastchance', '猜謎人：最後機會'],
   ['waiting', '等待'], ['intro', '開場動畫'], ['loading', '載入／重新連線'], ['roundEnd', '一個詞結束'], ['over', '遊戲結束'], ['coopEnd', '合作：一個詞結束'], ['grade4', '合作：YKWIM'], ['grade3', '合作：KWIM'], ['grade2', '合作：WIM'], ['grade1', '合作：IM'], ['grade0', '合作：M']];
-const MOCK = (han, py, zy) => ({ han, py, zy });
+const MOCK = han => ({ han });   // one character of a clue
 function mockRecord() {   // two fake words for the game review in the preview tool
   const people = [{ role: 'giver1', name: '小明' }, { role: 'giver2', name: '小華' }, { role: 'guesser', name: '阿凱' }];
-  const syl = [{ py: 'xiong2', zy: 'ㄒㄩㄥˊ' }, { py: 'mao1', zy: 'ㄇㄠ' }];
+  const syl = [{ py: 'xióng', zy: 'ㄒㄩㄥˊ' }, { py: 'māo', zy: 'ㄇㄠ' }];
   return [{ n: 0, word: '熊貓', syl, cat: '動物', levelName: '二字詞', teams: [
-      { result: 'correct', earned: 117, spent: 10, breakdown: { base: 100, longWord: 0, first: 5, speed: 12 }, clues: [[MOCK(null, 'zhu2', 'ㄓㄨˊ')], [MOCK('川', 'chuan1', 'ㄔㄨㄢ')]], costs: [0, 10], log: [{ text: '老虎', ok: false, cost: 5 }, { text: '熊貓', ok: true }], people },
-      { result: 'gaveup', earned: 0, spent: 5, breakdown: null, clues: [[MOCK(null, 'hei1', 'ㄏㄟ'), MOCK(null, 'bai2', 'ㄅㄞˊ')], []], costs: [20, 0], log: [{ text: '斑馬', ok: false, cost: 5 }], people } ] },
+      { result: 'correct', earned: 117, spent: 24, breakdown: { base: 100, longWord: 0, first: 5, speed: 12 }, clues: [[MOCK('竹')], [MOCK('川')]], costs: [12, 12], log: [{ text: '老虎', ok: false, cost: 5 }, { text: '熊貓', ok: true }], people },
+      { result: 'gaveup', earned: 0, spent: 5, breakdown: null, clues: [[MOCK('黑'), MOCK('白')], []], costs: [36, 0], log: [{ text: '斑馬', ok: false, cost: 5 }], people } ] },
     { n: 1, word: '檸檬', syl: [{ py: 'ning2', zy: 'ㄋㄧㄥˊ' }, { py: 'meng2', zy: 'ㄇㄥˊ' }], cat: '食物', levelName: '二字詞', teams: [
-      { result: 'correct', earned: 112, spent: 20, breakdown: { base: 100, longWord: 0, first: 0, speed: 12 }, clues: [[MOCK('酸', 'suan1', 'ㄙㄨㄢ')], [MOCK(null, 'huang2', 'ㄏㄨㄤˊ')]], costs: [10, 0], log: [{ text: '檸檬', ok: true }], people },
-      { result: 'correct', earned: 125, spent: 30, breakdown: { base: 100, longWord: 0, first: 20, speed: 5 }, clues: [[MOCK(null, 'suan1', 'ㄙㄨㄢ'), MOCK('水', 'shui3', 'ㄕㄨㄟˇ')], []], costs: [30, 0], log: [{ text: '檸檬', ok: true }], people } ] }];
+      { result: 'correct', earned: 112, spent: 20, breakdown: { base: 100, longWord: 0, first: 0, speed: 12 }, clues: [[MOCK('酸')], [MOCK('黃')]], costs: [10, 0], log: [{ text: '檸檬', ok: true }], people },
+      { result: 'correct', earned: 125, spent: 30, breakdown: { base: 100, longWord: 0, first: 20, speed: 5 }, clues: [[MOCK('酸'), MOCK('水')], []], costs: [30, 0], log: [{ text: '檸檬', ok: true }], people } ] }];
 }
 function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
   const names = ['第一隊', '第二隊'];
   const v = {
-    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { prices: YKWIM.PRICES, han: YKWIM.HAN_EXTRA, max: YKWIM.MAX_CHARS }, myTeam: 0, myRoles: [],
+    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { prices: YKWIM.PRICES, symbol: YKWIM.SYMBOL_COST, max: YKWIM.MAX_CHARS }, myTeam: 0, myRoles: [],
     settings: { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false },
     players: [{ id: 'host', name: '你', connected: true }, { id: 'f', name: '阿里', connected: true }],
     seats: [[{ id: 'host', name: '你' }, { id: 'a', name: '小華' }, { id: 'b', name: '阿凱' }], [{ id: 'c', name: '小美' }, { id: 'd', name: '大雄' }, null]]
   };
   const round = { n: 2, level: 1, levelName: '二字詞', reward: 100, longBonus: 0, cat: '動物', blanks: [1, 1], roleNames: { giver1: '你', giver2: '小華', guesser: '阿凱' } };
   const other = team('giver2', { remaining: 12000 });
-  const secret = { word: '熊貓', syl: [{ py: 'xiong2', zy: 'ㄒㄩㄥˊ' }, { py: 'mao1', zy: 'ㄇㄠ' }], banned: [{ py: 'xiong', zy: 'ㄒㄩㄥ' }, { py: 'mao', zy: 'ㄇㄠ' }] };
-  const clues = [[MOCK(null, 'zhu2', 'ㄓㄨˊ')], [MOCK('川', 'chuan1', 'ㄔㄨㄢ')]];
+  const secret = { word: '熊貓', syl: [{ py: 'xióng', zy: 'ㄒㄩㄥˊ' }, { py: 'māo', zy: 'ㄇㄠ' }], banned: [{ py: 'xiong', zy: 'ㄒㄩㄥ' }, { py: 'mao', zy: 'ㄇㄠ' }] };
+  const clues = [[MOCK('竹')], [MOCK('川')]];
   switch (kind) {
     case 'lobby': v.phase = 'lobby'; v.myTeam = 0; return v;
     case 'giver1': v.myRoles = ['giver1']; v.round = { ...round, ...secret, pass: { can: true }, teams: [team('giver1', { remaining: 38000, spent: 0 }), other] }; return v;
@@ -1443,7 +1430,7 @@ function mockView(kind) {
     case 'waiting': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('giver1', { remaining: 18000, spent: 0 }), other] }; return v;
     case 'roundEnd': v.phase = 'roundEnd'; v.round = { ...round, ...secret, longBonus: 25, teams: [
       team('done', { result: 'correct', earned: 160, spent: 10, clues, clueCosts: [0, 10], breakdown: { base: 100, longWord: 25, first: 20, speed: 15, spent: 10 } }),
-      team('done', { result: 'timeout', spent: 30, clues: [[MOCK(null, 'hei1', 'ㄏㄟ'), MOCK('白', 'bai2', 'ㄅㄞˊ')], []], clueCosts: [30, 0] })] }; return v;
+      team('done', { result: 'timeout', spent: 30, clues: [[MOCK('黑'), MOCK('白')], []], clueCosts: [30, 0] })] }; return v;
     case 'coopEnd': v.phase = 'roundEnd'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [372, 200]; v.round = { ...round, ...secret, n: 2, teams: [
       team('done', { result: 'correct', earned: 140, spent: 30, clues, clueCosts: [0, 10], breakdown: { base: 100, longWord: 25, first: 0, speed: 15, spent: 30 } }),
       team('done', { result: 'none' })] }; return v;
@@ -1472,7 +1459,7 @@ function showPreview(kind) {
 }
 
 // ---------- events ----------
-document.addEventListener('mousedown', e => { if (e.target.closest && e.target.closest('.tonepad')) e.preventDefault(); });   // keep the keyboard up while a tone is tapped
+   // keep the keyboard up while a tone is tapped
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if (S.ddOpen && !(b && ['ddopen', 'ddpick'].includes(b.dataset.act))) { S.ddOpen = null; render(); }   // clicking elsewhere closes an open dropdown
@@ -1517,46 +1504,20 @@ document.addEventListener('click', e => {
     case 'flow': return renderFlow(d.v);
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('已複製連結！')); return;
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
-    case 'addChar': if (S.draft.rows.length < V.costs.max) { S.draft.rows.push({ py: '', han: '' }); S.lastPy = S.draft.rows.length - 1; render(); const i = $('py' + S.lastPy); if (i) i.focus(); } return;
-    case 'rmChar': S.draft.rows.splice(+d.row, 1); S.lastPy = 0; return render();
-    case 'pickReading': S.draft.rows[+d.row].py = d.r; return render();
-    case 'tone': {   // set the tone of the reading being typed
-      const row = S.draft.rows[S.lastPy], t = +d.v; if (!row) return;
-      if (/[ㄅ-ㄯ]/.test(row.py)) row.py = row.py.replace(/[ˉˊˇˋ˙]/g, '') + ['', 'ˊ', 'ˇ', 'ˋ', '˙'][t - 1];
-      else row.py = row.py.replace(/[0-5]$/, '') + t;
-      const inp = $('py' + S.lastPy); if (inp) { inp.value = row.py; inp.focus(); } return updatePreview();
-    }
-    case 'sendClue': return send({ type: 'clue', rows: S.draft.rows });
+    case 'sendClue': return send({ type: 'clue', text: S.draft.clue });
     case 'sendGuess': { const g = $('guess').value; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
   }
 });
 document.addEventListener('input', e => {
   const t = e.target;
-  if (t.dataset && t.dataset.row !== undefined && (t.classList.contains('py') || t.classList.contains('han'))) {
-    const i = +t.dataset.row, row = S.draft.rows[i]; if (!row) return;
-    if (t.classList.contains('py')) { row.py = t.value; S.lastPy = i; }
-    else {
-      if (e.isComposing) return;   // still choosing the character in an input method
-      t.value = [...t.value][0] || '';   // one written character per row
-      row.han = t.value;
-      const rs = row.han ? readingsOf(row.han) : null;
-      if (rs && rs.length) {   // fill in how the character is read, unless the reading already typed is one of its readings
-        const cur = row.py ? YKWIM.parseReading(row.py) : null;
-        const fits = cur && !cur.err && rs.some(x => x.i === cur.i && x.f === cur.f && (x.t === cur.t || x.t === 5 || cur.t === 5));
-        if (!fits) row.py = YKWIM.pinyinOf(rs[0]);
-        if (!fits || rs.length > 1) { S.lastPy = i; render(); return; }   // redraw to show the other readings to pick from
-      }
-    }
-    return updatePreview();
-  }
+  if (t.id === 'clue') { S.draft.clue = t.value; if (!e.isComposing) updatePreview(); return; }   // wait while a character is still being chosen in an input method
   if (t.id === 'guess') S.draft.guess = t.value;
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
-document.addEventListener('compositionend', e => {   // the character typed with an input method is complete: treat it like a normal input
-  if (e.target.classList && e.target.classList.contains('han')) e.target.dispatchEvent(new Event('input', { bubbles: true }));
+document.addEventListener('compositionend', e => {   // the characters typed with an input method are complete: treat it like a normal input
+  if (e.target.id === 'clue') e.target.dispatchEvent(new Event('input', { bubbles: true }));
 });
-document.addEventListener('focusin', e => { if (e.target.classList && e.target.classList.contains('py')) S.lastPy = +e.target.dataset.row; });
 // iOS can leave the landing page shifted up after the keyboard closes: ease it back, once, after typing there.
 // (never anywhere else, and never just because the viewport resized: that fires while you scroll, as the browser bar collapses)
 let unshiftTimer, typedOnLanding = false;
@@ -1586,7 +1547,7 @@ document.addEventListener('change', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && S.ddOpen) { S.ddOpen = null; render(); return; }
   if (e.key !== 'Enter' || e.isComposing) return;   // Enter while choosing a character in an input method is not "send"
-  if (e.target.classList && (e.target.classList.contains('py') || e.target.classList.contains('han'))) { const b = $('sendbtn'); if (b && !b.disabled) b.click(); }
+  if (e.target.id === 'clue') { const b = $('sendbtn'); if (b && !b.disabled) b.click(); }
   else if (e.target.id === 'guess') document.querySelector('[data-act="sendGuess"]').click();
   else if (e.target.id === 'name' || e.target.id === 'code') document.querySelector(($('code') && $('code').value) ? '[data-act="join"]' : '[data-act="create"]').click();
 });
@@ -1600,7 +1561,7 @@ function barDiagram() {
     [325, 345, 'url(#lgFirst)', '搶先猜中獎金', '對方也猜中、但比你慢才給'],
     [300, 325, 'url(#lgLong)', '長詞獎金', '三個字以上的詞多給'],
     [200, 300, 'color-mix(in srgb, var(--lime) 78%, white)', '獎勵', '猜中就拿'],
-    [190, 200, 'url(#lgShadow)', '線索花費', '你正在寫的線索會花多少'],
+    [190, 200, 'url(#lgShadow)', '提示字花費', '你正在寫的提示字會花多少'],
     [0, 190, 'color-mix(in srgb, var(--t0) 88%, black)', '銀行', '你們隊的點數']];
   const labelY = [34, 70, 106, 142, 186, 236];
   let svg = `<svg viewBox="0 0 340 300" width="100%" role="img" aria-label="分數條的各個部分" style="max-width:380px;display:block;margin:6px auto">

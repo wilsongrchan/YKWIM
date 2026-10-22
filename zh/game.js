@@ -2,8 +2,9 @@
 // Clients send intents via handle(); every peer gets its own filtered view() so hidden info
 // (the keyword, the clues) only reaches the people allowed to see it.
 //
-// The English game is about the order and cost of letters. This one is about the three layers of a Chinese character:
-// sound (音, free), written form (形, costs extra) and meaning (義, the guesser puts it together).
+// 字字珠璣 (YKWIM Chinese Version). The English game is about the order and cost of letters; here a clue is written characters only, and
+// the cost is doubling (12, 24, 48...) for each clue-giver. The ban is by sound: no character that sounds like one of the keyword's characters.
+// A later clue-giver sees only the sounds (no tone, no order) of the earlier clues, and the guesser sees the characters.
 (function (root) {
   // Keyword bank. Each entry is "漢字 pin1 yin1/简体" (the simplified form is only there when it differs). Generated from tools/gen-bank.js: edit the word
   // lists there, not here. Neutral tone is written 5.
@@ -83,16 +84,33 @@
       return { i: init, f, t };
     }
     let s = text.toLowerCase().replace(/u:|v/g, 'ü').replace(/\s+/g, ''), t = 0;
+    if (s.endsWith('˙')) { s = s.slice(0, -1); t = 5; }
     s = [...s].map(c => { if (TONE_MARK[c]) { t = TONE_MARK[c][1]; return TONE_MARK[c][0]; } return c; }).join('');
     const m = s.match(/^([a-zü]+)([0-5])?$/);
     if (!m) return { err: `「${text}」不是有效的拼音` };
     if (m[2] !== undefined) t = +m[2] || 5;
     const { i, f } = splitPinyin(m[1]);
     if (!known(i, f)) return { err: `「${text}」不是有效的拼音` };
-    if (!t) return { err: `「${text}」要加聲調（1 2 3 4，輕聲 5）` };
+    if (!t) return { err: `「${text}」要加聲調（例如 zhú，輕聲寫 ˙）` };
     return { i, f, t };
   }
-  const pinyinOf = s => spell(s.i, s.f) + s.t;
+  // Pinyin as it is printed: the tone is a mark on the vowel (xióng), not a number (xiong2). The mark goes on a, else e, else the o of ou,
+  // else the last vowel (jiu -> jiǔ, hui -> huì). A neutral tone has no mark. parseReading reads marks, numbers and zhuyin alike.
+  const MARKS = { a: 'āáǎà', e: 'ēéěè', i: 'īíǐì', o: 'ōóǒò', u: 'ūúǔù', ü: 'ǖǘǚǜ' };
+  function markBase(base, t) {
+    if (t < 1 || t > 4) return base;
+    const at = base.includes('a') ? base.indexOf('a') : base.includes('e') ? base.indexOf('e') : base.includes('ou') ? base.indexOf('o')
+      : Math.max(...[...'iouü'].map(v => base.lastIndexOf(v)));
+    return at < 0 ? base : base.slice(0, at) + MARKS[base[at]][t - 1] + base.slice(at + 1);
+  }
+  const pinyinNum = s => spell(s.i, s.f) + s.t;   // the same thing with a tone number
+  const pinyinOf = s => markBase(spell(s.i, s.f), s.t);
+  // Gives whatever is being typed (zhu, zhu2, zhú) a new tone: the tone pad uses this. t is 1-4, or 5 for neutral (written ˙ after the pinyin).
+  function withTone(raw, t) {
+    let s = String(raw || '').toLowerCase().replace(/u:|v/g, 'ü').replace(/\s+/g, '');
+    s = [...s].map(c => TONE_MARK[c] ? TONE_MARK[c][0] : c).join('').replace(/[0-5˙]+$/, '');
+    return t === 5 ? s + '˙' : markBase(s, t);
+  }
   function zhuyinOf(s, toneless) {
     const fin = s.f === 'i' && APICAL.includes(s.i) ? '' : ZY_FIN_INV[s.f];
     const body = (s.i ? ZY_I_INV[s.i] : '') + fin;
@@ -131,13 +149,15 @@
   };
 
   // ---------- money ----------
-  // A clue-giver's characters cost 0, 20, 35, then 15 more each time. Buying the written character costs 10 on top of that position's price.
-  const PRICES = [0, 20, 35, 50, 65];
+  // A clue is written characters only (no sound-only clues). A clue-giver's first character costs 12, the second 24, the third 48 (each one
+  // double the one before), and the count starts again for the next clue-giver. A symbol costs 5, flat.
+  const BASE_PRICE = 12, SYMBOL_COST = 5;
   const MAX_CHARS = 4;               // characters in one clue
-  const HAN_EXTRA = 10;
-  const priceOf = i => PRICES[Math.min(i, PRICES.length - 1)];
-  const clueCost = items => items.reduce((a, it, i) => a + priceOf(i) + (it.han ? HAN_EXTRA : 0), 0);
-  const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false };
+  const priceOf = i => BASE_PRICE * 2 ** i;
+  const PRICES = Array.from({ length: MAX_CHARS }, (_, i) => priceOf(i));
+  const SYMBOLS = '.,?!@#$%&*+-=/()~^:;\'_。，、？！…～＋－＝（）：；';   // allowed in a clue at a flat price
+  const clueCost = items => { let k = 0; return items.reduce((a, it) => a + (it.han ? priceOf(k++) : SYMBOL_COST), 0); };
+  const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 10, sequential: false };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the starting bank
   // (they scale with the number of words). A solved word pays the reward plus bonuses (about 100-150 as the words get longer), and clues cost
   // 0-40, so a team that gets nearly everything lands in the top grades. Numbers to be tuned by playtesting.
@@ -205,7 +225,7 @@
     // The ban is by sound: every syllable of the keyword (initial + final, any tone), so its homophones and look-alikes go with it.
     const banned = () => new Map(G.card.syl.map(s => [soundKey(s), soundOf(s)]));
     const keywordChars = () => new Set([...G.card.word, ...(G.card.alt || '')]);
-    const showClue = clue => clue.map(it => ({ ...fullOf(it), han: it.han }));
+    const showClue = clue => clue.map(it => it.han ? { han: it.han } : { sym: it.sym });   // the characters themselves, nothing else
 
     // ---------- players & lobby ----------
     function addPlayer(id, name, token) {
@@ -261,39 +281,39 @@
     function beginWriting(t, stage, extraMs = 0) {   // extraMs: breathing room before the clock starts (the pass-and-play feedback screen)
       const T = G.teams[t], ms = G.settings.writeSecs * 1000;
       T.stage = stage; T.deadline = now() + extraMs + ms;
-      arm(t, extraMs + ms + GRACE_MS, () => { if (T.stage === stage) submitClue(t, [], true); }); // client's own auto-submit normally wins
+      arm(t, extraMs + ms + GRACE_MS, () => { if (T.stage === stage) submitClue(t, '', true); }); // client's own auto-submit normally wins
     }
-    // Turns what a clue-giver filled in ([{ py: 'zhu2', han: '竹' }]) into checked characters, or an error.
-    function buildClue(t, rows, auto) {
+    // Turns what a clue-giver typed (characters and symbols) into checked items, or an error. A character is banned when any of its readings
+    // shares the sound (initial + final, tone ignored) of a syllable of the keyword.
+    function buildClue(t, text, auto) {
       const ban = banned(), mine = keywordChars(), out = [];
-      for (const row of (Array.isArray(rows) ? rows : []).slice(0, MAX_CHARS)) {
-        let han = [...String((row && row.han) || '').trim()][0] || '';
-        const text = String((row && row.py) || '').trim();
-        if (!text && !han) continue;   // an empty row is just ignored
-        let r, err = null;
-        if (text) r = parseReading(text);
-        else if (readings) { const rs = readings(han); r = rs && rs.length ? rs[0] : { err: `查不到「${han}」的讀音` }; }
-        else r = { err: '請輸入讀音' };
-        if (r.err) err = r.err;
-        else if (ban.has(soundKey(r))) err = `「${soundOf(r).py}」和關鍵詞同音，不能用`;
-        else if (han) {
-          if (!isHan(han)) err = `「${han}」不是漢字`;
-          else if (mine.has(han)) err = `「${han}」是關鍵詞裡的字，不能用`;
-          else if (readings) {
-            const rs = readings(han);
-            if (!rs || !rs.length) err = `查不到「${han}」的讀音`;
-            else if (!rs.some(x => x.i === r.i && x.f === r.f && (x.t === r.t || x.t === 5 || r.t === 5 || '一不'.includes(han)))) err = `「${han}」不讀 ${pinyinOf(r)}（${zhuyinOf(r)}）`;
+      let hans = 0;
+      for (const ch of [...String(text || '')]) {
+        if (/\s/.test(ch)) continue;
+        let err = null, item = null;
+        if (SYMBOLS.includes(ch)) item = { sym: ch };
+        else if (!isHan(ch)) err = `「${ch}」不是漢字，也不是可以用的符號`;
+        else if (hans >= MAX_CHARS) err = `一個提示字最多 ${MAX_CHARS} 個字`;
+        else if (mine.has(ch)) err = `「${ch}」是謎底裡的字，不能用`;
+        else if (readings) {
+          const rs = readings(ch);
+          if (!rs || !rs.length) err = `查不到「${ch}」的讀音`;
+          else {
+            const hit = rs.find(x => ban.has(soundKey(x)));
+            if (hit) err = `「${ch}」讀 ${soundOf(hit).py}，和謎底同音，不能用`;
+            else { const seen = new Map(rs.map(x => [soundKey(x), soundOf(x)])); item = { han: ch, snd: [...seen.values()] }; }
           }
-        }
+        } else item = { han: ch, snd: [] };   // no dictionary loaded: the character can't be checked
         if (err) { if (auto) continue; return { error: err }; }   // out of time: keep what is valid
-        out.push({ i: r.i, f: r.f, t: r.t, han: han || null });
+        if (item.han) hans++;
+        out.push(item);
       }
       if (auto) while (out.length && clueCost(out) > G.scores[t]) out.pop();   // keep what the team can afford
-      else if (clueCost(out) > G.scores[t]) return { error: '點數不夠，買不起這個線索。' };
+      else if (clueCost(out) > G.scores[t]) return { error: '點數不夠，買不起這個提示字。' };
       return { items: out };
     }
-    function submitClue(t, rows, auto) {
-      const T = G.teams[t], b = buildClue(t, rows, auto);
+    function submitClue(t, text, auto) {
+      const T = G.teams[t], b = buildClue(t, text, auto);
       if (b.error) return b;
       spend(t, clueCost(b.items), true); T.clues.push(b.items);
       clearT(T.timer); T.deadline = null;
@@ -490,7 +510,7 @@
           const t = actTeam(id); if (t < 0) return {};
           const T = G.teams[t];
           if (!isWriting(T.stage) || !rolesOf(id).includes(STAGE_ROLE[T.stage])) return {};
-          return submitClue(t, m.rows, !!m.auto);
+          return submitClue(t, m.text, !!m.auto);
         }
         case 'guess': {
           if (G.phase !== 'round') return {};
@@ -515,11 +535,11 @@
             G.passUsed[t] = true; return swapWord(t);
           }
           const o = 1 - t, to = holder(o, 'giver1');
-          if (G.teams[o].stage !== 'giver1') return { error: `${G.names[o]}已經送出線索了，不能再跳過。` };   // passing is only open before anyone has submitted
+          if (G.teams[o].stage !== 'giver1') return { error: `${G.names[o]}已經送出提示字了，不能再跳過。` };   // passing is only open before anyone has submitted
           if (G.pass && G.pass.from === o) return acceptPass();   // both teams want to pass: done
           if (G.passUsed[t]) return { error: '你們已經提議過跳過這個詞了。' };
           if (G.pass) return {};
-          if (!to || !G.players[to] || !G.players[to].connected) return { error: `${G.names[o]}的線索者 1 不在線上。` };
+          if (!to || !G.players[to] || !G.players[to].connected) return { error: `${G.names[o]}的提示人 1 不在線上。` };
           G.passUsed[t] = true;
           G.pass = { from: t, to, expires: now() + PASS_MS, timer: setT(() => { if (G.pass && G.phase === 'round') declinePass('expired'); }, PASS_MS) };
           change(); return {};
@@ -551,7 +571,7 @@
         phase: G.phase, me: id, isHost: id === hostId, hostId, settings: G.settings, names: G.names, scores: G.scores,
         winner: G.winner, ratings: !G.solo && G.phase === 'over' ? [0, 1].map(t => rating(G.scores[t], G.settings.bank, Math.max(1, G.record.length))) : null,   // VS: every team gets a grade too, over the words actually played
         history: G.solo && G.phase === 'over' ? G.history : null, record: G.phase === 'over' ? G.record : null, rating: G.solo && G.phase === 'over' ? rating(G.scores[0], G.settings.bank, G.settings.words) : null,
-        costs: { prices: PRICES, han: HAN_EXTRA, max: MAX_CHARS },
+        costs: { prices: PRICES, symbol: SYMBOL_COST, max: MAX_CHARS },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
         myTeam: actTeam(id) < 0 ? null : actTeam(id),
@@ -592,11 +612,13 @@
       if (G.phase === 'round' && isGiver) v.round.banned = [...banned().values()];
       const wk = mt !== null && G.phase === 'round' ? +(G.teams[mt].stage.match(/^giver(\d)$/) || [0, 0])[1] : 0;   // the clue-giver now writing
       if (wk >= 2 && roles.includes('giver' + wk)) {
-        // A later clue-giver sees what each earlier one gave, but only the sounds (no tone, no written characters) and not their order:
-        // each sound once, alphabetically.
+        // A later clue-giver sees what each earlier one gave, but only the sounds (no tone, no characters) and not their order:
+        // each sound once, alphabetically, plus how many characters and symbols there were in all.
         v.round.prev = G.teams[mt].clues.map((clue, i) => {
-          const seen = new Map(clue.map(it => [soundKey(it), soundOf(it)]));
-          return { n: i + 1, count: clue.length, sounds: [...seen.values()].sort((a, b) => a.py < b.py ? -1 : a.py > b.py ? 1 : 0) };
+          const seen = new Map();
+          clue.forEach(it => (it.snd || []).forEach(s => seen.set(s.py + '|' + s.zy, s)));
+          const syms = clue.filter(it => it.sym);
+          return { n: i + 1, count: clue.filter(it => it.han).length, symbols: syms.length, sounds: [...seen.values()].sort((a, b) => a.py < b.py ? -1 : a.py > b.py ? 1 : 0) };
         });
       }
       return v;
@@ -605,7 +627,7 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, priceOf, clueCost, parseReading, pinyinOf, zhuyinOf, soundOf, fullOf, soundKey, makeReadings, isHan, guessText,
-    PRICES, HAN_EXTRA, MAX_CHARS, ALL_WORDS };
+  const api = { withTone, pinyinNum, markBase, rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, priceOf, clueCost, parseReading, pinyinOf, zhuyinOf, soundOf, fullOf, soundKey, makeReadings, isHan, guessText,
+    PRICES, SYMBOL_COST, SYMBOLS, MAX_CHARS, ALL_WORDS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);
