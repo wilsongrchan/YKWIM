@@ -21,7 +21,7 @@ const SRC = {
 };
 
 // where the library is wrong, or the Taiwan reading is the one wanted
-const FIX = { '螳臂擋車': 'tang2 bi4 dang3 che1', '杯水車薪': 'bei1 shui3 che1 xin1', '蒙娜麗莎': 'meng2 na4 li4 sha1', '蚵仔煎': 'e2 zai3 jian1', '行李箱': 'xing2 li3 xiang1', '大猩猩': 'da4 xing1 xing1', '鑰匙': 'yao4 shi5', '開夜車': 'kai1 ye4 che1', '塞翁失馬': 'sai4 weng1 shi1 ma3', '葉公好龍': 'ye4 gong1 hao4 long2', '鄧麗君': 'deng4 li4 jun1', '愛麗絲': 'ai4 li4 si1' };
+const FIX = { '火車站': 'huo3 che1 zhan4', '自行車': 'zi4 xing2 che1', '騎腳踏車': 'qi2 jiao3 ta4 che1', '螳臂擋車': 'tang2 bi4 dang3 che1', '杯水車薪': 'bei1 shui3 che1 xin1', '蒙娜麗莎': 'meng2 na4 li4 sha1', '蚵仔煎': 'e2 zai3 jian1', '行李箱': 'xing2 li3 xiang1', '大猩猩': 'da4 xing1 xing1', '鑰匙': 'yao4 shi5', '開夜車': 'kai1 ye4 che1', '塞翁失馬': 'sai4 weng1 shi1 ma3', '葉公好龍': 'ye4 gong1 hao4 long2', '鄧麗君': 'deng4 li4 jun1', '愛麗絲': 'ai4 li4 si1' };
 
 const rd = w => (FIX[w] || pinyin(w, { type: 'array', toneType: 'num' }).join(' ')).replace(/(\D)0\b/g, '$15').replace(/(\D)$/g, '$1').split(' ')
   .map(s => /\d$/.test(s) ? s : s + '5').join(' ');
