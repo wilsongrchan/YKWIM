@@ -323,6 +323,7 @@
     align-items: center; justify-content: center; text-align: center; padding: 8px 4px; overflow: hidden; }
   .slot .ic { width: 38px; height: 38px; border-radius: 50%; background: var(--lime); color: var(--on-lime); display: grid; place-items: center; font-size: 1.3rem; }
   .slot .ic.off { background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--soft); }
+  .slottime { margin-top: 4px; font: 600 .95rem var(--display); font-variant-numeric: tabular-nums; color: var(--soft); }   /* calm: no blinking, the guesser can't do anything about it */
   .slot .txt { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 500; font-size: 1.5rem; letter-spacing: .16em; word-break: break-all; }
   .slot small { color: var(--soft); font-size: .7rem; font-weight: 500; margin-top: 4px; }
   .slot.got { background: var(--lime); color: var(--on-lime); min-height: 84px; }   /* same as the keyword on the clue-giver's screen */
@@ -557,8 +558,12 @@
     table.gt .gchip { min-width: 0; padding: 3px 6px; font-size: .68rem; white-space: nowrap; }
     table.gt td { white-space: nowrap; } table.gt .gor { font-size: .62rem; }
   }
-  .factbox { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--ov) 7%, transparent); text-align: center; transition: opacity .35s ease; }
-  .factbox.out { opacity: 0; }
+  .factbox { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--ov) 7%, transparent); text-align: center; }
+  .fact { transition: opacity .6s ease; } .fact.out { opacity: 0; }
+  .well .factbox { margin-top: 14px; padding: 16px 0 0; background: none; border-radius: 0; border-top: 1px dashed color-mix(in srgb, var(--ov) 22%, transparent); }   /* inside the "X is writing" box: one box, not two */
+  .well .fact { min-height: 3.6em; }
+  .well .sub.calm { font-size: .8rem; margin: 2px 0 0; }
+  .well .sub:has(+ .factbox) { margin-bottom: 0; }
   .fact-h { font: 600 .68rem var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
   .fact { display: flex; align-items: center; justify-content: center; min-height: 4.6em; font-size: .95rem; line-height: 1.35; color: var(--text); }
   .used-h b { font-weight: 700; color: var(--text); }
@@ -929,7 +934,7 @@ function onView(v) {
     const mt = v.myTeam;
     S.speedDl = mt !== null && v.round.teams[mt].speedLeft ? now + v.round.teams[mt].speedLeft : null;
     const key = v.round.n + ':' + (mt !== null ? v.round.teams[mt].stage : '');
-    if (key !== S.stageKey) { S.stageKey = key; resetDraft(); S.factIdx = (S.factIdx + 1) % FACTS.length; S.factAt = 0; }
+    if (key !== S.stageKey) { S.stageKey = key; resetDraft(); pickFact(); S.factAt = 0; }
     const pn = v.round.passNote;
     if (S.passNoteId === undefined) S.passNoteId = pn ? pn.id : 0;   // joining or reconnecting: don't replay old news
     else if (pn && pn.id !== S.passNoteId) {
@@ -1270,11 +1275,12 @@ function slots(t, role) {
   const shown = (i, items) => `<div class="slot got"><div class="tiles">${items.length ? items.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${lbl(i)}${items.length ? ` · ${items.length} 個字` : ''}</small></div>`;
   const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)}已提交</small></div>`;
   const live = i => `<div class="slot live"><div class="ic">✎</div><small>${lbl(i)}</small></div>`;
-  const wait = i => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small></div>`;
+  // the guesser has nothing to do while clue-givers write, so the time they have left sits quietly in the slot of the one writing
+  const wait = (i, timed) => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small>${timed && t === V.myTeam && V.myRoles.includes('guesser') ? `<span class="slottime" data-timer="dl${t}">00:00</span>` : ''}</div>`;
   return Array.from({ length: n }, (_, k) => {
     const i = k + 1;
     if (clues) return shown(i, clues[k] || []);
-    if (isWriting(st)) { const cur = +st.slice(5); return i < cur ? sent(i) : i === cur ? (role === st ? live(i) : wait(i)) : hidden(i); }
+    if (isWriting(st)) { const cur = +st.slice(5); return i < cur ? sent(i) : i === cur ? (role === st ? live(i) : wait(i, true)) : hidden(i); }
     return wait(i);
   }).join('');
 }
@@ -1314,7 +1320,7 @@ function roundScreen() {
     if (T.stage === 'waiting') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])}正在玩</h2><p class="sub">下一個輪到你們。</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 太好了，猜中了！' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">等${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` 如果他們也猜中但比你們慢，你們多拿 +${V.settings.firstBonus} 搶先獎勵。` : ''}</p></div>${logHtml(T)}${factHtml()}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 太好了，猜中了！' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">等${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` 如果他們也猜中但比你們慢，你們多拿 +${V.settings.firstBonus} 搶先獎勵。` : ''}</p>${factHtml()}</div>${logHtml(T)}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
@@ -1335,8 +1341,8 @@ function roundScreen() {
       }
     } else {
       const who = r.roleNames[stageRole];
-      body = `${theme}${blanks}<div class="well center"><h2>${esc(who)}${stageRole === 'guesser' ? '準備要猜了' : '正在寫…'}</h2>
-        <p class="sub">${stageRole === 'guesser' ? '一起想想這些提示字！' : '稍等一下。'}</p></div>${T.stage === 'guess' ? logHtml(T) : factHtml()}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${esc(who)}${stageRole === 'guesser' ? '準備要猜了' : '正在苦苦思考⋯⋯'}</h2>
+        <p class="sub calm">${stageRole === 'guesser' ? '一起想想這些提示字！' : '稍安勿躁。'}</p>${T.stage === 'guess' ? '' : factHtml()}</div>${T.stage === 'guess' ? logHtml(T) : ''}`;
     }
   }
   const pa = r.pass && r.pass.toAnswer;
@@ -1347,7 +1353,7 @@ function roundScreen() {
   const compact = (role && role.startsWith('giver')) || handoff;
   // everyone else gets the same header row as the clue-givers (role on the left, timer on the right), then the clue slots
   const rowT = mt === null ? null : r.teams[mt], rowRole = rowT && stageRoleOf(rowT.stage);
-  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? '猜謎人' : giverName(rowRole, rowRole.slice(5))}：${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · 最後機會！' : ''}</span>${timerPill(true)}</div>`;
+  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? '猜謎人' : giverName(rowRole, rowRole.slice(5))}：${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · 最後機會！' : ''}</span>${rowRole && rowRole.startsWith('giver') && V.myRoles.includes('guesser') ? '' : timerPill(true)}</div>`;
   const head = compact ? '' : `${headRow}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
   return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${SOLO() ? '' : vbar(mt === null ? 1 : 1 - mt)}</div></div>${askBar}`;
 }
@@ -1417,31 +1423,79 @@ function hbar(t) {
 const hbars = mine => `<div class="hbars">${hbar(mine)}${SOLO() ? '' : hbar(1 - mine)}</div>`;
 
 // 等待畫面的小知識、小提示和編出來的傳說（像 Minecraft 載入畫面的提示）
-const KIND = { fact: '你知道嗎？', tip: '小提示', lore: '傳說' };
-const FACTS = [["fact", "章魚有三顆心臟，血是藍色的。"],
+const KIND = { fact: '你知道嗎？', word: '你知道嗎？', tip: '你知道嗎？', lore: '你知道嗎？' };   // 全部用同一個標題，不必分類
+const FACTS = [["word", "「的」是現代中文最常用的字。"],
+  ["word", "趙元任寫過一篇《施氏食獅史》，整篇文章的每個字都讀 shi。"],
+  ["word", "「龘」字有 48 畫，念作 dá，是龍騰飛的樣子。"],
+  ["word", "「爨」字有 30 畫，念作 cuàn。"],
+  ["word", "「一」只有一畫，是最簡單的漢字之一。"],
+  ["word", "「國」字古時寫成「或」，後來才加上外面的框。"],
+  ["word", "「寶」字裡有「玉」和「貝」：古人把珍貴的東西都收在屋子裡。"],
+  ["word", "「竹」是象形字，看起來像兩根垂下來的竹枝。"],
+  ["word", "「她」字是 1920 年才由劉半農提出來的。"],
+  ["word", "「是」「事」「世」「市」都讀 shì：同音字就是這麼多。"],
+  ["word", "常用字裡，「冷」「怎」「套」「打」「短」「能」「跑」都找不到同音字（連聲調也一樣的字）。"],
+  ["word", "「行」可以念 xíng 或 háng，「長」可以念 cháng 或 zhǎng，這就是多音字。"],
+  ["word", "「的」有 de、dí、dì 三個讀音。"],
+  ["word", "「ju」「qu」「xu」裡的 u，其實是 ü。"],
+  ["word", "注音的輕聲符號「˙」寫在字的前面，其他聲調符號都寫在後面。"],
+  ["word", "注音符號一共有 37 個。"],
+  ["word", "注音符號在 1918 年正式公布，漢語拼音則是 1958 年。"],
+  ["word", "國語有四個聲調，廣東話一般說有九個。"],
+  ["word", "甲骨文是目前發現最早的成熟漢字系統，距今三千多年。"],
+  ["word", "《康熙字典》收了四萬七千多個字。"],
+  ["word", "認識約三千個常用字，就能看懂日常文章的絕大部分。"],
+  ["word", "「畫蛇添足」的故事出自《戰國策》。"],
+  ["word", "「草船借箭」出自《三國演義》。"],
+  ["word", "「守株待兔」出自《韓非子》，那隻兔子大概很後悔。"],
+  ["word", "熊貓原本叫「貓熊」，招牌由右往左讀，才變成了「熊貓」。"],
+  ["word", "「水能載舟，亦能覆舟」出自《荀子》，網友還把它改成了「水可載舟，亦可賽艇」。"],
+  ["word", "「對牛彈琴」出自《理惑論》。"],
+  ["word", "「井底之蛙」出自《莊子》，那隻青蛙還以為天只有井口那麼大。"],
+  ["word", "「掩耳盜鈴」出自《呂氏春秋》，原本是「掩耳盜鐘」。"],
+  ["word", "「刻舟求劍」也出自《呂氏春秋》，那把劍至今還沉在河裡。"],
+  ["word", "「愚公移山」出自《列子》。"],
+  ["word", "「塞翁失馬，焉知非福」出自《淮南子》。"],
+  ["word", "「紙上談兵」出自《史記》，主角是趙括。"],
+  ["word", "「葉公好龍」出自《新序》，真龍來了，葉公卻嚇跑了。"],
+  ["word", "「杯弓蛇影」出自《風俗通義》，杯子裡的蛇其實是牆上弓的影子。"],
+  ["word", "「三顧茅廬」出自諸葛亮的〈出師表〉。"],
+  ["word", "「一箭雙鵰」出自《北史》。"],
+  ["word", "「畫龍點睛」出自《歷代名畫記》，據說點了眼睛，龍就飛走了。"],
   ["fact", "熊貓一天最多會花 14 小時吃竹子。"],
-  ["fact", "蜂蜜幾乎不會壞，古埃及墓裡挖出來的蜂蜜還能吃。"],
-  ["fact", "金星上的一天比金星上的一年還長。"],
-  ["fact", "香蕉是漿果，草莓卻不是。"],
-  ["fact", "袋熊的便便是方塊形的。"],
-  ["fact", "河馬不會游泳，牠們在河底走路或彈跳。"],
-  ["fact", "樹懶憋氣的時間比海豚還久。"],
+  ["fact", "章魚有三顆心臟，血是藍色的。"],
   ["fact", "烏鴉能認得人的臉，還會記仇。"],
-  ["fact", "「龘」字有 48 畫，念作 dá，是龍騰飛的樣子。"],
-  ["fact", "注音符號一共有 37 個。"],
-  ["fact", "國語有四個聲調，廣東話一般說有九個。"],
-  ["fact", "「守株待兔」出自《韓非子》，那隻兔子大概很後悔。"],
-  ["fact", "乳牛也有最好的朋友，分開時還會緊張。"],
+  ["tip", "把一個詞拆給兩位提示人寫，比一個人寫完便宜。"],
   ["tip", "提示字越短越省點，每個字都要想清楚。"],
+  ["tip", "超過 100 點的提示字，提交前系統會再問你一次。"],
+  ["tip", "成語和俗語猜中多給 40 點，三個字以上的詞多給 25 點。"],
   ["tip", "一隊猜中或放棄後，另一隊就要進入最後倒數，別拖太久。"],
   ["tip", "不確定的話可以放棄：不用罰點，提示字花的點數也會退還。"],
   ["tip", "提示人 2 看不到聲調，太依賴聲調的提示可能會被誤會。"],
+  ["tip", "點一下上方的「拼音」按鈕，可以切換成注音或兩個都顯示。"],
+  ["tip", "答案的字數要剛好跟謎底一樣，才能提交。"],
   ["lore", "史上第一個提示是「嗯…」，沒有人猜中。"],
   ["lore", "猜謎人瞇起眼睛看提示，並不會猜得比較快。（我們編的）"],
   ["lore", "此刻某個提示人正想一個人把整個詞寫完，他的點數即將發出哀號。"],
-  ["lore", "謎底正在看著你。它只是個詞，不會看，但它真的在看。"]];
+  ["lore", "當你凝望謎底的時候，謎底也在凝望著你⋯⋯然後你就忘記開始答題了"],
+  ["lore", "據說讀心術的最高境界，是看到「國」就知道你要說「寶」。"],
+  ["lore", "據說猜中成語的人，會自動多出三分文采。（我們編的）"],
+  ["lore", "猜錯的答案不會消失，它們只是搬到遊戲回顧裡住了。"],
+  ["lore", "每個提示人心裡都有一句話：「這不是很明顯嗎？」"]];
 const factHtml = () => { const f = FACTS[S.factIdx]; return `<div class="factbox"><div class="fact-h" id="facth">${KIND[f[0]]}</div><div class="fact" id="fact">${esc(f[1])}</div></div>`; };
-S.factIdx = Math.floor(Math.random() * FACTS.length);
+// The order of kinds, so two similar entries never come one after another (a word fact, then a tip, then an animal, then lore...); within a kind the
+// entries come in random order and none repeats until the kind is used up.
+const FACT_CYCLE = ['word', 'tip', 'word', 'lore', 'word', 'fact', 'tip', 'word', 'lore'];
+S.factStep = Math.floor(Math.random() * FACT_CYCLE.length); S.factSeen = {};
+function pickFact() {
+  const kind = FACT_CYCLE[S.factStep++ % FACT_CYCLE.length];
+  const all = FACTS.map((f, i) => i).filter(i => FACTS[i][0] === kind);
+  let pool = all.filter(i => !(S.factSeen[kind] || []).includes(i));
+  if (!pool.length) { S.factSeen[kind] = []; pool = all.filter(i => i !== S.factIdx); }
+  S.factIdx = pool[Math.floor(Math.random() * pool.length)];
+  (S.factSeen[kind] = S.factSeen[kind] || []).push(S.factIdx);
+}
+pickFact();
 function logHtml(T) {
   return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span data-keep>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
 }
@@ -1603,13 +1657,13 @@ function overScreen() {
 // ---------- live timers / auto-submit ----------
 function tick() {
   const now = Date.now();
-  // waiting screens: a new fact every 8 seconds, faded in and out (only opacity changes, so nothing jumps)
+  // waiting screens: a new fact every 6.5 seconds, faded in and out (only opacity changes, so nothing jumps)
   const fx = $('fact');
   if (!fx) S.factAt = 0;
   else if (!S.factAt) S.factAt = now;
-  else if (now - S.factAt > 8000) {
-    S.factAt = now; const box = fx.closest('.factbox'); box.classList.add('out');
-    setTimeout(() => { S.factIdx = (S.factIdx + 1) % FACTS.length; const f = $('fact'), h = $('facth'); if (f && h) { f.textContent = FACTS[S.factIdx][1]; h.textContent = KIND[FACTS[S.factIdx][0]]; f.closest('.factbox').classList.remove('out'); } }, 350);
+  else if (now - S.factAt > 6500) {
+    S.factAt = now; fx.classList.add('out');   // only the text fades: the heading never changes
+    setTimeout(() => { pickFact(); const f = $('fact'), h = $('facth'); if (f && h) { f.textContent = FACTS[S.factIdx][1]; h.textContent = KIND[FACTS[S.factIdx][0]]; f.classList.remove('out'); } }, 600);
   }
   if (S.preview) { // fake timers never run out while previewing
     S.dl = S.dl.map(d => d && d - now < 2000 ? now + 25000 : d);
@@ -1714,10 +1768,10 @@ function mockView(kind) {
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { prices: YKWIM.PRICES, max: YKWIM.MAX_CHARS }, myTeam: 0, myRoles: [],
     settings: { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false },
-    players: [{ id: 'host', name: '你', connected: true }, { id: 'f', name: '阿里', connected: true }],
-    seats: [[{ id: 'host', name: '你' }, { id: 'a', name: '小華' }, { id: 'b', name: '阿凱' }], [{ id: 'c', name: '小美' }, { id: 'd', name: '大雄' }, null]]
+    players: [{ id: 'host', name: '小明', connected: true }, { id: 'f', name: '阿里', connected: true }],
+    seats: [[{ id: 'host', name: '小明' }, { id: 'a', name: '小華' }, { id: 'b', name: '阿凱' }], [{ id: 'c', name: '小美' }, { id: 'd', name: '大雄' }, null]]
   };
-  const round = { n: 2, level: 1, levelName: '二至三字', reward: 100, longBonus: 0, cat: '動物', blanks: [1, 1], roleNames: { giver1: '你', giver2: '小華', guesser: '阿凱' } };
+  const round = { n: 2, level: 1, levelName: '二至三字', reward: 100, longBonus: 0, cat: '動物', blanks: [1, 1], roleNames: { giver1: '小明', giver2: '小華', guesser: '阿凱' } };
   const other = team('giver2', { remaining: 12000 });
   const secret = { word: '熊貓', syl: [{ py: 'xióng', zy: 'ㄒㄩㄥˊ' }, { py: 'māo', zy: 'ㄇㄠ' }], banned: [{ py: 'xiong', zy: 'ㄒㄩㄥ' }, { py: 'mao', zy: 'ㄇㄠ' }] };
   const clues = [[MOCK('竹')], [MOCK('川')]];
