@@ -257,6 +257,10 @@
   .zlg { display: inline-block; white-space: nowrap; -webkit-text-stroke: .11em var(--navy); paint-order: stroke fill; stroke-linejoin: round; letter-spacing: .07em; }
   .zlg span { display: inline-block; transform: rotate(var(--r, 0deg)) translateY(var(--y, 0)); }
   .markT .zlg { -webkit-text-stroke-width: .13em; letter-spacing: .05em; }
+  .picks:empty { display: none; }
+  .pk { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; font-size: .92rem; }
+  .pkb { padding: 5px 14px; border-radius: 999px; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); border: 2px solid transparent; font-weight: 600; }
+  .pkb .zy { margin-left: .4em; } .pkb.on { background: var(--lime); color: var(--ink); }
   .logosub { text-align: center; margin: -2px 0 12px; font: 500 .72rem var(--body); letter-spacing: .22em; text-transform: uppercase; color: var(--soft); }
   .logoBg { position: absolute; z-index: -1; left: 50%; top: 50%; height: 2.4em; width: auto; transform: translate(-50%, -34%); fill: var(--navy); stroke: var(--navy); stroke-width: 3.3; stroke-linejoin: round; opacity: .55; pointer-events: none; overflow: visible; }
   .tag { text-align: center; color: var(--soft); margin: 0 0 22px; font-weight: 500; }
@@ -664,7 +668,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022q"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022r"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -676,8 +680,8 @@ const READ = window.pinyinPro ? YKWIM.makeReadings(window.pinyinPro) : null;   /
 
 let V = null, net = null;
 const S = { name: safeGet('ykwimzh-name') || '', code: (new URLSearchParams(location.search).get('room') || '').toUpperCase(), busy: false, err: '',
-  draft: { clue: '', guess: '' }, stageKey: '', shownRole: '', dl: [null, null], speedDl: null, sentKey: '' };
-const resetDraft = () => { S.draft = { clue: '', guess: '' }; };
+  draft: { clue: '', guess: '', picks: {} }, stageKey: '', shownRole: '', dl: [null, null], speedDl: null, sentKey: '' };
+const resetDraft = () => { S.draft = { clue: '', guess: '', picks: {} }; };
 // The screen-preview tool is a development aid: only offered when running from this machine or the local network.
 const IS_LOCAL = ['localhost', '127.0.0.1', ''].includes(location.hostname) || location.hostname.endsWith('.local') || /^(192\.168|10)\./.test(location.hostname) || /^172\.(1[6-9]|2\d|3[01])\./.test(location.hostname);
 const TEAM_COLORS = ['var(--t0)', 'var(--t1)'];          // fills
@@ -1233,6 +1237,7 @@ function giverPanel(T, theme, blanks) {
     </div>
     ${used}
     <div class="bar"><input id="clue" lang="zh-Hant" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="輸入漢字，例如：竹" value="${esc(S.draft.clue)}"></div>
+    <div class="picks" id="picks"></div>
     <div class="preview" id="preview"></div>
     <button class="big" id="sendbtn" data-act="sendClue">送出提示字</button>
     <div class="timenote off" id="timenote">快沒時間了！已經填好的會直接送出。</div>`;
@@ -1365,7 +1370,7 @@ function tick() {
   // Auto-submit whatever's filled in when the writing time runs out (the host falls back to an empty clue shortly after).
   if (V && !S.preview && V.phase === 'round' && V.myTeam !== null && $('clue')) {
     const T = V.round.teams[V.myTeam], dl = S.dl[V.myTeam], key = V.round.n + ':' + T.stage;
-    if (dl && now >= dl && S.sentKey !== key) { S.sentKey = key; net.send({ type: 'clue', text: S.draft.clue, auto: true }); }
+    if (dl && now >= dl && S.sentKey !== key) { S.sentKey = key; net.send({ type: 'clue', text: S.draft.clue, picks: S.draft.picks, auto: true }); }
   }
 }
 setInterval(tick, 250);
@@ -1374,7 +1379,8 @@ setInterval(tick, 250);
 // this is just so people see problems before they press the button.
 function checkClue() {
   const r = V.round, ban = (r.banned || []).map(s => s.py), kw = new Set([...(r.word || '')]);
-  const costs = [];
+  const costs = [], asks = new Map();   // asks: a character with several sounds -> its sounds
+  const later = +V.round.teams[V.myTeam].stage.slice(5) < V.settings.teamSize - 1;   // someone writes after me and will be shown the sounds
   let hans = 0, msg = '';
   for (const ch of [...(S.draft.clue || '')]) {
     if (/\s/.test(ch)) continue;
@@ -1386,18 +1392,26 @@ function checkClue() {
     else {
       const rs = readingsOf(ch);
       if (rs && !rs.length) m = `查不到「${ch}」的讀音`;
-      else if (rs) { const hit = rs.find(x => ban.includes(YKWIM.soundOf(x).py)); if (hit) m = `「${ch}」讀 ${YKWIM.soundOf(hit).py}，和謎底同音，不能用`; }
+      else if (rs) {
+        const hit = rs.find(x => ban.includes(YKWIM.soundOf(x).py));
+        if (hit) m = `「${ch}」讀 ${YKWIM.soundOf(hit).py}，和謎底同音，不能用`;
+        else { const sounds = [...new Map(rs.map(x => [YKWIM.soundKey(x), YKWIM.soundOf(x)])).values()]; if (later && sounds.length > 1) asks.set(ch, sounds); }
+      }
     }
     if (m) { msg = msg || m; continue; }
     costs.push(price(hans)); hans++;
   }
-  return { total: costs.reduce((a, c) => a + c, 0), costs, count: hans, any: costs.length > 0, msg, bad: !!msg };
+  const open = [...asks].filter(([ch, sounds]) => !sounds.some(s => s.py === S.draft.picks[ch])).map(([ch]) => ch);   // still to be chosen
+  if (!msg && open.length) msg = `請選擇「${open[0]}」的讀音`;
+  return { total: costs.reduce((a, c) => a + c, 0), costs, count: hans, any: costs.length > 0, msg, bad: !!msg, asks };
 }
 function updatePreview() {
   const el = $('preview'); if (!el || !V || !V.round) return;
   const c = checkClue(), bank = V.scores[V.myTeam], over = c.total > bank;
   el.innerHTML = c.msg ? `<b class="red">${esc(c.msg)}</b>` : over ? `<b class="red">要花 ${c.total}，你們只有 ${bank}</b>`
     : c.any ? `共 <b>${c.total}</b> 點${c.costs.length > 1 ? `（${c.costs.join(' + ')}）` : ''}，猜中才會扣` : '還沒填字：直接送出就是不給字';
+  const pk = $('picks');
+  if (pk) pk.innerHTML = [...c.asks].map(([ch, sounds]) => `<div class="pk"><span>「${esc(ch)}」要讀</span>${sounds.map(s => `<button type="button" class="pkb${S.draft.picks[ch] === s.py ? ' on' : ''}" data-act="pick" data-ch="${esc(ch)}" data-s="${esc(s.py)}">${ph(s)}</button>`).join('')}</div>`).join('');
   const send = $('sendbtn'); if (send) { send.disabled = over || c.bad; send.textContent = c.any ? '送出提示字' : (+V.round.teams[V.myTeam].stage.slice(5) > 1 ? '不補字，直接送出' : '不給字，直接送出'); }
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta'), cost = over ? bank : c.total;
@@ -1520,7 +1534,8 @@ document.addEventListener('click', e => {
     case 'flow': return renderFlow(d.v);
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('已複製連結！')); return;
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
-    case 'sendClue': return send({ type: 'clue', text: S.draft.clue });
+    case 'pick': S.draft.picks[d.ch] = d.s; return updatePreview();
+    case 'sendClue': return send({ type: 'clue', text: S.draft.clue, picks: S.draft.picks });
     case 'sendGuess': { const g = $('guess').value; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
   }
 });
