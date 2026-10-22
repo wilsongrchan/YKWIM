@@ -94,6 +94,10 @@
   .modebtn:disabled { opacity: 1; cursor: default; } .modebtn:disabled:not(.on) { opacity: .6; }
   .settings.main > div:last-child:nth-child(odd) { grid-column: auto; }   /* the full-width Mode box shifts the count by one */
   .settings.main > div:last-child:nth-child(even) { grid-column: 1 / -1; }
+  .settings.main { grid-template-columns: repeat(6, 1fr); }
+  .settings.main > div:last-child:nth-child(odd), .settings.main > div:last-child:nth-child(even) { grid-column: auto; }
+  .settings.main .dd-list { right: auto; width: max-content; min-width: 100%; max-width: 210px; } .settings.main > .r .dd-list { left: auto; right: 0; }
+  .settings.main label { white-space: nowrap; }
   .vb-shadow { position: absolute; left: 0; right: 0; top: 0; height: 0; transition: height .15s ease; border-bottom: 2px solid rgba(0,0,0,.55);
     background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
   .vb-num, .vb-sub, .vb-delta { font-variant-numeric: tabular-nums; }
@@ -1116,15 +1120,19 @@ function lobbyScreen() {
     <div class="settingshead"><h2>遊戲設定</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">恢復預設</button>` : ''}</div>
     <div class="well"><div class="settings main">
       <div style="grid-column:1 / -1" class="modepick"><label>遊戲模式</label><div class="modes">${[['two', '對戰', '兩隊搶先猜中同一謎題', 't0'], ['one', '合作', '一隊爭取取得高分', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
-      <div><label>每隊人數</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 位猜謎人，1 位提示人', 3: '1 位猜謎人，2 位提示人', 4: '1 位猜謎人，3 位提示人' })[v])}</div>
-      ${st.teams === 'one' ? `<div><label>猜詞數目</label>${wordsSel(st)}</div>` : `<div><label>勝利條件</label>${sel('mode', [['score', '搶先達到目標點數'], ['words', '一定數量題目後對比點數']], st.mode)}</div>
-      <div>${st.mode === 'words'
-        ? `<label>猜詞數目</label>${wordsSel(st)}`
-        : `<label>目標點數</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
-      <div><label>起始點數</label>${sel('bank', [100, 200, 300], st.bank)}</div>
-      <div><label>猜中的獎勵</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
-      <div><label>提示字書寫時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
-      <div><label>謎底字體</label>${sel('script', [['trad', '繁體'], ['simp', '簡體']], st.script || 'trad', x => x, () => '無論每個玩家的界面字體是什麼，謎底字體由房主統一決定')}</div>
+      ${(() => {   // compact grid (six columns): every row is full, so the panel stays short and needs no scrolling
+        const f = (span, html, r) => `<div style="grid-column:span ${span}"${r ? ' class="r"' : ''}>${html}</div>`;
+        const size = `<label>每隊人數</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 位猜謎人，1 位提示人', 3: '1 位猜謎人，2 位提示人', 4: '1 位猜謎人，3 位提示人' })[v])}`;
+        const words = `<label>猜詞數目</label>${wordsSel(st)}`;
+        const bank = `<label>起始點數</label>${sel('bank', [100, 200, 300], st.bank)}`;
+        const reward = `<label>猜中的獎勵</label>${sel('reward', [75, 100, 150, 200], st.reward)}`;
+        const write = `<label>提示字書寫時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}`;
+        const script = `<label>謎底字體</label>${sel('script', [['trad', '繁體'], ['simp', '簡體']], st.script || 'trad', x => x, () => '無論每個玩家的界面字體是什麼，謎底字體由房主統一決定')}`;
+        if (st.teams === 'one') return f(2, size) + f(2, words) + f(2, bank, true) + f(2, reward) + f(2, write) + f(2, script, true);
+        const win = `<label>勝利條件</label>${sel('mode', [['score', '搶先達到目標點數'], ['words', '一定數量題目後對比點數']], st.mode)}`;
+        const goal = st.mode === 'words' ? words : `<label>目標點數</label>${sel('target', [500, 800, 1200], st.target)}`;
+        return f(4, win) + f(2, goal, true) + f(2, size) + f(2, bank) + f(2, reward, true) + f(3, write) + f(3, script, true);
+      })()}
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>進階設定</summary>
