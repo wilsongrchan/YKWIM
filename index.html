@@ -307,6 +307,7 @@
     align-items: center; justify-content: center; text-align: center; padding: 8px 4px; overflow: hidden; }
   .slot .ic { width: 38px; height: 38px; border-radius: 50%; background: var(--lime); color: var(--on-lime); display: grid; place-items: center; font-size: 1.3rem; }
   .slot .ic.off { background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--soft); }
+  .slottime { margin-top: 4px; font: 600 .95rem var(--display); font-variant-numeric: tabular-nums; color: var(--soft); }   /* calm: no blinking, the guesser can't do anything about it */
   .slot .txt { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 500; font-size: 1.5rem; letter-spacing: .16em; word-break: break-all; }
   .slot small { color: var(--soft); font-size: .7rem; font-weight: 500; margin-top: 4px; }
   .slot.got { background: var(--lime); color: var(--on-lime); min-height: 84px; }   /* same as the keyword on the clue-giver's screen */
@@ -357,8 +358,11 @@
   .snip .pin { border-color: #fff6cf; color: #fff6cf; text-shadow: 0 0 2px rgba(0,0,0,.45); filter: drop-shadow(0 0 1px rgba(0,0,0,.4)); }   /* on the dark game screen the pencil turns to chalk */
   .legend { list-style: none; padding-left: 0 !important; margin: 4px 0 10px; } .legend li { display: flex; gap: 2px; align-items: flex-start; font-size: .85rem !important; line-height: 1.3 !important; margin-bottom: 4px; } .legend .pin { margin-top: 1px; }
   .snipcap { font: 600 .74rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: #6b6b78; margin: 12px 0 2px; }
-  .factbox { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--ov) 7%, transparent); text-align: center; transition: opacity .35s ease; }
-  .factbox.out { opacity: 0; }
+  .factbox { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--ov) 7%, transparent); text-align: center; }
+  .fact { transition: opacity .6s ease; } .fact.out { opacity: 0; }
+  .well .factbox { margin-top: 14px; padding: 16px 0 0; background: none; border-radius: 0; border-top: 1px dashed color-mix(in srgb, var(--ov) 22%, transparent); }   /* inside the "X is writing" box: one box, not two */
+  .well .fact { min-height: 3.6em; }
+  .well .sub:has(+ .factbox) { margin-bottom: 0; }
   .fact-h { font: 600 .68rem var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
   .fact { display: flex; align-items: center; justify-content: center; min-height: 4.6em; font-size: .95rem; line-height: 1.35; color: var(--text); }
   .used small b { font-weight: 700; color: var(--text); }
@@ -802,7 +806,7 @@ function onView(v) {
     const mt = v.myTeam;
     S.speedDl = mt !== null && v.round.teams[mt].speedLeft ? now + v.round.teams[mt].speedLeft : null;
     const key = v.round.n + ':' + (mt !== null ? v.round.teams[mt].stage : '');
-    if (key !== S.stageKey) { S.stageKey = key; S.draft.clue = ''; S.draft.guess = ''; S.factIdx = (S.factIdx + 1) % FACTS.length; S.factAt = 0; }
+    if (key !== S.stageKey) { S.stageKey = key; S.draft.clue = ''; S.draft.guess = ''; pickFact(); S.factAt = 0; }
     const pn = v.round.passNote;
     if (S.passNoteId === undefined) S.passNoteId = pn ? pn.id : 0;   // joining or reconnecting: don't replay old news
     else if (pn && pn.id !== S.passNoteId) {
@@ -1062,11 +1066,12 @@ function slots(t, role) {
   const shown = (i, txt) => `<div class="slot got"><div class="txt">${esc(txt || '—')}</div><small>${lbl(i)} · ${plural(lettersOnly(txt), 'letter')}</small></div>`;
   const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)} sent</small></div>`;
   const live = i => `<div class="slot live"><div class="ic">✎</div><small>${lbl(i)}</small></div>`;
-  const wait = i => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small></div>`;
+  // the guesser has nothing to do while clue-givers write, so the time they have left sits quietly in the slot of the one writing
+  const wait = (i, timed) => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small>${timed && t === V.myTeam && V.myRoles.includes('guesser') ? `<span class="slottime" data-timer="dl${t}">00:00</span>` : ''}</div>`;
   return Array.from({ length: n }, (_, k) => {
     const i = k + 1;
     if (clues) return shown(i, clues[k]);
-    if (isWriting(st)) { const cur = +st.slice(5); return i < cur ? sent(i) : i === cur ? (role === st ? live(i) : wait(i)) : hidden(i); }
+    if (isWriting(st)) { const cur = +st.slice(5); return i < cur ? sent(i) : i === cur ? (role === st ? live(i) : wait(i, true)) : hidden(i); }
     return wait(i);
   }).join('');
 }
@@ -1106,7 +1111,7 @@ function roundScreen() {
     if (T.stage === 'waiting') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])} is playing</h2><p class="sub">You're up next.</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}${factHtml()}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p>${factHtml()}</div>${logHtml(T)}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
@@ -1131,7 +1136,7 @@ function roundScreen() {
       if (r.word && V.myRoles.some(x => x.startsWith('giver')) && isWriting(T.stage)) {
         body = `${secretHtml(r)}<div class="well center"><h2>${esc(who)} is writing…</h2><p class="sub">Study the keyword: you're up after them.</p></div>`;
       } else body = `${theme}${blanks}<div class="well center"><h2>${esc(who)} is ${stageRole === 'guesser' ? 'about to guess' : 'writing…'}</h2>
-        <p class="sub">${stageRole === 'guesser' ? 'Think about the clues together!' : 'Hang tight.'}</p></div>${T.stage === 'guess' ? logHtml(T) : factHtml()}`;
+        <p class="sub">${stageRole === 'guesser' ? 'Think about the clues together!' : 'Hang tight.'}</p>${T.stage === 'guess' ? '' : factHtml()}</div>${T.stage === 'guess' ? logHtml(T) : ''}`;
     }
   }
   const pa = r.pass && r.pass.toAnswer;
@@ -1142,7 +1147,7 @@ function roundScreen() {
   const compact = (role && role.startsWith('giver')) || handoff;
   // everyone else gets the same header row as the clue-givers (role on the left, timer on the right), then the clue slots
   const rowT = mt === null ? null : r.teams[mt], rowRole = rowT && stageRoleOf(rowT.stage);
-  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? 'Guesser' : V.settings.teamSize === 2 ? 'Clue-giver' : 'Clue-giver ' + rowRole.slice(5)}: ${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · last chance!' : ''}</span>${timerPill(true)}</div>`;
+  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? 'Guesser' : V.settings.teamSize === 2 ? 'Clue-giver' : 'Clue-giver ' + rowRole.slice(5)}: ${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · last chance!' : ''}</span>${rowRole && rowRole.startsWith('giver') && V.myRoles.includes('guesser') ? '' : timerPill(true)}</div>`;
   const head = compact ? '' : `${headRow}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
   return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${SOLO() ? '' : vbar(mt === null ? 1 : 1 - mt)}</div></div>${askBar}`;   // phones hide the side bars, so the keyboard here is full width anyway
 }
@@ -1212,7 +1217,7 @@ function hbar(t) {
 const hbars = mine => `<div class="hbars">${hbar(mine)}${SOLO() ? '' : hbar(1 - mine)}</div>`;
 
 // little facts, tips and made-up lore for the waiting screens, like the loading-screen tips in Minecraft
-const KIND = { fact: 'Did you know?', tip: 'Tip', lore: 'Lore' };
+const KIND = { fact: 'Did you know?', word: 'Did you know?', tip: 'Did you know?', lore: 'Did you know?' };   // one heading for everything: no need to sort them
 const FACTS = [["fact", "A group of flamingos is called a flamboyance."],
   ["fact", "Octopuses have three hearts and blue blood."],
   ["fact", "Honey never really spoils. Jars found in ancient Egyptian tombs were still edible."],
@@ -1222,8 +1227,6 @@ const FACTS = [["fact", "A group of flamingos is called a flamboyance."],
   ["fact", "Hippos can't swim. They walk or bounce along the bottom of the river."],
   ["fact", "Sloths can hold their breath longer than dolphins can."],
   ["fact", "Crows can recognise human faces, and they hold grudges."],
-  ["fact", "\"Bookkeeper\" is the only common English word with three double letters in a row."],
-  ["fact", "\"Stewardesses\" is the longest word you can type with only your left hand."],
   ["fact", "The little dot over an i is called a tittle."],
   ["fact", "Cows have best friends and get stressed when they're apart."],
   ["fact", "A panda can spend up to 14 hours a day eating bamboo."],
@@ -1234,9 +1237,42 @@ const FACTS = [["fact", "A group of flamingos is called a flamboyance."],
   ["lore", "The first ever clue was \"hmm\". Nobody got it."],
   ["lore", "Guessers who squint at the clues guess no faster. (We made that up.)"],
   ["lore", "Somewhere, a clue-giver is typing the whole word in one clue. Their bank is about to cry."],
-  ["lore", "The keyword is watching you. It is a word. It cannot watch. Still."]];
+  ["lore", "The keyword is watching you. It is a word. It cannot watch. Still."],
+  ["word", "\"Rhythms\" is the longest common English word with no a, e, i, o or u."],
+  ["word", "\"Queue\" is just a Q followed by four silent letters."],
+  ["word", "\"Strengths\" is a nine-letter word with just one vowel."],
+  ["word", "\"Uncopyrightable\" is a 15-letter word where no letter repeats."],
+  ["word", "\"Typewriter\" can be typed using only the top row of the keyboard."],
+  ["word", "\"Facetiously\" has all five vowels in alphabetical order."],
+  ["word", "\"Dreamt\" is the only common English word that ends in \"mt\"."],
+  ["word", "A pangram uses every letter of the alphabet: \"The quick brown fox jumps over the lazy dog.\""],
+  ["word", "\"Alphabet\" comes from the first two Greek letters, alpha and beta."],
+  ["word", "\"Googol\" is a 1 followed by 100 zeros, and where the name Google came from."],
+  ["word", "\"Underground\" starts and ends with \"und\"."],
+  ["word", "The longest word in major English dictionaries has 45 letters: pneumonoultramicroscopicsilicovolcanoconiosis."],
+  ["word", "\"Bookkeeper\" has three double letters in a row: oo, kk, ee."],
+  ["word", "\"Stewardesses\" is a 12-letter word you can type with only your left hand."],
+  ["tip", "The first-to-guess bonus only counts if the other team gets the word too."],
+  ["tip", "A wrong guess costs points, so think before you tap."],
+  ["tip", "Clue-giver 2's prices start over, so splitting a word between givers is cheaper."],
+  ["tip", "Send waits until your guess has exactly as many letters as the keyword."],
+  ["lore", "Every great clue starts with \"wait, what if...\" and ends with \"oh!\""],
+  ["lore", "Legend says a perfect YKWIM was once earned by two people who had been married for 40 years. (We made that up.)"],
+  ["lore", "The letter Z has never forgiven the banned list."]];
 const factHtml = () => { const f = FACTS[S.factIdx]; return `<div class="factbox"><div class="fact-h" id="facth">${KIND[f[0]]}</div><div class="fact" id="fact">${esc(f[1])}</div></div>`; };
-S.factIdx = Math.floor(Math.random() * FACTS.length);
+// The order of kinds, so two similar entries never come one after another (a word fact, then a tip, then an animal, then lore...); within a kind the
+// entries come in random order and none repeats until the kind is used up.
+const FACT_CYCLE = ['word', 'fact', 'tip', 'word', 'lore', 'fact', 'word', 'tip'];
+S.factStep = Math.floor(Math.random() * FACT_CYCLE.length); S.factSeen = {};
+function pickFact() {
+  const kind = FACT_CYCLE[S.factStep++ % FACT_CYCLE.length];
+  const all = FACTS.map((f, i) => i).filter(i => FACTS[i][0] === kind);
+  let pool = all.filter(i => !(S.factSeen[kind] || []).includes(i));
+  if (!pool.length) { S.factSeen[kind] = []; pool = all.filter(i => i !== S.factIdx); }
+  S.factIdx = pool[Math.floor(Math.random() * pool.length)];
+  (S.factSeen[kind] = S.factSeen[kind] || []).push(S.factIdx);
+}
+pickFact();
 function logHtml(T) {
   return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
 }
@@ -1364,13 +1400,13 @@ function overScreen() {
 // ---------- live timers / auto-submit ----------
 function tick() {
   const now = Date.now();
-  // waiting screens: a new fact every 8 seconds, faded in and out (only opacity changes, so nothing jumps)
+  // waiting screens: a new fact every 6.5 seconds, faded in and out (only opacity changes, so nothing jumps)
   const fx = $('fact');
   if (!fx) S.factAt = 0;
   else if (!S.factAt) S.factAt = now;
-  else if (now - S.factAt > 8000) {
-    S.factAt = now; const box = fx.closest('.factbox'); box.classList.add('out');
-    setTimeout(() => { S.factIdx = (S.factIdx + 1) % FACTS.length; const f = $('fact'), h = $('facth'); if (f && h) { f.textContent = FACTS[S.factIdx][1]; h.textContent = KIND[FACTS[S.factIdx][0]]; f.closest('.factbox').classList.remove('out'); } }, 350);
+  else if (now - S.factAt > 6500) {
+    S.factAt = now; fx.classList.add('out');   // only the text fades: the heading never changes
+    setTimeout(() => { pickFact(); const f = $('fact'), h = $('facth'); if (f && h) { f.textContent = FACTS[S.factIdx][1]; h.textContent = KIND[FACTS[S.factIdx][0]]; f.classList.remove('out'); } }, 600);
   }
   if (S.preview) { // fake timers never run out while previewing
     S.dl = S.dl.map(d => d && d - now < 2000 ? now + 25000 : d);
@@ -1449,10 +1485,10 @@ function mockView(kind) {
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { first: YKWIM.FIRST_COST, start: YKWIM.START_COST, step: YKWIM.STEP, symbol: YKWIM.SYMBOL_COST }, myTeam: 0, myRoles: [],
     settings: { lang: 'en', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 15, sequential: false },
-    players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
-    seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
+    players: [{ id: 'host', name: 'Will', connected: true }, { id: 'f', name: 'Riley', connected: true }],
+    seats: [[{ id: 'host', name: 'Will' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
-  const round = { n: 2, level: 2, levelName: '5–7 letters', reward: 100, longBonus: 25, cat: 'Animals', blanks: [1, 1, 1, 1, 1], roleNames: { giver1: 'You', giver2: 'Sam', guesser: 'Alex' } };
+  const round = { n: 2, level: 2, levelName: '5–7 letters', reward: 100, longBonus: 25, cat: 'Animals', blanks: [1, 1, 1, 1, 1], roleNames: { giver1: 'Will', giver2: 'Sam', guesser: 'Alex' } };
   const other = team('giver2', { remaining: 12000 });
   const secret = { word: 'ZEBRA', banned: ['Z', 'B', 'R'] };
   switch (kind) {
