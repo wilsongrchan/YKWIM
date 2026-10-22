@@ -118,7 +118,7 @@
   }
   // the sound with no tone, which is what the ban and the second clue-giver deal in. A syllable with no initial gets a placeholder.
   const soundKey = s => s.i + '|' + s.f;
-  const soundOf = s => ({ py: s.i ? spell(s.i, s.f) : '∅' + s.f, zy: (s.i ? '' : '∅') + zhuyinOf(s, true) });
+  const soundOf = s => ({ py: spell(s.i, s.f), zy: zhuyinOf(s, true) });
   const fullOf = s => ({ py: pinyinOf(s), zy: zhuyinOf(s) });
   // dictionary lookups for the hanzi a clue-giver buys (the pinyin-pro library, or anything with the same shape)
   const EXTRA = { 蚵: 'e2', 鑰: 'yao4' };   // readings the library lacks (the Taiwan ones)
