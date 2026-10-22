@@ -1078,12 +1078,12 @@ function lobbyScreen() {
     <p class="sub">${{ 2: '一人寫提示字，一人猜，每個詞輪流換。', 3: '角色（提示人 1、提示人 2、猜謎人）在 3 個座位間輪流，每個詞換一次。', 4: '角色（三位提示人和一位猜謎人）在 4 個座位間輪流，每個詞換一次。' }[st.teamSize]}</p>
     <div class="settingshead"><h2>遊戲設定</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">恢復預設</button>` : ''}</div>
     <div class="well"><div class="settings main">
-      <div style="grid-column:1 / -1" class="modepick"><label>遊戲模式</label><div class="modes">${[['two', '對戰', '兩隊搶著猜同一個詞。', 't0'], ['one', '合作', '一隊玩固定個數的詞，拿評級。', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
+      <div style="grid-column:1 / -1" class="modepick"><label>遊戲模式</label><div class="modes">${[['two', '對戰', '兩隊搶先猜中同一謎題', 't0'], ['one', '合作', '一隊爭取取得高分', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
       <div><label>每隊人數</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 位猜謎人，1 位提示人', 3: '1 位猜謎人，2 位提示人', 4: '1 位猜謎人，3 位提示人' })[v])}</div>
-      ${st.teams === 'one' ? `<div><label>猜詞數目</label>${wordsSel(st)}</div>` : `<div><label>結束條件</label>${sel('mode', [['score', '先到目標分數'], ['words', '固定個數']], st.mode)}</div>
+      ${st.teams === 'one' ? `<div><label>猜詞數目</label>${wordsSel(st)}</div>` : `<div><label>勝利條件</label>${sel('mode', [['score', '搶先達到目標點數'], ['words', '一定數量題目後對比點數']], st.mode)}</div>
       <div>${st.mode === 'words'
         ? `<label>猜詞數目</label>${wordsSel(st)}`
-        : `<label>目標分數</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
+        : `<label>目標點數</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
       <div><label>起始點數</label>${sel('bank', [100, 200, 300], st.bank)}</div>
       <div><label>猜中的獎勵</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
       <div><label>寫每個提示字的時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
