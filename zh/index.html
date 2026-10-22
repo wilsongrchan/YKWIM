@@ -687,7 +687,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022zy"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022zx"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -873,6 +873,14 @@ const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: 
 // host chose, the same for everybody), the name of the game, and the guesses as they were typed. opencc-js (traditional -> simplified, 70 KB) is
 // only downloaded when someone picks 简体; until it arrives, and if it can't load, the page just stays in traditional.
 let toSimp = null, scriptApplying = false, scriptObs = null;
+const TIP_SC = '提示人写的是繁体字，这里为你转成了简体', TIP_TC = '提示人寫的是簡體字，這裡為你轉成了繁體';
+let toTrad = null, tradAsked = false;
+// The two opencc-js builds both call themselves window.OpenCC, so they are loaded one after the other and each kept under its own name.
+const LIB = {}, LIBP = {}; let libQ = Promise.resolve();
+const loadLib = kind => LIBP[kind] || (LIBP[kind] = libQ = libQ.then(() => new Promise(res => {
+  const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/' + kind + '.js';
+  s.onload = () => { LIB[kind] = window.OpenCC; res(LIB[kind]); }; s.onerror = () => res(null); document.head.appendChild(s);
+})));
 const TXT = new WeakMap(), ATT = new WeakMap(), ATTRS = ['placeholder', 'title', 'aria-label'];   // what each node said before it was converted
 const keepEl = n => { const el = n.nodeType === 1 ? n : n.parentElement; return !el || !!el.closest('[data-keep], script, style, textarea'); };
 function convText(n) {
@@ -919,10 +927,7 @@ function syncScript() {
   const sc = DISPLAY.script === 'sc', el = document.documentElement;
   el.lang = sc ? 'zh-Hans' : 'zh-Hant'; el.dataset.script = sc ? 'sc' : 'tc';
   if (!sc) { if (toSimp) { watchScript(false); scriptApplying = true; revertScript(); scriptApplying = false; } markOrig(); return; }
-  const go = () => { if (DISPLAY.script !== 'sc' || !window.OpenCC) return; toSimp = toSimp || window.OpenCC.Converter({ from: 'tw', to: 'cn' }); scriptApplying = true; convTree(document.body); scriptApplying = false; markOrig(); watchScript(true); };
-  if (window.OpenCC) go();
-  else if (!document.getElementById('opencc')) { const s = document.createElement('script'); s.id = 'opencc'; s.src = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/t2cn.js'; s.onload = go; document.head.appendChild(s); }
-  else document.getElementById('opencc').addEventListener('load', go, { once: true });
+  loadLib('t2cn').then(o => { if (!o || DISPLAY.script !== 'sc') return; toSimp = toSimp || o.Converter({ from: 'tw', to: 'cn' }); scriptApplying = true; convTree(document.body); scriptApplying = false; markOrig(); watchScript(true); });
 }
 
 function applyDisplay() {
@@ -958,7 +963,15 @@ const tile = it => it.han
   ? `<div class="ctile hz" data-orig="${esc(it.han)}"><b class="han">${esc(it.han)}</b><i class="obub" data-keep tabindex="0" data-tip="提示人写的是繁体字，这里为你转成了简体">${esc(it.han)}</i></div>`
   : `<div class="ctile hz"><b class="han">${esc(it.sym)}</b></div>`;
 function markOrig() {
-  document.querySelectorAll('.ctile[data-orig]').forEach(t => { const han = t.querySelector('.han'); t.classList.toggle('chg', DISPLAY.script === 'sc' && !!han && han.textContent !== t.dataset.orig); });
+  const sc = DISPLAY.script === 'sc', tiles = document.querySelectorAll('.ctile[data-orig]');
+  if (!sc && !toTrad && !tradAsked && tiles.length) { tradAsked = true; loadLib('cn2t').then(o => { if (o) { toTrad = o.Converter({ from: 'cn', to: 'tw' }); markOrig(); } }); }
+  tiles.forEach(t => {
+    const han = t.querySelector('.han'), bub = t.querySelector('.obub'), orig = t.dataset.orig; if (!han) return;
+    if (!sc) {   // a clue typed in simplified is shown in traditional; the bubble keeps what was written
+      const c = toTrad ? toTrad(orig) : orig; if (han.textContent !== c) han.textContent = c;
+      t.classList.toggle('chg', c !== orig); if (bub) bub.dataset.tip = TIP_TC;
+    } else { t.classList.toggle('chg', han.textContent !== orig); if (bub) bub.dataset.tip = TIP_SC; }
+  });
 }
 const clueText = items => (items || []).map(it => it.han || it.sym).join('') || '沒給字';
 const price = i => V.costs.prices[Math.min(i, V.costs.prices.length - 1)];
@@ -1051,7 +1064,7 @@ function render() {
   pv.classList.toggle('hide', !S.preview);
   if (S.preview) pv.innerHTML = PREVIEWS.map(([k, label]) => `<button class="${k === S.preview ? 'on' : ''}" data-act="preview" data-kind="${k}">${label}</button>`).join('')
     + `<button data-act="previewExit">✕ 離開</button>`;
-  updatePreview(); tick(); centreStamp();
+  updatePreview(); tick(); centreStamp(); markOrig();
   if (S.shake) {
     S.shake = false;
     const bar = $('guess') && $('guess').closest('.bar');
