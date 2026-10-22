@@ -3,7 +3,7 @@
 // (the keyword, the clues) only reaches the people allowed to see it.
 //
 // 字字珠璣 (YKWIM Chinese Version). The English game is about the order and cost of letters; here a clue is written characters only, and
-// the cost is doubling (12, 24, 48...) for each clue-giver. The ban is by sound: no character that sounds like one of the keyword's characters.
+// the cost is doubling (15, 30, 60...) for each clue-giver. The ban is by sound: no character that sounds like one of the keyword's characters.
 // A later clue-giver sees only the sounds (no tone, no order) of the earlier clues, and the guesser sees the characters.
 (function (root) {
   // Keyword bank. Each entry is "漢字 pin1 yin1/简体" (the simplified form is only there when it differs). Generated from tools/gen-bank.js: edit the word
@@ -149,15 +149,15 @@
   };
 
   // ---------- money ----------
-  // A clue is written characters only (no sound-only clues). A clue-giver's first character costs 12, the second 24, the third 48 (each one
+  // A clue is written characters only (no sound-only clues). A clue-giver's first character costs 15, the second 30, the third 60 (each one
   // double the one before), and the count starts again for the next clue-giver. A symbol costs 5, flat.
-  const BASE_PRICE = 12, SYMBOL_COST = 5;
+  const BASE_PRICE = 15, SYMBOL_COST = 5;
   const MAX_CHARS = 4;               // characters in one clue
   const priceOf = i => BASE_PRICE * 2 ** i;
   const PRICES = Array.from({ length: MAX_CHARS }, (_, i) => priceOf(i));
   const SYMBOLS = '.,?!@#$%&*+-=/()~^:;\'_。，、？！…～＋－＝（）：；';   // allowed in a clue at a flat price
   const clueCost = items => { let k = 0; return items.reduce((a, it) => a + (it.han ? priceOf(k++) : SYMBOL_COST), 0); };
-  const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false };
+  const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false, script: 'trad' };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the starting bank
   // (they scale with the number of words). A solved word pays the reward plus bonuses (about 100-150 as the words get longer), and clues cost
   // 0-40, so a team that gets nearly everything lands in the top grades. Numbers to be tuned by playtesting.
@@ -224,6 +224,7 @@
     const roleName = (t, role) => seatName(t, seatIdx(t, role));
     // The ban is by sound: every syllable of the keyword (initial + final, any tone), so its homophones and look-alikes go with it.
     const banned = () => new Map(G.card.syl.map(s => [soundKey(s), soundOf(s)]));
+    const wordShown = () => G.settings.script === 'simp' && G.card.alt ? G.card.alt : G.card.word;   // the host picks one script for every keyword in the game
     const keywordChars = () => new Set([...G.card.word, ...(G.card.alt || '')]);
     const showClue = clue => clue.map(it => it.han ? { han: it.han } : { sym: it.sym });   // the characters themselves, nothing else
 
@@ -285,8 +286,9 @@
     }
     // Turns what a clue-giver typed (characters and symbols) into checked items, or an error. A character is banned when any of its readings
     // shares the sound (initial + final, tone ignored) of a syllable of the keyword.
-    function buildClue(t, text, auto) {
+    function buildClue(t, text, auto, picks) {
       const ban = banned(), mine = keywordChars(), out = [];
+      const later = +G.teams[t].stage.slice(5) < G.settings.teamSize - 1;   // someone writes after this clue-giver, so they will be shown its sounds
       let hans = 0;
       for (const ch of [...String(text || '')]) {
         if (/\s/.test(ch)) continue;
@@ -301,7 +303,15 @@
           else {
             const hit = rs.find(x => ban.has(soundKey(x)));
             if (hit) err = `「${ch}」讀 ${soundOf(hit).py}，和謎底同音，不能用`;
-            else { const seen = new Map(rs.map(x => [soundKey(x), soundOf(x)])); item = { han: ch, snd: [...seen.values()] }; }
+            else {
+              const sounds = [...new Map(rs.map(x => [soundKey(x), soundOf(x)])).values()];
+              let snd = sounds;
+              if (later && sounds.length > 1) {   // a character with several sounds (長: chang / zhang): the next clue-giver is told the one meant
+                const one = sounds.find(s => s.py === (picks && picks[ch]));
+                if (one) snd = [one]; else if (auto) snd = [sounds[0]]; else err = `「${ch}」有不同的讀音，請選一個：${sounds.map(s => s.py).join(' / ')}`;
+              }
+              item = { han: ch, snd };
+            }
           }
         } else item = { han: ch, snd: [] };   // no dictionary loaded: the character can't be checked
         if (err) { if (auto) continue; return { error: err }; }   // out of time: keep what is valid
@@ -312,8 +322,8 @@
       else if (clueCost(out) > G.scores[t]) return { error: '點數不夠，買不起這個提示字。' };
       return { items: out };
     }
-    function submitClue(t, text, auto) {
-      const T = G.teams[t], b = buildClue(t, text, auto);
+    function submitClue(t, text, auto, picks) {
+      const T = G.teams[t], b = buildClue(t, text, auto, picks);
       if (b.error) return b;
       spend(t, clueCost(b.items), true); T.clues.push(b.items);
       clearT(T.timer); T.deadline = null;
@@ -356,14 +366,14 @@
         const T = G.teams[f]; T.breakdown.first = G.settings.firstBonus; T.earned += G.settings.firstBonus;
       }
       [0, 1].forEach(t => G.scores[t] += G.teams[t].earned);
-      G.record.push({ n: G.round, word: G.card.word, syl: G.card.syl.map(fullOf), cat: G.card.cat, levelName: TIERS[G.level - 1].name, teams: [0, 1].map(t => {
+      G.record.push({ n: G.round, word: wordShown(), syl: G.card.syl.map(fullOf), cat: G.card.cat, levelName: TIERS[G.level - 1].name, teams: [0, 1].map(t => {
         const T = G.teams[t];
         return { result: T.result, earned: T.earned, spent: T.spent, breakdown: T.breakdown, clues: T.clues.map(showClue), costs: T.clues.map(clueCost), log: T.log.slice(), people: rolesFor(G.settings.teamSize).map(r => ({ role: r, name: roleName(t, r) })) };
       }) });
       const [a, b] = G.scores, s = G.settings;
       // "score" mode: first to the target. "words" mode: after a fixed number of words. A tie plays on (sudden death).
       const finished = s.mode === 'words' ? G.round + 1 >= s.words : (a >= s.target || b >= s.target);
-      if (G.solo) G.history.push({ n: G.round, word: G.card.word, result: G.teams[0].result, net: G.teams[0].earned - G.teams[0].spent, total: G.scores[0] });
+      if (G.solo) G.history.push({ n: G.round, word: wordShown(), result: G.teams[0].result, net: G.teams[0].earned - G.teams[0].spent, total: G.scores[0] });
       if (G.solo) { if (finished) { G.phase = 'over'; G.winner = 0; } else G.phase = 'roundEnd'; }
       else if (finished && a !== b) { G.phase = 'over'; G.winner = a > b ? 0 : 1; }
       else G.phase = 'roundEnd';
@@ -372,7 +382,7 @@
       const T = G.teams[t], text = guessText(raw);
       if (!text) return {};
       if (text === G.card.word || text === G.card.alt) {
-        T.log.push({ text: G.card.word, ok: true });
+        T.log.push({ text: wordShown(), ok: true });
         // A correct guess pays the reward plus the first-to-guess and quick-guess bonuses (characters were already paid for).
         // (no live first-to-guess race or last-chance limit in pass-and-play: the teams don't play at the same time; endRound compares their times instead)
         const s = G.settings, first = G.firstCorrect === null && !s.sequential;
@@ -455,6 +465,7 @@
             else { s.mode = 'score'; s.words = 8; }
           }
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value) && s.teams === 'two') s.mode = m.value;
+          else if (m.key === 'script' && ['trad', 'simp'].includes(m.value)) s.script = m.value;
           else if (m.key === 'lastChance' && [10, 15, 20].includes(n)) s.lastChance = n;
           else if (m.key === 'teamSize' && [2, 3, 4].includes(n) && !(n === 2 && s.teams === 'one')) {   // playing without an opponent needs at least 2 clue-givers
             s.teamSize = n; // seats beyond the new size are dropped
@@ -510,7 +521,7 @@
           const t = actTeam(id); if (t < 0) return {};
           const T = G.teams[t];
           if (!isWriting(T.stage) || !rolesOf(id).includes(STAGE_ROLE[T.stage])) return {};
-          return submitClue(t, m.text, !!m.auto);
+          return submitClue(t, m.text, !!m.auto, m.picks);
         }
         case 'guess': {
           if (G.phase !== 'round') return {};
@@ -608,7 +619,7 @@
       v.round.passNote = G.passNote;
       v.round.firstTeam = G.firstCorrect;   // who guessed first (their bonus waits to see if the other team gets it too)
       const isGiver = roles.some(r => r.startsWith('giver'));
-      if (reveal || (G.phase === 'round' && isGiver)) { v.round.word = G.card.word; v.round.syl = G.card.syl.map(fullOf); }
+      if (reveal || (G.phase === 'round' && isGiver)) { v.round.word = wordShown(); v.round.syl = G.card.syl.map(fullOf); }
       if (G.phase === 'round' && isGiver) v.round.banned = [...banned().values()];
       const wk = mt !== null && G.phase === 'round' ? +(G.teams[mt].stage.match(/^giver(\d)$/) || [0, 0])[1] : 0;   // the clue-giver now writing
       if (wk >= 2 && roles.includes('giver' + wk)) {

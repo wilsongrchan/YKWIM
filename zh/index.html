@@ -252,13 +252,11 @@
   .logo, .masthead .mark, .secret .w, .brand { font-family: var(--brand); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .05em; }
   .logo { text-shadow: 3px 3px 0 var(--navy); }
   .logo { position: relative; }
-  /* 字字珠璣: each character a little off-balance, with a thicker round outline, so it bounces like the English logo */
-  .zlg { display: inline-block; white-space: nowrap; -webkit-text-stroke: .045em currentColor; paint-order: stroke fill; stroke-linejoin: round; letter-spacing: .02em; }
+  /* 字字珠璣: each character a little off-balance, with a dark outline behind the cream fill (the fill is painted on top, so the strokes stay crisp
+     and the busy 璣 doesn't clog up), so it bounces like the English logo */
+  .zlg { display: inline-block; white-space: nowrap; -webkit-text-stroke: .11em var(--navy); paint-order: stroke fill; stroke-linejoin: round; letter-spacing: .07em; }
   .zlg span { display: inline-block; transform: rotate(var(--r, 0deg)) translateY(var(--y, 0)); }
-  .markT .zlg { -webkit-text-stroke-width: .035em; }
-  /* the link to the English game: top right, only on the landing page (never mid-game, where it would walk you out of the room) */
-  .langbtn { text-decoration: none; font: 600 .74rem var(--body); letter-spacing: .02em; }
-  .langbtn[hidden] { display: none; }
+  .markT .zlg { -webkit-text-stroke-width: .13em; letter-spacing: .05em; }
   .logosub { text-align: center; margin: -2px 0 12px; font: 500 .72rem var(--body); letter-spacing: .22em; text-transform: uppercase; color: var(--soft); }
   .logoBg { position: absolute; z-index: -1; left: 50%; top: 50%; height: 2.4em; width: auto; transform: translate(-50%, -34%); fill: var(--navy); stroke: var(--navy); stroke-width: 3.3; stroke-linejoin: round; opacity: .55; pointer-events: none; overflow: visible; }
   .tag { text-align: center; color: var(--soft); margin: 0 0 22px; font-weight: 500; }
@@ -618,7 +616,7 @@
     </ul>
     <h3>點數</h3>
     <ul>
-      <li>每隊從 200 點開始。寫提示字要花點數：每名提示人的第一個字 <b>12</b> 點，第二個字 <b>24</b> 點，第三個字 <b>48</b> 點，每個字都是前一個字的兩倍。每個標點符號 5 點，不遞增。所以把一個詞拆給兩個提示人寫，會比較省。</li>
+      <li>每隊從 200 點開始。寫提示字要花點數：每名提示人的第一個字 <b class="pr" data-i="0">15</b> 點，第二個字 <b class="pr" data-i="1">30</b> 點，第三個字 <b class="pr" data-i="2">60</b> 點，每個字都是前一個字的兩倍。每個標點符號 5 點，不遞增。所以把一個詞拆給兩個提示人寫，會比較省。</li>
       <li>隊伍的點數不夠付的話，就必須刪短提示字。</li>
       <li>猜中謎底獎勵 100 點。如果兩隊都猜中，先猜中的隊伍再得 20 點。在限定時間內猜中，還有速度獎勵。</li>
       <li>猜錯一次罰 5 點。完全沒頭緒的話，放棄比亂猜好。</li>
@@ -659,7 +657,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022l"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022o"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -870,6 +868,7 @@ const price = i => V.costs.prices[Math.min(i, V.costs.prices.length - 1)];
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
 // "See an example round": a = Clue-giver 2 gets what Clue-giver 1 meant, b = they stay quiet, c = a team with one clue-giver.
 function renderFlow(which) {
+  const P = YKWIM.PRICES;
   const box = (n, head, body) => `<div class="fs"><div class="fs-n">${n}</div><div class="fs-b"><div class="fs-h">${head}</div>${body}</div></div>`;
   // a little player with a thought bubble: colour = role, mouth = mood
   const MOUTH = { hope: 'M14 20q6 4 12 0', puzzled: 'M15 21.5q5-2 10 0', happy: 'M13 19q7 7 14 0' };
@@ -879,8 +878,8 @@ function renderFlow(which) {
   const ct = han => `<div class="ctile fsw hz"><b class="han">${han}</b></div>`;
   const ban = `<span class="fs-ban">不能用 <s>xiong</s><s>mao</s></span>`;
   const step1 = which === 'c'
-    ? `${EM('🎋')} 熊貓吃竹子！我只有一個人，先給 <b>竹</b>（12 點），再加 <b>川</b>（四川，24 點）。`
-    : `${EM('🎋')} 熊貓吃竹子！我只給 <b>竹</b>，希望提示人 2 懂我的意思。（12 點）`;
+    ? `${EM('🎋')} 熊貓吃竹子！我只有一個人，先給 <b>竹</b>（${P[0]} 點），再加 <b>川</b>（四川，${P[1]} 點）。`
+    : `${EM('🎋')} 熊貓吃竹子！我只給 <b>竹</b>，希望提示人 2 懂我的意思。（${P[0]} 點）`;
   const step2 = { a: think('#6fc7bd', 'happy', `只看到 <b>zhu</b>，沒有聲調…配上熊貓，一定是 ${EM('🎋')} 竹！熊貓還會想到 ${EM('🏔️')} 四川，我補 <b>川</b>。`),
     b: think('#6fc7bd', 'happy', `<b>zhu</b> ＋ 熊貓…${EM('🎋')} 竹，已經夠明顯了。我<b>不補字</b>，省點數。`),
     c: '' }[which];
@@ -888,22 +887,23 @@ function renderFlow(which) {
     b: `竹…${EM('🎋')} 吃竹子的…${EM('🐼')} 熊貓！`,
     c: `竹、川…竹和四川…${EM('🐼')} 熊貓！` }[which];
   const first = ct('竹'), second = { a: ct('川'), b: '', c: ct('川') }[which];
-  const spent = { a: 24, b: 12, c: 36 }[which];
+  const spent = { a: P[0] + P[0], b: P[0], c: P[0] + P[1] }[which];
   const tab = (v, label) => `<button type="button" class="${which === v ? 'on' : ''}" data-act="flow" data-v="${v}">${label}</button>`;
   $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', '補字')}${tab('b', '不補字')}${tab('c', '只有一位')}</div>` +
     box(1, '提示人 1 看得到謎底', `<span class="fs-kw">熊貓</span>${ban}
       ${think('#f5b942', 'hope', step1)}
-      <div class="fs-row">${first}${which === 'c' ? second : ''}${cost(which === 'c' ? 36 : 12)}</div>`) +
+      <div class="fs-row">${first}${which === 'c' ? second : ''}${cost(which === 'c' ? P[0] + P[1] : P[0])}</div>`) +
     (which === 'c' ? '' : box(2, '提示人 2 看得到謎底，和提示人 1 的字的讀音', `<span class="fs-kw">熊貓</span>${ban}
       <div class="fs-h" style="margin:2px 0 0">提示人 1 給了</div><div class="fs-used">zhu</div><div class="fs-say" style="margin-top:2px">1 個字。只看得到讀音：沒有聲調，多個字的話也不知道順序。</div>
       ${step2}
-      ${second ? `<div class="fs-row">${second}${cost(12)}</div><div class="fs-say">提示人 2 重新從 12 點算起，所以這個字只要 12 點。</div>` : `<div class="fs-row"><div class="fs-clue fs-skip">沒補字</div><span class="fs-cost">免費</span></div>`}`)) +
+      ${second ? `<div class="fs-row">${second}${cost(P[0])}</div><div class="fs-say">提示人 2 重新從 ${P[0]} 點算起，所以這個字只要 ${P[0]} 點。</div>` : `<div class="fs-row"><div class="fs-clue fs-skip">沒補字</div><span class="fs-cost">免費</span></div>`}`)) +
     box(which === 'c' ? 2 : 3, '猜謎人只看得到提示字', `<div class="fs-row" style="margin:0 0 6px">${first}${which === 'c' ? second : which === 'a' ? second : ''}</div>
       <div>${'<span class="fs-blank"></span>'.repeat(2)}</div>
       ${think('#f2907a', 'happy', step3)}`) +
     box(which === 'c' ? 3 : 4, '結果', `<span class="fs-ok">熊貓 ✓</span> 猜中才真正扣款：這一輪花了 ${spent} 點，獎勵和速度獎勵進帳。<br>猜不中的話，提示字花的點數<b>全數退還</b>。`);
 }
 renderFlow('a');
+document.querySelectorAll('.pr').forEach(e => { e.textContent = YKWIM.PRICES[+e.dataset.i]; });
 (function costDiagram() {
   const P = YKWIM.PRICES, S5 = YKWIM.SYMBOL_COST;
   let run = 0;
@@ -1410,8 +1410,8 @@ function mockRecord() {   // two fake words for the game review in the preview t
   const people = [{ role: 'giver1', name: '小明' }, { role: 'giver2', name: '小華' }, { role: 'guesser', name: '阿凱' }];
   const syl = [{ py: 'xióng', zy: 'ㄒㄩㄥˊ' }, { py: 'māo', zy: 'ㄇㄠ' }];
   return [{ n: 0, word: '熊貓', syl, cat: '動物', levelName: '二字詞', teams: [
-      { result: 'correct', earned: 117, spent: 24, breakdown: { base: 100, longWord: 0, first: 5, speed: 12 }, clues: [[MOCK('竹')], [MOCK('川')]], costs: [12, 12], log: [{ text: '老虎', ok: false, cost: 5 }, { text: '熊貓', ok: true }], people },
-      { result: 'gaveup', earned: 0, spent: 5, breakdown: null, clues: [[MOCK('黑'), MOCK('白')], []], costs: [36, 0], log: [{ text: '斑馬', ok: false, cost: 5 }], people } ] },
+      { result: 'correct', earned: 117, spent: 30, breakdown: { base: 100, longWord: 0, first: 5, speed: 12 }, clues: [[MOCK('竹')], [MOCK('川')]], costs: [15, 15], log: [{ text: '老虎', ok: false, cost: 5 }, { text: '熊貓', ok: true }], people },
+      { result: 'gaveup', earned: 0, spent: 5, breakdown: null, clues: [[MOCK('黑'), MOCK('白')], []], costs: [45, 0], log: [{ text: '斑馬', ok: false, cost: 5 }], people } ] },
     { n: 1, word: '檸檬', syl: [{ py: 'ning2', zy: 'ㄋㄧㄥˊ' }, { py: 'meng2', zy: 'ㄇㄥˊ' }], cat: '食物', levelName: '二字詞', teams: [
       { result: 'correct', earned: 112, spent: 20, breakdown: { base: 100, longWord: 0, first: 0, speed: 12 }, clues: [[MOCK('酸')], [MOCK('黃')]], costs: [10, 0], log: [{ text: '檸檬', ok: true }], people },
       { result: 'correct', earned: 125, spent: 30, breakdown: { base: 100, longWord: 0, first: 20, speed: 5 }, clues: [[MOCK('酸'), MOCK('水')], []], costs: [30, 0], log: [{ text: '檸檬', ok: true }], people } ] }];
