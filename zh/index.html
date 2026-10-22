@@ -43,6 +43,7 @@
   .roomchip { justify-self: start; padding: 5px 10px; border-radius: 999px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; font-size: .85rem; letter-spacing: .12em; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); }
   @media (max-width: 380px) { .roomchip { padding: 5px 8px; font-size: .78rem; letter-spacing: .08em; } .roomchip small { display: none; } }
   .roomchip small { font-family: var(--body); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-right: 6px; }
+  #wrap:not(.landing) .masthead .mark { cursor: pointer; }
   .masthead .mark { text-align: center; font-family: var(--display); font-style: normal; font-size: 1.7rem; letter-spacing: .06em; line-height: 1; }
   .masthead .mark #markIcon svg { height: .95em; width: auto; vertical-align: -.1em; margin-left: .1em; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; }
   .masthead .mark small { display: block; font-family: var(--body); font-style: normal; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--soft); margin-top: 3px; }
@@ -455,7 +456,7 @@
   #wrap.landing .stage.home { padding-bottom: 30px; }
   .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
   /* landing page: the colour is the whole screen's background, edge to edge, with nothing to scroll */
-  html.landing, html.landing body { height: 100vh; height: 100dvh; overflow: hidden; padding: 0; }
+  html.landing, html.landing body { height: 100vh; height: 100dvh; overflow: hidden; padding: 0; position: fixed; inset: 0; width: 100%; }
   #wrap.landing { height: 100vh; height: 100dvh; max-width: none; position: relative; }
   #wrap.landing #app, #wrap.landing .stage.home { height: 100%; }
   #wrap.landing .masthead { position: absolute; top: 0; left: 0; right: 0; z-index: 5; border-bottom: 0; margin: 0; padding: 10px 12px 0; }
@@ -515,13 +516,15 @@
   :root { --cjk: "Noto Sans TC", "PingFang TC", "Hiragino Sans CNS", "Microsoft JhengHei", system-ui, sans-serif;
     --display: "Fredoka", var(--cjk); --body: "Fredoka", var(--cjk); --brand: "Lilita One", "Mochiy Pop One", var(--cjk); }   /* Latin letters stay in the English logo face; the characters get its chunky round cousin */
   .secret .w, .brand.zhword, details.rvword summary b { font-family: var(--cjk); font-style: normal; font-weight: 700; text-transform: none; letter-spacing: .1em; }
-  .secret .w { font-size: 2.4rem; }
+  .secret .w { font-size: 3.2rem; line-height: 1.1; }
   details.rvword summary b { font-size: 1.05rem; }
   .py { font-weight: 600; letter-spacing: .02em; } .zy { font-family: var(--cjk); font-weight: 500; }
   .py + .zy { margin-left: .45em; }
   .sec-read { display: flex; gap: .2em .9em; justify-content: center; flex-wrap: wrap; font-weight: 500; font-size: .9rem; opacity: .85; margin-top: 2px; }
   .sec-ban { font-size: .8rem; font-weight: 500; margin-top: 6px; }
   .bn { display: inline-block; background: rgba(0,0,0,.18); border-radius: 6px; padding: 0 7px; margin: 2px 2px; font-weight: 600; }
+  .gcount { display: flex; align-items: center; padding: 0 10px; background: var(--field); color: color-mix(in srgb, var(--ink) 48%, var(--field)); font: 500 .85rem var(--body); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .gcount.ok { color: var(--ink); font-weight: 600; }
   .gwrap { position: relative; } .gwarn { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; padding: 7px 10px; border-radius: 10px; background: var(--bad); color: #fff; font: 600 .8rem/1.3 var(--body); box-shadow: 0 3px 10px rgba(0, 0, 0, .3); pointer-events: none; } .gwarn[hidden] { display: none; }
   .tiles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
   .ctile { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 56px; padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--on-lime) 14%, transparent); line-height: 1.15; }
@@ -539,6 +542,7 @@
   .bigclue { padding: 14px 6px 10px; }
   .bigclue .ctile { background: color-mix(in srgb, var(--ov) 10%, transparent); }
   .ctile.fsw { background: #fff; color: var(--ink); }
+  .used-h b { font-weight: 700; color: var(--text); }
   .used { font-family: var(--body); letter-spacing: 0; font-size: 1.05rem; }
   .snd { display: inline-flex; gap: .45em; margin: 0 10px; font-size: 1.3rem; font-weight: 600; }
   .blanks.zh span { width: 46px; height: 54px; }
@@ -565,7 +569,21 @@
   .fs-row .ctile { background: #fff; color: var(--ink); }
   .fs-row .ctile .han { font-size: 1.7rem; }
   .fs-used { font: 600 1.1rem var(--body); letter-spacing: .1em; }
-  .secret .sec-theme { font-size: .85rem; }
+  .secret .sec-theme { font-size: .74rem; }
+  .secret { padding: 6px 12px 10px; }
+  .zsec { display: grid; grid-template-columns: minmax(68px, 1fr) minmax(0, auto) minmax(68px, 1fr); gap: 6px; align-items: start; }
+  .zsec .sc-l { text-align: left; font-size: .74rem; font-weight: 500; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .zsec .sc-l b { font-weight: 600; }
+  .zsec .sc-c { min-width: 0; padding-top: 2px; } .zsec .sc-c .w { display: block; }
+  .zsec .sc-r { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
+  .zsec .sec-banh { font-size: .72rem; font-weight: 500; line-height: 1.25; } .zsec .sec-banh small { display: block; font-size: .66rem; opacity: .8; }
+  .zsec .bn { display: block; margin: 0; font-size: .8rem; }
+  .hdr-r { display: flex; align-items: center; gap: 8px; flex: none; }
+  .hdr-r .passbtn { position: static; padding: 5px 12px; font-size: .8rem; background: var(--lime); color: var(--on-lime); }
+  .hdr-r .passbtn.asked { background: transparent; color: var(--soft); border: 1px dashed currentColor; }
+  .sec-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: .74rem; font-weight: 500; text-align: left; flex-wrap: wrap; }
+  .sec-top .sec-ban { text-align: right; margin: 0; font-size: .74rem; } .sec-top b { font-weight: 600; }
+  .sec-tag { margin-top: 2px; font-size: .68rem; font-weight: 600; letter-spacing: .3em; opacity: .65; }
   .bub, .fs-say, .quote, .vsg .q, table.gt tr.gr2 td.gq, table.gt .gq { font-style: normal; }
   .fs-kw { font: 700 1.6rem var(--cjk); font-style: normal; letter-spacing: .06em; }
   .masthead .mark small { letter-spacing: .3em; text-transform: none; }
@@ -573,7 +591,7 @@
     .crow { grid-template-columns: 16px minmax(0, 1fr) 90px 24px; gap: 5px; }
     .crow input { padding: 9px 8px; font-size: .95rem; }
     .tonepad button { width: 30px; height: 32px; }
-    .secret .w { font-size: 2rem; }
+    .secret .w { font-size: 2.7rem; }
     .blanks.zh span { width: 40px; height: 46px; }
     .ctile { min-width: 50px; padding: 5px 8px; } .ctile .han { font-size: 1.8rem; }
     #py0, .py { letter-spacing: 0; }
@@ -612,7 +630,7 @@
   <div id="previewbar" class="pvbar hide"></div>
   <header class="masthead">
     <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="房間代碼：用它可以重新加入。點一下複製。"></button>
-    <div class="mark"><span class="markT"><span class="zlg" data-keep><span style="--r:-5deg;--y:-.04em">字</span><span style="--r:3deg;--y:.05em">字</span><span style="--r:-3deg;--y:-.03em">珠</span><span style="--r:5deg;--y:.04em">璣</span></span></span><span id="markIcon"></span><small>YKWIM Chinese Version</small></div>
+    <div class="mark" data-act="home" role="button" tabindex="0"><span class="markT"><span class="zlg" data-keep><span style="--r:-5deg;--y:-.04em">字</span><span style="--r:3deg;--y:.05em">字</span><span style="--r:-3deg;--y:-.03em">珠</span><span style="--r:5deg;--y:.04em">璣</span></span></span><span id="markIcon"></span><small>YKWIM Chinese Version</small></div>
     <div class="icons">
       <a class="icon langbtn" id="langbtn" href="../" aria-label="English version" title="English version">EN</a>
       <button class="icon" data-act="themes" aria-label="顯示設定"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
@@ -661,8 +679,8 @@
     </ul>
     <h3>跳過</h3>
     <ul>
-      <li>不認識這個詞？在<b>兩隊的提示人 1 都還沒送出提示字</b>以前，提示人 1 可以按「跳過？」，對方提示人 1 同意就雙方換新詞，10 秒內沒回應算拒絕。</li>
-      <li>只要有一方送出提示字，就不能再跳過。提示人 2 不能提議跳過。</li>
+      <li>不認識這個詞？在<b>兩隊的提示人 1 都還沒提交提示字</b>以前，提示人 1 可以按「跳過？」，對方提示人 1 同意就雙方換新詞，10 秒內沒回應算拒絕。</li>
+      <li>只要有一方提交提示字，就不能再跳過。提示人 2 不能提議跳過。</li>
       <li>冷門詞、專有名詞、方言詞：對方說不懂，通常該同意。常識詞（像熊貓）說不懂，對方可以拒絕。</li>
     </ul>
     <h3>模式</h3>
@@ -693,7 +711,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022zv"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022zy"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -770,6 +788,15 @@ function showReconnect(code) {
   document.body.appendChild(o);
 }
 const hideReconnect = () => document.querySelectorAll('.loadOv').forEach(o => o.remove());
+// Clicking the branding goes back to the landing page. In a room that means leaving it (the host's room closes with them).
+function goHome() {
+  if (!V) return;
+  if (S.preview) { document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render(); }
+  if (!confirm(room ? '要離開房間嗎？你是房主，離開後遊戲會對所有人結束。' : '要離開房間嗎？之後可以用房間代碼重新加入。')) return;
+  if (room) { try { room.peer.destroy(); } catch {} room = null; S.code = ''; }
+  S.passNoteId = undefined; S.feedback = null;
+  leaveRoom();
+}
 function leaveRoom() {
   clearTimeout(retryTimer); S.rejoin = null; clearSession();
   if (guestPeer) try { guestPeer.destroy(); } catch {}
@@ -992,30 +1019,37 @@ function renderFlow(which) {
   const EM = e => `<span class="em">${e}</span>`;
   const ct = han => `<div class="ctile fsw hz"><b class="han">${han}</b></div>`;
   const ban = `<span class="fs-ban">不能用 <s>xiong</s><s>mao</s></span>`;
+  const tiles = s => [...s].map(ct).join('');
+  const cost2 = s => [...s].reduce((a, _, i) => a + P[i], 0);   // what a clue of these characters costs one clue-giver
+  // a = 提示人 2 gets what 提示人 1 meant (國) and adds the other half (寶), b = they don't and go their own way, c = 提示人 1 gave both and 提示人 2 thinks it is enough
+  const first = { a: '國', b: '國', c: '國寶' }[which], second = { a: '寶', b: '竹子', c: '' }[which];
+  const seen = { a: 'guo', b: 'guo', c: 'bao　guo' }[which];
   const step1 = which === 'c'
-    ? `${EM('🎋')} 熊貓吃竹子！我只有一個人，先給 <b>竹</b>（${P[0]} 點），再加 <b>川</b>（四川，${P[1]} 點）。`
-    : `${EM('🎋')} 熊貓吃竹子！我只給 <b>竹</b>，希望提示人 2 懂我的意思。（${P[0]} 點）`;
-  const step2 = { a: think('#6fc7bd', 'happy', `只看到 <b>zhu</b>，沒有聲調…配上熊貓，一定是 ${EM('🎋')} 竹！熊貓還會想到 ${EM('🏔️')} 四川，我補 <b>川</b>。`),
-    b: think('#6fc7bd', 'happy', `<b>zhu</b> ＋ 熊貓…${EM('🎋')} 竹，已經夠明顯了。我<b>不補字</b>，省點數。`),
-    c: '' }[which];
-  const step3 = { a: `竹…川…${EM('🎋')} 竹子加四川…${EM('🐼')} 熊貓！`,
-    b: `竹…${EM('🎋')} 吃竹子的…${EM('🐼')} 熊貓！`,
-    c: `竹、川…竹和四川…${EM('🐼')} 熊貓！` }[which];
-  const first = ct('竹'), second = { a: ct('川'), b: '', c: ct('川') }[which];
-  const spent = { a: P[0] + P[0], b: P[0], c: P[0] + P[1] }[which];
+    ? `${EM('🐼')} 熊貓是 <b>國寶</b>！我把 <b>國</b>、<b>寶</b> 都給了。（${P[0]} + ${P[1]} 點）`
+    : `${EM('🐼')} 熊貓是 <b>國寶</b>！我先給 <b>國</b>，希望提示人 2 懂我的意思，補上 <b>寶</b>。（${P[0]} 點）`;
+  const step2 = { a: think('#6fc7bd', 'happy', `只看到 <b>guo</b>，沒有聲調…配上熊貓，是 ${EM('🐼')} 國寶！我來補 <b>寶</b>。`),
+    b: think('#6fc7bd', 'puzzled', `只看到 <b>guo</b>，沒有聲調…國？鍋？果？看不出跟熊貓有什麼關係…我走自己的路：${EM('🎋')} <b>竹子</b>。`),
+    c: think('#6fc7bd', 'happy', `<b>bao</b>、<b>guo</b> ＋ 熊貓…${EM('🐼')} 國寶！已經夠明顯了，我<b>不補字</b>，省點數。`) }[which];
+  const step3 = { a: `國…寶…${EM('🐼')} 國寶！熊貓！`,
+    b: `國…竹子…${EM('🎋')} 吃竹子的國寶…${EM('🐼')} 熊貓！`,
+    c: `國寶…${EM('🐼')} 熊貓！` }[which];
+  const spent = cost2(first) + cost2(second), whole = cost2('國寶');   // whole = what 提示人 1 would pay for giving 國寶 alone
   const tab = (v, label) => `<button type="button" class="${which === v ? 'on' : ''}" data-act="flow" data-v="${v}">${label}</button>`;
-  $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', '補字')}${tab('b', '不補字')}${tab('c', '只有一位')}</div>` +
+  $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', '懂了')}${tab('b', '沒對上')}${tab('c', '不補字')}</div>` +
     box(1, '提示人 1 看得到謎底', `<span class="fs-kw">熊貓</span>${ban}
       ${think('#f5b942', 'hope', step1)}
-      <div class="fs-row">${first}${which === 'c' ? second : ''}${cost(which === 'c' ? P[0] + P[1] : P[0])}</div>`) +
-    (which === 'c' ? '' : box(2, '提示人 2 看得到謎底，和提示人 1 的字的讀音', `<span class="fs-kw">熊貓</span>${ban}
-      <div class="fs-h" style="margin:2px 0 0">提示人 1 給了</div><div class="fs-used">zhu</div><div class="fs-say" style="margin-top:2px">1 個字。只看得到讀音：沒有聲調，多個字的話也不知道順序。</div>
+      <div class="fs-row">${tiles(first)}${cost(cost2(first))}</div>`) +
+    box(2, '提示人 2 看得到謎底，和提示人 1 的字的讀音', `<span class="fs-kw">熊貓</span>${ban}
+      <div class="fs-h" style="margin:2px 0 0">提示人 1 給了</div><div class="fs-used">${seen}</div><div class="fs-say" style="margin-top:2px">${[...first].length} 個字。只看得到讀音：沒有聲調，多個字的話也不知道順序。</div>
       ${step2}
-      ${second ? `<div class="fs-row">${second}${cost(P[0])}</div><div class="fs-say">提示人 2 重新從 ${P[0]} 點算起，所以這個字只要 ${P[0]} 點。</div>` : `<div class="fs-row"><div class="fs-clue fs-skip">沒補字</div><span class="fs-cost">免費</span></div>`}`)) +
-    box(which === 'c' ? 2 : 3, '猜謎人只看得到提示字', `<div class="fs-row" style="margin:0 0 6px">${first}${which === 'c' ? second : which === 'a' ? second : ''}</div>
+      ${second ? `<div class="fs-row">${tiles(second)}${cost(cost2(second))}</div><div class="fs-say">提示人 2 重新從 ${P[0]} 點算起。</div>` : `<div class="fs-row"><div class="fs-clue fs-skip">沒補字</div><span class="fs-cost">免費</span></div>`}`) +
+    box(3, '猜謎人只看得到提示字', `<div class="fs-row" style="margin:0 0 6px">${tiles(first)}${second ? '<span class="cd-gap"></span>' + tiles(second) : ''}</div>
       <div>${'<span class="fs-blank"></span>'.repeat(2)}</div>
       ${think('#f2907a', 'happy', step3)}`) +
-    box(which === 'c' ? 3 : 4, '結果', `<span class="fs-ok">熊貓 ✓</span> 猜中才真正扣款：這一輪花了 ${spent} 點，獎勵和速度獎勵進帳。<br>猜不中的話，提示字花的點數<b>全數退還</b>。`);
+    box(4, '結果', `<span class="fs-ok">熊貓 ✓</span> 猜中才真正扣款：這一輪花了 ${spent} 點，獎勵和速度獎勵進帳。<br>猜不中的話，提示字花的點數<b>全數退還</b>。
+      <div class="cd-note" style="margin-top:8px">${{ a: `<b>分開給比較省：</b>${P[0]} + ${P[0]} = ${spent} 點。如果提示人 1 自己把「國寶」給完，要 ${P[0]} + ${P[1]} = ${whole} 點，所以分開給省了 ${whole - spent} 點。但前提是提示人 2 懂你的意思。`,
+        b: `<b>沒對上就虧了：</b>${spent} 點，比提示人 1 自己把「國寶」給完（${whole} 點）還貴。`,
+        c: `<b>一個人給完：</b>${P[0]} + ${P[1]} = ${whole} 點，比「國 + 寶」分開給的 ${P[0] + P[0]} 點貴，但不用賭提示人 2 懂不懂。` }[which]}</div>`);
 }
 renderFlow('a');
 document.querySelectorAll('.pr').forEach(e => { e.textContent = YKWIM.PRICES[+e.dataset.i]; });
@@ -1068,7 +1102,7 @@ function render() {
   pv.classList.toggle('hide', !S.preview);
   if (S.preview) pv.innerHTML = PREVIEWS.map(([k, label]) => `<button class="${k === S.preview ? 'on' : ''}" data-act="preview" data-kind="${k}">${label}</button>`).join('')
     + `<button data-act="previewExit">✕ 離開</button>`;
-  updatePreview(); tick(); centreStamp(); markOrig(); updateGuessWarn();
+  updatePreview(); tick(); centreStamp(); markOrig(); updateGuessWarn(); updateGuess();
   if (S.shake) {
     S.shake = false;
     const bar = $('guess') && $('guess').closest('.bar');
@@ -1180,7 +1214,7 @@ function slots(t, role) {
   const lbl = i => nm(i) ? (nm(i) === '你' ? '你的提示字' : `${esc(nm(i))}的提示字`) : n === 1 ? '提示字' : `提示字 ${i}`;
   const hidden = i => `<div class="slot"><div class="ic off">🔒</div><small>${lbl(i)}</small></div>`;
   const shown = (i, items) => `<div class="slot got"><div class="tiles">${items.length ? items.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${lbl(i)}${items.length ? ` · ${items.length} 個字` : ''}</small></div>`;
-  const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)}已送出</small></div>`;
+  const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)}已提交</small></div>`;
   const live = i => `<div class="slot live"><div class="ic">✎</div><small>${lbl(i)}</small></div>`;
   const wait = i => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small></div>`;
   return Array.from({ length: n }, (_, k) => {
@@ -1334,23 +1368,24 @@ function logHtml(T) {
 
 // every way a written character can be read (pinyin-pro), or null when the library isn't there
 const readingsOf = han => READ && READ(han);
+// the sounds of an earlier clue, in the order of the system being shown: pinyin a-b-c, or zhuyin ㄅㄆㄇ (they differ: f comes before m, ㄇ before ㄈ)
+const sortSounds = list => [...list].sort((a, b) => DISPLAY.phon === 'zy' ? YKWIM.zyCompare(a.zy, b.zy) : a.py < b.py ? -1 : a.py > b.py ? 1 : 0);
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
-  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `提示 ${p.n} `}${p.count ? `包含 ${p.count} 個字，讀音如下（按拼音或注音排序）` : '沒有字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `提示 ${p.n} `}${p.count ? `包含 <b>${p.count}</b> 個字<br>讀音如下（${DISPLAY.phon === 'zy' ? '按注音 ㄅㄆㄇ 排序' : '按拼音 abc 排序'}）` : '沒有字'}</div>${p.sounds.length ? sortSounds(p.sounds).map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
   const banHtml = ban.map(s => `<span class="bn">${DISPLAY.phon === 'zy' ? esc(s.zy) : esc(s.py) + (DISPLAY.phon === 'both' ? ' ' + esc(s.zy) : '')}</span>`).join('');
-  const top = `<div class="giverhead"><span class="rolechip">${giverName(T.stage, n)}${r.roleNames ? `：${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
-    <div class="secret">
-      ${r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? '換一個新詞' : '不認識這個詞？請對方一起跳過'}">跳過？</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">問${esc(V.names[1 - V.myTeam])}…</span>` : ''}
-      <div class="sec-theme">主題：<b>${esc(r.cat)}</b></div>
-      <div class="sec-key"><span class="kw">謎底：</span><span class="w" data-keep>${esc(r.word)}</span></div>
-      <div class="sec-ban">禁用的讀音（不管聲調）：${banHtml || '無'}</div>
+  const top = `<div class="giverhead"><span class="rolechip">${giverName(T.stage, n)}${r.roleNames ? `：${esc(r.roleNames['giver' + n])}` : ''}</span><span class="hdr-r">${r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? '換一個新詞' : '不認識這個詞？請對方一起跳過'}">跳過？</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">問${esc(V.names[1 - V.myTeam])}…</span>` : ''}${timerPill(true)}</span></div>
+    <div class="secret zsec">
+      <div class="sc-l"><span class="sec-theme">主題：<b>${esc(r.cat)}</b></span></div>
+      <div class="sc-c"><div class="sec-tag">謎底</div><span class="w" data-keep style="${(n => n > 8 ? 'font-size:1.4rem' : n > 6 ? 'font-size:1.6rem' : n > 5 ? 'font-size:1.8rem' : n > 4 ? 'font-size:2rem' : n > 3 ? 'font-size:2.4rem' : '')([...r.word].length)}">${esc(r.word)}</span></div>
+      <div class="sc-r"><span class="sec-banh">禁用的讀音<small>（不管聲調）</small></span>${ban.map(s => `<span class="bn">${DISPLAY.phon === 'zy' ? esc(s.zy) : esc(s.py) + (DISPLAY.phon === 'both' ? ' ' + esc(s.zy) : '')}</span>`).join('') || '<span class="sec-banh">無</span>'}</div>
     </div>
     ${used}
     <div class="bar"><input id="clue" lang="zh-Hant" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="輸入漢字，例如：竹" value="${esc(S.draft.clue)}"></div>
     <div class="picks" id="picks"></div>
     <div class="preview" id="preview"></div>
-    <button class="big" id="sendbtn" data-act="sendClue">送出提示字</button>
-    <div class="timenote off" id="timenote">快沒時間了！已經填好的會直接送出。</div>`;
+    <button class="big" id="sendbtn" data-act="sendClue">提交提示字</button>
+    <div class="timenote off" id="timenote">快沒時間了！已經填好的會直接提交。</div>`;
   return [top, ''];
 }
 
@@ -1364,13 +1399,20 @@ function guessWarn(text) {
   T.clues.flat().forEach(it => { const rs = it.han && readingsOf(it.han); if (rs) rs.forEach(x => keys.add(YKWIM.soundKey(x))); });
   return [...String(text || '')].some(ch => { if (!YKWIM.isHan(ch)) return false; const rs = readingsOf(ch); return !!rs && rs.some(x => keys.has(YKWIM.soundKey(x))); });
 }
+// an answer needs exactly as many characters as the keyword has: the counter shows how close it is, and Send waits until it matches
+function updateGuess() {
+  const inp = $('guess'); if (!inp || !V || !V.round) return;
+  const need = V.round.blanks.length, n = [...inp.value].filter(YKWIM.isHan).length, c = $('gcount'), b = $('sendguess');
+  if (c) { c.textContent = n + '/' + need; c.classList.toggle('ok', n === need); }
+  if (b) b.disabled = n !== need;
+}
 function updateGuessWarn() {
   const w = $('gwarn'), g = $('guess'); if (!w || !g) return;
   const on = guessWarn(g.value); w.hidden = !on; if (on) w.textContent = '⚠ ' + GUESS_WARN;
 }
 function guesserPanel(T, theme, blanks) {
   const top = `${theme}${blanks}
-    <div class="gwrap"><div id="gwarn" class="gwarn" hidden></div><div class="bar"><input id="guess" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="輸入你的答案" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div></div>
+    <div class="gwrap"><div id="gwarn" class="gwarn" hidden></div><div class="bar"><input id="guess" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="輸入你的答案" value="${esc(S.draft.guess)}"><span class="gcount" id="gcount"></span><button id="sendguess" data-act="sendGuess">➜</button></div></div>
     <div class="preview one">猜錯 −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">放棄</button>（${T.clueSpent ? `拿回 ${T.clueSpent} 點` : '花的點數退還'}）</div>`;
   return [top, `${logHtml(T)}`];
 }
@@ -1550,10 +1592,10 @@ function updatePreview() {
   const el = $('preview'); if (!el || !V || !V.round) return;
   const c = checkClue(), bank = V.scores[V.myTeam], over = c.total > bank;
   el.innerHTML = c.msg ? `<b class="red">${esc(c.msg)}</b>` : over ? `<b class="red">要花 ${c.total}，你們只有 ${bank}</b>`
-    : c.any ? `共 <b>${c.total}</b> 點${c.costs.length > 1 ? `（${c.costs.join(' + ')}）` : ''}，猜中才會扣` : '還沒填字：直接送出就是不給字';
+    : c.any ? `共 <b>${c.total}</b> 點${c.costs.length > 1 ? `（${c.costs.join(' + ')}）` : ''}，猜中才會扣` : '還沒填字：直接提交就是不給字';
   const pk = $('picks');
   if (pk) pk.innerHTML = [...c.asks].map(([ch, sounds]) => `<div class="pk"><span>「${esc(ch)}」要讀</span>${sounds.map(s => `<button type="button" class="pkb${S.draft.picks[ch] === s.py ? ' on' : ''}" data-act="pick" data-ch="${esc(ch)}" data-s="${esc(s.py)}">${ph(s)}</button>`).join('')}</div>`).join('');
-  const send = $('sendbtn'); if (send) { send.disabled = over || c.bad; send.textContent = c.any ? '送出提示字' : (+V.round.teams[V.myTeam].stage.slice(5) > 1 ? '不補字，直接送出' : '不給字，直接送出'); }
+  const send = $('sendbtn'); if (send) { send.disabled = over || c.bad; send.textContent = c.any ? '提交提示字' : '確認不加提示'; }
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta'), cost = over ? bank : c.total;
   if (sh) sh.style.height = (bank > 0 ? Math.min(cost, bank) / bank * 100 : 0) + '%';
@@ -1646,6 +1688,7 @@ document.addEventListener('click', e => {
       return d.act === 'create' ? hostRoom(S.name) : joinRoom(S.name, S.code);
     }
     case 'leaveRoom': return leaveRoom();
+    case 'home': return goHome();
     case 'copyCode': if (navigator.clipboard && net) navigator.clipboard.writeText(net.code).then(() => toast('已複製房間代碼'), () => {}); return;
     case 'preview': return showPreview(d.kind);
     case 'previewExit': document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render();
@@ -1678,13 +1721,13 @@ document.addEventListener('click', e => {
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
     case 'pick': S.draft.picks[d.ch] = d.s; return updatePreview();
     case 'sendClue': return send({ type: 'clue', text: S.draft.clue, picks: S.draft.picks });
-    case 'sendGuess': { const g = $('guess').value; if (guessWarn(g) && !confirm(GUESS_ASK)) return; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
+    case 'sendGuess': { const g = $('guess').value; if ([...g].filter(YKWIM.isHan).length !== V.round.blanks.length) return; if (guessWarn(g) && !confirm(GUESS_ASK)) return; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
   }
 });
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'clue') { S.draft.clue = t.value; if (!e.isComposing) updatePreview(); return; }   // wait while a character is still being chosen in an input method
-  if (t.id === 'guess') { S.draft.guess = t.value; if (!e.isComposing) updateGuessWarn(); }
+  if (t.id === 'guess') { S.draft.guess = t.value; updateGuess(); if (!e.isComposing) updateGuessWarn(); }
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
@@ -1693,21 +1736,23 @@ document.addEventListener('compositionend', e => {   // the characters typed wit
 });
 // iOS can leave the landing page shifted up after the keyboard closes: ease it back, once, after typing there.
 // (never anywhere else, and never just because the viewport resized: that fires while you scroll, as the browser bar collapses)
-let unshiftTimer, typedOnLanding = false;
+let unshiftTimers = [], typedOnLanding = false;
 const unshift = () => {
-  clearTimeout(unshiftTimer);
-  unshiftTimer = setTimeout(() => {
+  unshiftTimers.forEach(clearTimeout);
+  unshiftTimers = [160, 450, 900].map((ms, i) => setTimeout(() => {   // the keyboard takes a moment to leave: check a few times
     const a = document.activeElement;
     if (!typedOnLanding || (a && a.matches && a.matches('input, textarea'))) return;
-    typedOnLanding = false;
+    if (i === 2) typedOnLanding = false;
     const s = document.querySelector('.stage.home');
     if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
     if (s && s.scrollTop > 0) s.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 160);
+    // iOS can also leave the page panned up without any scrolling at all (the visual viewport, not the page): a plain scroll to the top resets that
+    if (window.visualViewport && visualViewport.offsetTop > 0) window.scrollTo(0, 0);
+  }, ms));
 };
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea') && document.documentElement.classList.contains('landing')) typedOnLanding = true; });
 document.addEventListener('focusout', () => { if (typedOnLanding) unshift(); });
-if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (typedOnLanding) unshift(); });
+if (window.visualViewport) ['resize', 'scroll'].forEach(ev => visualViewport.addEventListener(ev, () => { if (typedOnLanding && !(document.activeElement && document.activeElement.matches && document.activeElement.matches('input, textarea'))) unshift(); }));
 // landing page: freeze the drifting background while a text box has focus (the phone keyboard is up)
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('typing'); });
 document.addEventListener('focusout', () => document.documentElement.classList.remove('typing'));
@@ -1718,6 +1763,7 @@ document.addEventListener('change', e => {
   if (t.dataset.teamname !== undefined && net) net.send({ type: 'teamName', team: +t.dataset.teamname, name: t.value });
 });
 document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('mark')) { e.preventDefault(); goHome(); return; }
   if (e.key === 'Escape' && S.ddOpen) { S.ddOpen = null; render(); return; }
   if (e.key !== 'Enter' || e.isComposing) return;   // Enter while choosing a character in an input method is not "send"
   if (e.target.id === 'clue') { const b = $('sendbtn'); if (b && !b.disabled) b.click(); }

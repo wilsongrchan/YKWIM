@@ -380,6 +380,8 @@
     function guess(t, raw) {
       const T = G.teams[t], text = guessText(raw);
       if (!text) return {};
+      const want = [...G.card.word].length;
+      if ([...text].length !== want) return { error: `答案是 ${want} 個字。` };   // the wrong number of characters isn't a guess: no penalty, nothing sent
       if (text === G.card.word || text === G.card.alt) {
         T.log.push({ text: wordShown(), ok: true });
         // A correct guess pays the reward plus the first-to-guess and quick-guess bonuses (characters were already paid for).
@@ -545,7 +547,7 @@
             G.passUsed[t] = true; return swapWord(t);
           }
           const o = 1 - t, to = holder(o, 'giver1');
-          if (G.teams[o].stage !== 'giver1') return { error: `${G.names[o]}已經送出提示字了，不能再跳過。` };   // passing is only open before anyone has submitted
+          if (G.teams[o].stage !== 'giver1') return { error: `${G.names[o]}已經提交提示字了，不能再跳過。` };   // passing is only open before anyone has submitted
           if (G.pass && G.pass.from === o) return acceptPass();   // both teams want to pass: done
           if (G.passUsed[t]) return { error: '你們已經提議過跳過這個詞了。' };
           if (G.pass) return {};
@@ -636,7 +638,14 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { withTone, pinyinNum, markBase, rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, priceOf, clueCost, parseReading, pinyinOf, zhuyinOf, soundOf, fullOf, soundKey, makeReadings, isHan, guessText,
+  // dictionary order of zhuyin symbols (ㄅㄆㄇㄈ…), which is not the same as the alphabetical order of the pinyin: pinyin puts f before m, zhuyin puts ㄇ before ㄈ
+  const ZY_ORDER = 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ';
+  const zyCompare = (a, b) => {
+    const x = [...a], y = [...b];
+    for (let i = 0; i < Math.min(x.length, y.length); i++) { const d = ZY_ORDER.indexOf(x[i]) - ZY_ORDER.indexOf(y[i]); if (d) return d; }
+    return x.length - y.length;
+  };
+  const api = { zyCompare, withTone, pinyinNum, markBase, rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, priceOf, clueCost, parseReading, pinyinOf, zhuyinOf, soundOf, fullOf, soundKey, makeReadings, isHan, guessText,
     PRICES, MAX_CHARS, ALL_WORDS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);
