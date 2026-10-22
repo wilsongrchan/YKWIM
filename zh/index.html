@@ -568,9 +568,16 @@
     #py0, .py { letter-spacing: 0; }
   }
   /* three round buttons on the right (EN, settings, help): wider side columns, same on both sides so the name stays centred */
-  .masthead { grid-template-columns: 124px 1fr 124px; }
-  @media (max-width: 480px) { .masthead, #wrap.landing .masthead { grid-template-columns: 112px 1fr 112px; } .icons { gap: 5px; } .icon { width: 34px; height: 34px; } }
-  @media (max-width: 340px) { .masthead, #wrap.landing .masthead { grid-template-columns: 100px 1fr 100px; } .icons { gap: 4px; } .icon { width: 30px; height: 30px; font-size: .95rem; } .langbtn { font-size: .66rem; } }
+  .masthead { grid-template-columns: 144px 1fr 144px; }
+  .icons .icon { flex: 0 0 auto; width: 38px; height: 38px; aspect-ratio: 1; }   /* always a small round button: never squeezed into an oval when the bar is tight */
+  @media (max-width: 480px) { .masthead, #wrap.landing .masthead { grid-template-columns: 112px 1fr 112px; } .icons { gap: 5px; } .icons .icon { width: 34px; height: 34px; } }
+  @media (max-width: 340px) { .masthead, #wrap.landing .masthead { grid-template-columns: 100px 1fr 100px; } .icons { gap: 4px; } .icons .icon { width: 30px; height: 30px; font-size: .95rem; } .langbtn { font-size: .66rem; } }
+  /* the link to the English game: top right, only on the landing page (never mid-game, where it would walk you out of the room) */
+  .icon.langbtn { text-decoration: none; font: 600 .74rem var(--body); letter-spacing: .02em; }
+  .langbtn[hidden] { display: none; }
+  /* the landing header keeps its small "YKWIM Chinese Version" line, on phones too (it is the only place the line is shown there) */
+  @media (max-width: 480px) { #wrap.landing .masthead .mark small { display: block; font-size: .5rem; letter-spacing: .1em; margin-top: 1px; white-space: nowrap; } }
+  @media (max-width: 340px) { #wrap.landing .masthead .mark small { display: none; } }
 </style>
 </head>
 <body>
@@ -657,7 +664,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022o"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022q"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -964,7 +971,6 @@ function render() {
 function homeScreen() {
   return `<div class="stage home">
     <div class="logo display"><svg class="logoBg" viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg><span class="zlg" data-keep><span style="--r:-5deg;--y:-.04em">字</span><span style="--r:3deg;--y:.05em">字</span><span style="--r:-3deg;--y:-.03em">珠</span><span style="--r:5deg;--y:.04em">璣</span></span></div>
-    <div class="logosub">YKWIM Chinese Version</div>
     <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">用讀音和漢字玩的猜詞遊戲，3–8 位玩家</p>
     <label>你的名字</label>
     <input id="name" maxlength="14" placeholder="名字" value="${esc(S.name)}">
