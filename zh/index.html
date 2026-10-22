@@ -627,7 +627,7 @@
   @media (max-width: 480px) { .masthead, #wrap.landing .masthead { grid-template-columns: 112px 1fr 112px; } .icons { gap: 5px; } .icons .icon { width: 34px; height: 34px; } }
   @media (max-width: 340px) { .masthead, #wrap.landing .masthead { grid-template-columns: 100px 1fr 100px; } .icons { gap: 4px; } .icons .icon { width: 30px; height: 30px; font-size: .95rem; } .langbtn { font-size: .66rem; } }
   /* the link to the English game: top right, only on the landing page (never mid-game, where it would walk you out of the room) */
-  .icon.langbtn { text-decoration: none; font: 600 .74rem var(--body); letter-spacing: .02em; }
+  .icon.langbtn { text-decoration: none; font: 600 .8rem var(--body); letter-spacing: 0; }
   .langbtn[hidden] { display: none; }
   /* the landing header keeps its small "YKWIM Chinese Version" line, on phones too (it is the only place the line is shown there) */
   @media (max-width: 480px) { #wrap.landing .masthead .mark small { display: block; font-size: .5rem; letter-spacing: .1em; margin-top: 1px; white-space: nowrap; } }
@@ -657,7 +657,7 @@
     <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="房間代碼：用它可以重新加入。點一下複製。"></button>
     <div class="mark" data-act="home" role="button" tabindex="0"><span class="markT"><span class="zlg" data-keep><span style="--r:-5deg;--y:-.04em">字</span><span style="--r:3deg;--y:.05em">字</span><span style="--r:-3deg;--y:-.03em">珠</span><span style="--r:5deg;--y:.04em">璣</span></span></span><span id="markIcon"></span><small>YKWIM Chinese Version</small></div>
     <div class="icons">
-      <a class="icon langbtn" id="langbtn" href="../" data-confirm="中英文版本並不互通，確認跳轉至英文版嗎？" aria-label="English version" title="English version">EN</a>
+      <a class="icon langbtn" id="langbtn" href="../" data-confirm="中文版和西方語言版本並不互通，確認跳轉嗎？" aria-label="西方語言版本（English / Español / Français）" title="西方語言版本（English / Español / Français）">Abc</a>
       <button class="icon" data-act="themes" aria-label="顯示設定"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button class="icon" id="helpbtn" data-act="help" aria-label="玩法說明">?</button>
       <div id="helpnudge" class="helpnudge" hidden>第一次玩？先看規則</div>
