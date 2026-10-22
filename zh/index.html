@@ -1086,7 +1086,7 @@ function lobbyScreen() {
         : `<label>目標點數</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
       <div><label>起始點數</label>${sel('bank', [100, 200, 300], st.bank)}</div>
       <div><label>猜中的獎勵</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
-      <div><label>寫每個提示字的時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
+      <div><label>提示字書寫時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
       <div><label>謎底的字體</label>${sel('script', [['trad', '繁體'], ['simp', '簡體']], st.script || 'trad', x => x, () => '')}</div>
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
