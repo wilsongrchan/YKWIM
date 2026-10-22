@@ -1290,7 +1290,7 @@ function logHtml(T) {
 const readingsOf = han => READ && READ(han);
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
-  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `提示人 ${p.n} 給了 `}${p.count || p.symbols ? `${p.count} 個字${p.symbols ? `、${p.symbols} 個符號` : ''}，讀音（沒有聲調、不分順序）` : '沒給字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `提示 ${p.n} `}${p.count || p.symbols ? `包含 ${p.count} 個字${p.symbols ? `、${p.symbols} 個符號` : ''}，讀音如下（按拼音或注音排序）` : '沒有字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
   const banHtml = ban.map(s => `<span class="bn">${DISPLAY.phon === 'zy' ? esc(s.zy) : esc(s.py) + (DISPLAY.phon === 'both' ? ' ' + esc(s.zy) : '')}</span>`).join('');
   const top = `<div class="giverhead"><span class="rolechip">${giverName(T.stage, n)}${r.roleNames ? `：${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
     <div class="secret">
