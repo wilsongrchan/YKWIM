@@ -8,7 +8,7 @@
 <title>YKWIM – You Know What I Mean</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Caveat:wght@700&family=Lilita+One&display=swap" rel="stylesheet">
 <style>
   :root {
     /* "Lagoon" (default). --lime is the accent colour whatever the theme. */
@@ -349,6 +349,18 @@
   .used { text-align: center; background: var(--well); border-radius: 12px; padding: 6px 10px; margin-bottom: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 1.15rem; letter-spacing: .3em; font-weight: 500; }
   .usym { color: var(--accent-text); letter-spacing: .25em; margin-left: .6em; }
   .used-h { font: 500 .72rem var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+  .snip { margin: 6px 0 8px; padding: 10px; border-radius: 16px; background: linear-gradient(115deg, var(--deep), var(--indigo)); color: var(--text); --lime: var(--t0); --accent-text: var(--t0t); pointer-events: none; }
+  .snip .slots { padding: 10px; margin-bottom: 8px; } .snip .giverhead { margin-bottom: 8px; } .snip .secret, .snip .used { margin-bottom: 0; } .snip .themebar { margin-top: 0; }
+  .pin { display: inline-grid; place-items: center; flex: none; width: 21px; height: 21px; margin-right: 5px; border: 1.8px solid #3a3a3a; border-radius: 52% 48% 55% 45% / 47% 53% 47% 53%; transform: rotate(-5deg); background: transparent; color: #3a3a3a; font: 700 1.1rem/1 "Caveat", "Bradley Hand", "Comic Sans MS", cursive; font-style: normal; vertical-align: middle; text-transform: none; letter-spacing: 0; padding: 0 4px 1px 0; }   /* the font draws its digits right of centre, hence the padding; hand-drawn in pencil: an annotation, not part of the screen */
+  .snip .timer .pin { position: absolute; left: -7px; top: -9px; margin: 0; }   /* the timer pill is too narrow to hold it inline */
+  .pin:nth-of-type(even) { transform: rotate(4deg); border-radius: 46% 54% 48% 52% / 54% 46% 52% 48%; }
+  .snip .pin { border-color: #fff6cf; color: #fff6cf; text-shadow: 0 0 2px rgba(0,0,0,.45); filter: drop-shadow(0 0 1px rgba(0,0,0,.4)); }   /* on the dark game screen the pencil turns to chalk */
+  .legend { list-style: none; padding-left: 0 !important; margin: 4px 0 10px; } .legend li { display: flex; gap: 2px; align-items: flex-start; font-size: .85rem !important; line-height: 1.3 !important; margin-bottom: 4px; } .legend .pin { margin-top: 1px; }
+  .snipcap { font: 600 .74rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: #6b6b78; margin: 12px 0 2px; }
+  .factbox { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--ov) 7%, transparent); text-align: center; transition: opacity .35s ease; }
+  .factbox.out { opacity: 0; }
+  .fact-h { font: 600 .68rem var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
+  .fact { display: flex; align-items: center; justify-content: center; min-height: 4.6em; font-size: .95rem; line-height: 1.35; color: var(--text); }
   .used small b { font-weight: 700; color: var(--text); }
   .used small { display: block; font-family: var(--body); font-size: .72rem; letter-spacing: 0; color: var(--soft); font-weight: 500; }
 
@@ -524,7 +536,7 @@
     <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="Room code: anyone can rejoin with it. Tap to copy."></button>
     <div class="mark" data-act="home" role="button" tabindex="0"><span class="markT">YKWIM</span><span id="markIcon"></span><small>you know what i mean</small></div>
     <div class="icons">
-      <a class="icon zhbtn" id="zhbtn" href="zh/" aria-label="中文版 (Chinese version)" title="中文版 (Chinese version)">中</a>
+      <a class="icon zhbtn" id="zhbtn" href="zh/" data-confirm="The Chinese and English versions are separate games. Switch to Chinese?" aria-label="中文版 (Chinese version)" title="中文版 (Chinese version)">中</a>
       <button class="icon" data-act="themes" aria-label="Display settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button class="icon" id="helpbtn" data-act="help" aria-label="How to play">?</button>
       <div id="helpnudge" class="helpnudge" hidden>New here? Read the rules</div>
@@ -550,6 +562,22 @@
     <div id="help-rules">
     <p>Two teams race to guess one keyword from <b>letters, not words</b>.</p>
     <h3>Clues</h3>
+    <div class="snipcap">What a clue-giver sees</div>
+    <div class="snip">
+      <div class="giverhead"><span class="rolechip">Clue-giver 1: Sam</span><span class="hdr-r"><span class="passbtn"><i class="pin">4</i>Pass?</span><span class="timer inl"><i class="pin">5</i>00:24</span></span></div>
+      <div class="secret">
+        <div class="sec-top"><span class="sec-theme"><i class="pin">1</i>Theme: <b>Animals</b></span><span class="sec-ban"><i class="pin">2</i>Banned: <b>P N</b></span></div>
+        <div class="sec-tag"><i class="pin">3</i>Keyword</div>
+        <div class="sec-key"><span class="w">PANDA</span></div>
+      </div>
+    </div>
+    <ul class="legend">
+      <li><i class="pin">1</i> The theme: what kind of word it is.</li>
+      <li><i class="pin">2</i> Banned letters: the keyword's first few consonants. You can't use them in a clue.</li>
+      <li><i class="pin">3</i> The keyword. Only clue-givers see it, never the guessers.</li>
+      <li><i class="pin">4</i> Don't know the word? Ask the other team to pass it.</li>
+      <li><i class="pin">5</i> Time left to write your clue.</li>
+    </ul>
     <ul>
       <li>Type letters that hint at the keyword. Shortening words saves letters.</li>
       <li>A team is a guesser plus 1, 2 or 3 clue-givers, who write one after another.</li>
@@ -557,6 +585,24 @@
       <li>Don't know the word? Clue-giver 1 can tap Pass? and the other team's Clue-giver 1 decides. If they agree, everyone gets a new word.</li>
       <li>Clue-giver 1 gives a clue first, then Clue-giver 2 gives theirs, seeing which letters Clue-giver 1 used. Add something new.</li>
       <li>Guessers see only their team's clues.</li>
+    </ul>
+    <div class="snipcap">Clue-giver 2 also sees which letters Clue-giver 1 used</div>
+    <div class="snip"><div class="used"><div class="used-h"><i class="pin">1</i>Used in Clue 1</div>A E <span class="usym">? !</span><small>The clue has <b>3</b> letters and <b>2</b> symbols.<br>Shown in alphabetical order. Repeats only show up once.</small></div></div>
+    <ul class="legend"><li><i class="pin">1</i> Not the order, and each letter only once. Add something new rather than repeating it.</li></ul>
+    <div class="snipcap">What the guesser sees</div>
+    <div class="snip">
+      <div class="slots">
+        <div class="slot got"><div class="txt">AE</div><small><i class="pin">1</i>Sam's clue · 2 letters</small></div>
+        <div class="slot got"><div class="txt">S</div><small>Alex's clue · 1 letter</small></div>
+      </div>
+      <div class="themebar"><div><small>Theme:</small>Animals</div></div>
+      <div class="blanks"><i class="pin" style="margin:auto 6px auto 0">2</i><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="bar"><input readonly tabindex="-1" placeholder="Type your guess"><span class="gcount"><i class="pin">3</i>0/5</span><button type="button" tabindex="-1">➜</button></div>
+    </div>
+    <ul class="legend">
+      <li><i class="pin">1</i> The clues from your own team's clue-givers. The other team's clues stay hidden.</li>
+      <li><i class="pin">2</i> One box for each letter of the keyword.</li>
+      <li><i class="pin">3</i> Type your guess. It needs exactly as many letters as the keyword. A wrong guess costs points.</li>
     </ul>
     <h3>Points</h3>
     <ul>
@@ -756,7 +802,7 @@ function onView(v) {
     const mt = v.myTeam;
     S.speedDl = mt !== null && v.round.teams[mt].speedLeft ? now + v.round.teams[mt].speedLeft : null;
     const key = v.round.n + ':' + (mt !== null ? v.round.teams[mt].stage : '');
-    if (key !== S.stageKey) { S.stageKey = key; S.draft.clue = ''; S.draft.guess = ''; }
+    if (key !== S.stageKey) { S.stageKey = key; S.draft.clue = ''; S.draft.guess = ''; S.factIdx = (S.factIdx + 1) % FACTS.length; S.factAt = 0; }
     const pn = v.round.passNote;
     if (S.passNoteId === undefined) S.passNoteId = pn ? pn.id : 0;   // joining or reconnecting: don't replay old news
     else if (pn && pn.id !== S.passNoteId) {
@@ -1060,7 +1106,7 @@ function roundScreen() {
     if (T.stage === 'waiting') {
       body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])} is playing</h2><p class="sub">You're up next.</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p></div>${logHtml(T)}${factHtml()}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
@@ -1085,7 +1131,7 @@ function roundScreen() {
       if (r.word && V.myRoles.some(x => x.startsWith('giver')) && isWriting(T.stage)) {
         body = `${secretHtml(r)}<div class="well center"><h2>${esc(who)} is writing…</h2><p class="sub">Study the keyword: you're up after them.</p></div>`;
       } else body = `${theme}${blanks}<div class="well center"><h2>${esc(who)} is ${stageRole === 'guesser' ? 'about to guess' : 'writing…'}</h2>
-        <p class="sub">${stageRole === 'guesser' ? 'Think about the clues together!' : 'Hang tight.'}</p></div>${T.stage === 'guess' ? logHtml(T) : ''}`;
+        <p class="sub">${stageRole === 'guesser' ? 'Think about the clues together!' : 'Hang tight.'}</p></div>${T.stage === 'guess' ? logHtml(T) : factHtml()}`;
     }
   }
   const pa = r.pass && r.pass.toAnswer;
@@ -1165,6 +1211,32 @@ function hbar(t) {
 }
 const hbars = mine => `<div class="hbars">${hbar(mine)}${SOLO() ? '' : hbar(1 - mine)}</div>`;
 
+// little facts, tips and made-up lore for the waiting screens, like the loading-screen tips in Minecraft
+const KIND = { fact: 'Did you know?', tip: 'Tip', lore: 'Lore' };
+const FACTS = [["fact", "A group of flamingos is called a flamboyance."],
+  ["fact", "Octopuses have three hearts and blue blood."],
+  ["fact", "Honey never really spoils. Jars found in ancient Egyptian tombs were still edible."],
+  ["fact", "A day on Venus is longer than a year on Venus."],
+  ["fact", "Bananas are berries. Strawberries are not."],
+  ["fact", "Wombat poop is cube-shaped."],
+  ["fact", "Hippos can't swim. They walk or bounce along the bottom of the river."],
+  ["fact", "Sloths can hold their breath longer than dolphins can."],
+  ["fact", "Crows can recognise human faces, and they hold grudges."],
+  ["fact", "\"Bookkeeper\" is the only common English word with three double letters in a row."],
+  ["fact", "\"Stewardesses\" is the longest word you can type with only your left hand."],
+  ["fact", "The little dot over an i is called a tittle."],
+  ["fact", "Cows have best friends and get stressed when they're apart."],
+  ["fact", "A panda can spend up to 14 hours a day eating bamboo."],
+  ["tip", "Shorter clues cost less, so squeeze every letter."],
+  ["tip", "When one team guesses, the other gets a last-chance timer. No dawdling."],
+  ["tip", "Stuck? Giving up is free, and the points your clues cost come back."],
+  ["tip", "On the guesser keyboard, a dot under a letter means it already showed up in the clues."],
+  ["lore", "The first ever clue was \"hmm\". Nobody got it."],
+  ["lore", "Guessers who squint at the clues guess no faster. (We made that up.)"],
+  ["lore", "Somewhere, a clue-giver is typing the whole word in one clue. Their bank is about to cry."],
+  ["lore", "The keyword is watching you. It is a word. It cannot watch. Still."]];
+const factHtml = () => { const f = FACTS[S.factIdx]; return `<div class="factbox"><div class="fact-h" id="facth">${KIND[f[0]]}</div><div class="fact" id="fact">${esc(f[1])}</div></div>`; };
+S.factIdx = Math.floor(Math.random() * FACTS.length);
 function logHtml(T) {
   return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
 }
@@ -1182,7 +1254,7 @@ function secretHtml(r) {
 const passHtml = r => r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? 'Swap this word for a new one' : "Don't know the word? Ask the other team to pass it for both teams"}">Pass?</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">Asking ${esc(V.names[1 - V.myTeam])}…</span>` : '';
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
-  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">Used in Clue ${p.n}</div>${esc(p.letters) || '(none)'}${p.symbols ? ` <span class="usym">${esc(p.symbols)}</span>` : ''}<small>The clue has <b>${p.letterCount}</b> ${p.letterCount === 1 ? 'letter' : 'letters'} and <b>${p.symbolCount}</b> ${p.symbolCount === 1 ? 'symbol' : 'symbols'}.<br>Shown in alphabetical order, repeats only once.</small></div>`).join('');
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">Used in Clue ${p.n}</div>${esc(p.letters) || '(none)'}${p.symbols ? ` <span class="usym">${esc(p.symbols)}</span>` : ''}<small>The clue has <b>${p.letterCount}</b> ${p.letterCount === 1 ? 'letter' : 'letters'} and <b>${p.symbolCount}</b> ${p.symbolCount === 1 ? 'symbol' : 'symbols'}.<br>Shown in alphabetical order.${(p.letters.split(' ').filter(Boolean).length < p.letterCount || p.symbols.split(' ').filter(Boolean).length < p.symbolCount) ? ' Repeats only show up once.' : ''}</small></div>`).join('');
   const count = r.blanks.filter(Boolean).length;
   const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span><span class="hdr-r">${passHtml(r)}${timerPill(true)}</span></div>
     ${secretHtml(r)}
@@ -1292,6 +1364,14 @@ function overScreen() {
 // ---------- live timers / auto-submit ----------
 function tick() {
   const now = Date.now();
+  // waiting screens: a new fact every 8 seconds, faded in and out (only opacity changes, so nothing jumps)
+  const fx = $('fact');
+  if (!fx) S.factAt = 0;
+  else if (!S.factAt) S.factAt = now;
+  else if (now - S.factAt > 8000) {
+    S.factAt = now; const box = fx.closest('.factbox'); box.classList.add('out');
+    setTimeout(() => { S.factIdx = (S.factIdx + 1) % FACTS.length; const f = $('fact'), h = $('facth'); if (f && h) { f.textContent = FACTS[S.factIdx][1]; h.textContent = KIND[FACTS[S.factIdx][0]]; f.closest('.factbox').classList.remove('out'); } }, 350);
+  }
   if (S.preview) { // fake timers never run out while previewing
     S.dl = S.dl.map(d => d && d - now < 2000 ? now + 25000 : d);
     if (S.speedDl && S.speedDl - now < 1500) S.speedDl = now + 9000;
@@ -1415,6 +1495,8 @@ function showPreview(kind) {
 }
 
 // ---------- events ----------
+// links between the two versions ask first: they are separate games, not one game shown in two languages
+document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[data-confirm]'); if (a && !confirm(a.dataset.confirm)) e.preventDefault(); });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if (S.ddOpen && !(b && ['ddopen', 'ddpick'].includes(b.dataset.act))) { S.ddOpen = null; render(); }   // clicking elsewhere closes an open dropdown
