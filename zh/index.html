@@ -1023,7 +1023,7 @@ document.querySelectorAll('.pr').forEach(e => { e.textContent = YKWIM.PRICES[+e.
       <tr><th style="text-align:left">這個字</th>${P.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr>
       <tr><th style="text-align:left">一個人寫，累計</th>${cum.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr></table>
     <div class="cd-note">提示人 2 從頭重新計價（又是 ${P[0]} 點起）。所以「竹子葉」一個人寫要 ${cum[2]} 點，拆成「竹子」和「葉」兩個人寫只要 ${cum[1]} + ${P[0]} = ${cum[1] + P[0]} 點。一個提示字最多 ${YKWIM.MAX_CHARS} 個字。</div>
-    <div class="cd-note">這些花費只是「暫記」：你們隊猜中這個詞才會真的扣掉，猜不中全額退還。你們買不起的提示字，也寫不出來。</div>`;
+    <div class="cd-note">這些花費只是「暫記」：你們隊猜中這個詞才會真的扣掉，猜不中全額退還。隊伍的點數不夠付的話，就必須刪短提示字。</div>`;
 })();
 
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
@@ -1195,7 +1195,7 @@ function feedbackScreen(fb) {
   return `<div class="stage center feedback">
     <div class="fb-emoji">${won ? '🎉' : fb.result === 'gaveup' ? '🤝' : '⏰'}</div>
     <h2 style="font-size:2rem">${won ? '太好了，猜中了！' : fb.result === 'gaveup' ? '這個詞放棄了' : '時間到'}</h2>
-    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">這個詞的獎勵</p>` : `<p class="sub">提示字花的點數退還給你們。</p>`}
+    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">這個詞的獎勵</p>` : `<p class="sub">提示字花掉的點數會全數退還。</p>`}
     <p class="sub" style="margin-top:18px">準備把裝置傳下去…</p>
     <button class="ghost" data-act="skipFeedback">馬上繼續</button>
   </div>`;
