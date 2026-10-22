@@ -608,7 +608,7 @@
     <div class="dlabel">明暗</div><div class="seg" id="seg-mode"></div>
     <div class="dlabel">文字大小</div><div class="seg" id="seg-size"></div>
     <div class="dlabel">讀音顯示</div><div class="seg" id="seg-phon"></div>
-    <div class="dlabel">介面字體（謎底的字體由房主決定）</div><div class="seg" id="seg-script"></div>
+    <div class="dlabel">界面字體（謎底的字體由房主決定）</div><div class="seg" id="seg-script"></div>
     <div class="dlabel">配色</div><div class="swatches" id="swatches"></div>
   </div>
 </div>
@@ -670,7 +670,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022u"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022v"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -915,7 +915,7 @@ function applyDisplay() {
   const seg = (name, opts) => opts.map(([v, label]) => `<button class="${D[name] === v ? 'on' : ''}" data-act="${name}" data-v="${v}">${label}</button>`).join('');
   $('seg-mode').innerHTML = seg('mode', [['light', '☀ 亮'], ['dark', '☾ 暗'], ['auto', '自動']]);
   $('seg-size').innerHTML = seg('size', [['s', '小'], ['m', '中'], ['l', '大']]);
-  $('seg-phon').innerHTML = seg('phon', [['py', '拼音'], ['zy', '注音'], ['both', '兩個都有']]);
+  $('seg-phon').innerHTML = seg('phon', [['py', '拼音'], ['zy', '注音'], ['both', '顯示兩者']]);
   $('seg-script').innerHTML = seg('script', [['tc', '繁體'], ['sc', '简体']]);
   syncScript();
   $('swatches').innerHTML = Object.entries(THEMES).map(([k, t]) =>
@@ -1120,7 +1120,7 @@ function topBar() {
   const r = V.round, st = V.settings;
   return `<div class="top">
     <div class="pill">第 <b>${r.n + 1}${st.mode === 'words' ? ' / ' + st.words : ''}</b> 個詞</div>
-    <button class="phontog" data-act="phon" title="切換讀音顯示：拼音、注音、兩個都有">${{ py: '拼音', zy: '注音', both: '拼音＋注音' }[DISPLAY.phon]}</button>
+    <button class="phontog" data-act="phon" title="切換讀音顯示：拼音、注音、顯示兩者">${{ py: '拼音', zy: '注音', both: '拼音＋注音' }[DISPLAY.phon]}</button>
     ${V.isHost && V.phase === 'round' ? `<button class="icon" style="width:34px;height:34px;font-size:.9rem;margin-left:auto" data-act="skip" title="跳過這個詞（有人卡住時）">⏭</button>` : ''}
   </div>`;
 }
