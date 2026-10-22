@@ -364,6 +364,9 @@
   .log .cost { color: var(--bad); letter-spacing: 0; }
 
   /* lobby */
+  .bar.shake { animation: shakeX .45s cubic-bezier(.36,.07,.19,.97) both; box-shadow: 0 0 0 3px var(--bad); }
+  @keyframes shakeX { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(5px); } 30%, 50%, 70% { transform: translateX(-9px); } 40%, 60% { transform: translateX(9px); } }
+  @media (prefers-reduced-motion: reduce) { .bar.shake { animation: none; } }
   .newcode { margin: -4px 0 8px; }
   .lobby .well { margin-top: 0; }
   .code { font-family: var(--display); font-size: 3.2rem; letter-spacing: .25em; text-align: center; color: var(--accent-text); line-height: 1.1; }
@@ -703,6 +706,10 @@ function playIntro() {
 function onView(v) {
   const prev = V;
   V = v;
+  if (prev && prev.round && v.round && prev.round.n === v.round.n && v.myTeam !== null && prev.myTeam === v.myTeam) {   // a wrong guess just landed: shake the guess box
+    const was = (prev.round.teams[v.myTeam].log || []), now = (v.round.teams[v.myTeam].log || []);
+    if (now.length > was.length && now[now.length - 1].ok === false) S.shake = true;
+  }
   if (prev && prev.phase === 'lobby' && v.phase === 'round') playIntro();
   if (v.phase === 'round') safeSet('ykwim-help', '1');   // they're playing: they'll have worked it out   // game start, for everyone
   // Pass-and-play: the moment a guesser's turn ends, the device already belongs to the next team, so remember to show them how it went first
@@ -870,6 +877,12 @@ function render() {
   if (S.preview) pv.innerHTML = PREVIEWS.map(([k, label]) => `<button class="${k === S.preview ? 'on' : ''}" data-act="preview" data-kind="${k}">${label}</button>`).join('')
     + `<button data-act="previewExit">✕ Exit</button>`;
   updatePreview(); tick();
+  if (S.shake) {
+    S.shake = false;
+    const bar = $('guess') && $('guess').closest('.bar');
+    if (bar) { bar.classList.add('shake'); setTimeout(() => bar.classList.remove('shake'), 500); }
+    if (navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch {}
+  }
 }
 
 function homeScreen() {
