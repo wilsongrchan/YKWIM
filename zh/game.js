@@ -159,9 +159,10 @@
   const clueCost = items => { let k = 0; return items.reduce((a, it) => a + (it.han ? priceOf(k++) : SYMBOL_COST), 0); };
   const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 6, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false, script: 'trad' };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the starting bank
-  // (they scale with the number of words). A solved word pays the reward plus bonuses (about 100-150 as the words get longer), and clues cost
-  // 0-40, so a team that gets nearly everything lands in the top grades. Numbers to be tuned by playtesting.
-  const RATING_CUTS = [200, 325, 425, 500];   // points gained per 5 words: an average of 40 / 65 / 85 / 100 a word
+  // (they scale with the number of words). A solved word pays the reward (100) plus the long-word and speed bonuses, minus the characters bought
+  // (15, 30, 60, 120 for each giver, restarting), so a team that needs one character per giver nets about 100 a word. Simulated teams of
+  // different skill averaged roughly 90 a word (elite), 60-70 (good), 20 (average) and 0 (weak). Still to be confirmed by real playtests.
+  const RATING_CUTS = [75, 200, 300, 425];   // points gained per 5 words: an average of 15 / 40 / 60 / 85 a word
   const RATINGS = [[RATING_CUTS[3], '字字珠璣！', ''], [RATING_CUTS[2], '無懈可擊！', ''],
     [RATING_CUTS[1], '有危也有機⋯⋯', ''], [RATING_CUTS[0], '唧唧復唧唧⋯⋯', ''], [-Infinity, '菜雞⋯⋯', '']];
   const gradeNeed = (cut, words) => Math.round(cut * words / 25) * 5;
