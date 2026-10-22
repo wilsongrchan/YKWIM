@@ -638,7 +638,7 @@
     <p><b>字字珠璣</b>：兩支隊伍要用最少的提示字，最快猜出同一個謎底！提示字越少，最終得分越高。</p>
     <h3>提示字</h3>
     <ul>
-      <li>每名提示人可以寫下一個或多個提示字，也可以不寫直接跳過。</li>
+      <li>每名提示人可以寫下一個或多個提示字，也可以不寫直接跳過。提示字只能是<b>漢字</b>，不能用標點或其他符號。</li>
       <li>每隊由一名猜謎人和最多三名提示人組成。提示人依次寫下提示字。</li>
       <li>提示字不能與謎底所包含的字<b>同音</b>。只要聲母和韻母相同，就算聲調不同，也視作同音字。例如謎底是「熊貓」，所有 xiong 音的字（「凶」「兄」「雄」等），以及所有 mao 音的字（「毛」「貓」「帽」等），全都是禁字。</li>
       <li>第二名提示人可以看見第一名提示人所寫提示字的<b>發音</b>（不顯示聲調，也不知道順序）。例如第一名提示人寫下「竹」，第二名提示人只會看到 <b>zhu</b>。然後根據這個信息，第二名提示人可以接著寫，也可以不寫直接跳過。如果有第三名提示人，則如此類推。</li>
@@ -646,7 +646,7 @@
     </ul>
     <h3>點數</h3>
     <ul>
-      <li>每隊從 200 點開始。寫提示字要花點數：每名提示人的第一個字 <b class="pr" data-i="0">15</b> 點，第二個字 <b class="pr" data-i="1">30</b> 點，第三個字 <b class="pr" data-i="2">60</b> 點，每個字都是前一個字的兩倍。每個標點符號 5 點，不遞增。所以把一個詞拆給兩個提示人寫，會比較省。</li>
+      <li>每隊從 200 點開始。寫提示字要花點數：每名提示人的第一個字 <b class="pr" data-i="0">15</b> 點，第二個字 <b class="pr" data-i="1">30</b> 點，第三個字 <b class="pr" data-i="2">60</b> 點，每個字都是前一個字的兩倍。所以把一個詞拆給兩個提示人寫，會比較省。</li>
       <li>隊伍的點數不夠付的話，就必須刪短提示字。</li>
       <li>猜中謎底獎勵 100 點。如果兩隊都猜中，先猜中的隊伍再得 20 點。在限定時間內猜中，還有速度獎勵。</li>
       <li>猜錯一次罰 5 點。完全沒頭緒的話，放棄比亂猜好。</li>
@@ -687,7 +687,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022zx"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022zw"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -956,12 +956,10 @@ applyDisplay();
 // A reading shown the way this device likes it: pinyin, zhuyin or both. r = { py, zy }.
 const ph = r => DISPLAY.phon === 'py' ? `<span class="py">${esc(r.py)}</span>` : DISPLAY.phon === 'zy' ? `<span class="zy">${esc(r.zy)}</span>` : `<span class="py">${esc(r.py)}</span><span class="zy">${esc(r.zy)}</span>`;
 const phText = r => DISPLAY.phon === 'py' ? r.py : DISPLAY.phon === 'zy' ? r.zy : r.py + ' ' + r.zy;
-// one character (or symbol) of a clue, as the guesser sees it
+// one character of a clue, as the guesser sees it
 // A clue character. In the simplified interface a character typed in traditional is shown converted, with a small bubble in the corner
 // holding what was actually written (shown by markOrig below, once the converter has run). The tip is already in simplified: it only ever shows there.
-const tile = it => it.han
-  ? `<div class="ctile hz" data-orig="${esc(it.han)}"><b class="han">${esc(it.han)}</b><i class="obub" data-keep tabindex="0" data-tip="提示人写的是繁体字，这里为你转成了简体。注意转换未必准确。">${esc(it.han)}</i></div>`
-  : `<div class="ctile hz"><b class="han">${esc(it.sym)}</b></div>`;
+const tile = it => `<div class="ctile hz" data-orig="${esc(it.han)}"><b class="han">${esc(it.han)}</b><i class="obub" data-keep tabindex="0" data-tip="提示人写的是繁体字，这里为你转成了简体。注意转换未必准确。">${esc(it.han)}</i></div>`;
 function markOrig() {
   const sc = DISPLAY.script === 'sc', tiles = document.querySelectorAll('.ctile[data-orig]');
   if (!sc && !toTrad && !tradAsked && tiles.length) { tradAsked = true; loadLib('cn2t').then(o => { if (o) { toTrad = o.Converter({ from: 'cn', to: 'tw' }); markOrig(); } }); }
@@ -973,7 +971,7 @@ function markOrig() {
     } else { t.classList.toggle('chg', han.textContent !== orig); if (bub) bub.dataset.tip = TIP_SC; }
   });
 }
-const clueText = items => (items || []).map(it => it.han || it.sym).join('') || '沒給字';
+const clueText = items => (items || []).map(it => it.han).join('') || '沒給字';
 const price = i => V.costs.prices[Math.min(i, V.costs.prices.length - 1)];
 
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
@@ -1016,11 +1014,11 @@ function renderFlow(which) {
 renderFlow('a');
 document.querySelectorAll('.pr').forEach(e => { e.textContent = YKWIM.PRICES[+e.dataset.i]; });
 (function costDiagram() {
-  const P = YKWIM.PRICES, S5 = YKWIM.SYMBOL_COST;
+  const P = YKWIM.PRICES;
   let run = 0;
   const cum = P.map(p => run += p);
   $('costdiag').innerHTML = `
-    <p>每位提示人的字<b>各自計價</b>：第 1 個字 ${P[0]} 點，第 2 個 ${P[1]} 點，第 3 個 ${P[2]} 點，每個字都是前一個的兩倍。符號（？！等）每個 ${S5} 點，不遞增。</p>
+    <p>每位提示人的字<b>各自計價</b>：第 1 個字 ${P[0]} 點，第 2 個 ${P[1]} 點，第 3 個 ${P[2]} 點，每個字都是前一個的兩倍。</p>
     <table class="gt" style="text-align:center"><tr><th style="text-align:left">第幾個字</th>${P.map((_, i) => `<th style="text-align:center">${i + 1}</th>`).join('')}</tr>
       <tr><th style="text-align:left">這個字</th>${P.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr>
       <tr><th style="text-align:left">一個人寫，累計</th>${cum.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr></table>
@@ -1328,7 +1326,7 @@ function logHtml(T) {
 const readingsOf = han => READ && READ(han);
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
-  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `提示 ${p.n} `}${p.count || p.symbols ? `包含 ${p.count} 個字${p.symbols ? `、${p.symbols} 個符號` : ''}，讀音如下（按拼音或注音排序）` : '沒有字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `提示 ${p.n} `}${p.count ? `包含 ${p.count} 個字，讀音如下（按拼音或注音排序）` : '沒有字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
   const banHtml = ban.map(s => `<span class="bn">${DISPLAY.phon === 'zy' ? esc(s.zy) : esc(s.py) + (DISPLAY.phon === 'both' ? ' ' + esc(s.zy) : '')}</span>`).join('');
   const top = `<div class="giverhead"><span class="rolechip">${giverName(T.stage, n)}${r.roleNames ? `：${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
     <div class="secret">
@@ -1505,9 +1503,8 @@ function checkClue() {
   let hans = 0, msg = '';
   for (const ch of [...(S.draft.clue || '')]) {
     if (/\s/.test(ch)) continue;
-    if (YKWIM.SYMBOLS.includes(ch)) { costs.push(V.costs.symbol); continue; }
     let m = '';
-    if (!YKWIM.isHan(ch)) m = `「${ch}」不是漢字，也不是可以用的符號`;
+    if (!YKWIM.isHan(ch)) m = `「${ch}」不是漢字，提示字只能用漢字`;
     else if (hans >= V.costs.max) m = `一個提示字最多 ${V.costs.max} 個字`;
     else if (kw.has(ch)) m = `「${ch}」是謎底裡的字，不能用`;
     else {
@@ -1561,7 +1558,7 @@ function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
   const names = ['第一隊', '第二隊'];
   const v = {
-    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { prices: YKWIM.PRICES, symbol: YKWIM.SYMBOL_COST, max: YKWIM.MAX_CHARS }, myTeam: 0, myRoles: [],
+    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { prices: YKWIM.PRICES, max: YKWIM.MAX_CHARS }, myTeam: 0, myRoles: [],
     settings: { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false },
     players: [{ id: 'host', name: '你', connected: true }, { id: 'f', name: '阿里', connected: true }],
     seats: [[{ id: 'host', name: '你' }, { id: 'a', name: '小華' }, { id: 'b', name: '阿凱' }], [{ id: 'c', name: '小美' }, { id: 'd', name: '大雄' }, null]]

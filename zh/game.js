@@ -150,13 +150,12 @@
 
   // ---------- money ----------
   // A clue is written characters only (no sound-only clues). A clue-giver's first character costs 15, the second 30, the third 60 (each one
-  // double the one before), and the count starts again for the next clue-giver. A symbol costs 5, flat.
-  const BASE_PRICE = 15, SYMBOL_COST = 5;
+  // double the one before), and the count starts again for the next clue-giver. A clue is made of Chinese characters only: no symbols or punctuation.
+  const BASE_PRICE = 15;
   const MAX_CHARS = 4;               // characters in one clue
   const priceOf = i => BASE_PRICE * 2 ** i;
   const PRICES = Array.from({ length: MAX_CHARS }, (_, i) => priceOf(i));
-  const SYMBOLS = '.,?!@#$%&*+-=/()~^:;\'_。，、？！…～＋－＝（）：；';   // allowed in a clue at a flat price
-  const clueCost = items => { let k = 0; return items.reduce((a, it) => a + (it.han ? priceOf(k++) : SYMBOL_COST), 0); };
+  const clueCost = items => items.reduce((a, _, k) => a + priceOf(k), 0);
   const DEFAULT_SETTINGS = { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 6, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false, script: 'trad' };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the starting bank
   // (they scale with the number of words). A solved word pays the reward (100) plus the long-word and speed bonuses, minus the characters bought
@@ -228,7 +227,7 @@
     const banned = () => new Map(G.card.syl.map(s => [soundKey(s), soundOf(s)]));
     const wordShown = () => G.settings.script === 'simp' && G.card.alt ? G.card.alt : G.card.word;   // the host picks one script for every keyword in the game
     const keywordChars = () => new Set([...G.card.word, ...(G.card.alt || '')]);
-    const showClue = clue => clue.map(it => it.han ? { han: it.han } : { sym: it.sym });   // the characters themselves, nothing else
+    const showClue = clue => clue.map(it => ({ han: it.han }));   // the characters themselves, nothing else
 
     // ---------- players & lobby ----------
     function addPlayer(id, name, token) {
@@ -286,7 +285,7 @@
       T.stage = stage; T.deadline = now() + extraMs + ms;
       arm(t, extraMs + ms + GRACE_MS, () => { if (T.stage === stage) submitClue(t, '', true); }); // client's own auto-submit normally wins
     }
-    // Turns what a clue-giver typed (characters and symbols) into checked items, or an error. A character is banned when any of its readings
+    // Turns what a clue-giver typed (Chinese characters only) into checked items, or an error. A character is banned when any of its readings
     // shares the sound (initial + final, tone ignored) of a syllable of the keyword.
     function buildClue(t, text, auto, picks) {
       const ban = banned(), mine = keywordChars(), out = [];
@@ -295,8 +294,7 @@
       for (const ch of [...String(text || '')]) {
         if (/\s/.test(ch)) continue;
         let err = null, item = null;
-        if (SYMBOLS.includes(ch)) item = { sym: ch };
-        else if (!isHan(ch)) err = `「${ch}」不是漢字，也不是可以用的符號`;
+        if (!isHan(ch)) err = `「${ch}」不是漢字，提示字只能用漢字`;
         else if (hans >= MAX_CHARS) err = `一個提示字最多 ${MAX_CHARS} 個字`;
         else if (mine.has(ch)) err = `「${ch}」是謎底裡的字，不能用`;
         else if (readings) {
@@ -584,7 +582,7 @@
         phase: G.phase, me: id, isHost: id === hostId, hostId, settings: { ...G.settings, wordsAuto: !G.settings.words, words: wordsOf() }, names: G.names, scores: G.scores,
         winner: G.winner, ratings: !G.solo && G.phase === 'over' ? [0, 1].map(t => rating(G.scores[t], G.settings.bank, Math.max(1, G.record.length))) : null,   // VS: every team gets a grade too, over the words actually played
         history: G.solo && G.phase === 'over' ? G.history : null, record: G.phase === 'over' ? G.record : null, rating: G.solo && G.phase === 'over' ? rating(G.scores[0], G.settings.bank, G.settings.words) : null,
-        costs: { prices: PRICES, symbol: SYMBOL_COST, max: MAX_CHARS },
+        costs: { prices: PRICES, max: MAX_CHARS },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
         myTeam: actTeam(id) < 0 ? null : actTeam(id),
@@ -626,12 +624,11 @@
       const wk = mt !== null && G.phase === 'round' ? +(G.teams[mt].stage.match(/^giver(\d)$/) || [0, 0])[1] : 0;   // the clue-giver now writing
       if (wk >= 2 && roles.includes('giver' + wk)) {
         // A later clue-giver sees what each earlier one gave, but only the sounds (no tone, no characters) and not their order:
-        // each sound once, alphabetically, plus how many characters and symbols there were in all.
+        // each sound once, alphabetically, plus how many characters there were in all.
         v.round.prev = G.teams[mt].clues.map((clue, i) => {
           const seen = new Map();
           clue.forEach(it => (it.snd || []).forEach(s => seen.set(s.py + '|' + s.zy, s)));
-          const syms = clue.filter(it => it.sym);
-          return { n: i + 1, count: clue.filter(it => it.han).length, symbols: syms.length, sounds: [...seen.values()].sort((a, b) => a.py < b.py ? -1 : a.py > b.py ? 1 : 0) };
+          return { n: i + 1, count: clue.length, sounds: [...seen.values()].sort((a, b) => a.py < b.py ? -1 : a.py > b.py ? 1 : 0) };
         });
       }
       return v;
@@ -641,6 +638,6 @@
   }
 
   const api = { withTone, pinyinNum, markBase, rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, priceOf, clueCost, parseReading, pinyinOf, zhuyinOf, soundOf, fullOf, soundKey, makeReadings, isHan, guessText,
-    PRICES, SYMBOL_COST, SYMBOLS, MAX_CHARS, ALL_WORDS };
+    PRICES, MAX_CHARS, ALL_WORDS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);
