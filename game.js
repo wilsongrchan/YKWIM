@@ -4,7 +4,7 @@
 (function (root) {
   // Word bank. Single words are separated by spaces. Celebrities, characters, historical figures, brands and sayings use | between entries (they contain
   // spaces) and only appear in the top level. Which level a plain word belongs to is worked out from its length (see TIERS).
-  const BANK = {
+  const BANK_EN = {
     Animals: 'zebra dolphin penguin kangaroo giraffe octopus eagle rabbit spider elephant monkey parrot tiger panda koala otter camel horse sheep goose swan frog crab shark whale lion bear wolf fox deer crocodile chimpanzee hippopotamus flamingo porcupine butterfly grasshopper scorpion hedgehog squirrel cheetah leopard peacock pelican gorilla jaguar turtle lizard donkey beaver walrus ostrich seagull dragonfly caterpillar',
     Food: 'pizza cheese waffle noodle cookie pumpkin lemon honey yogurt ketchup apple orange banana cherry grape mango peach melon bread butter pasta salad soup sushi burger pancake sandwich spaghetti chocolate strawberry watermelon blueberry cucumber mushroom broccoli cinnamon pineapple avocado croissant lasagna pretzel popcorn cupcake pepper tomato potato carrot coconut raspberry marshmallow hamburger',
     'Places & buildings': 'island jungle desert glacier volcano library harbor castle forest valley lighthouse mountain beach canyon bridge museum airport stadium hospital cathedral playground waterfall skyscraper restaurant supermarket aquarium observatory village garden farm cave tunnel palace temple pyramid',
@@ -20,9 +20,46 @@
     'Brands & companies': 'starbucks|trader joes|amazon|nike|google|netflix|disney|mcdonalds|coca cola|pepsi|ikea|costco|walmart|target|tesla|spotify|youtube|instagram|lego|adidas|samsung|toyota|ferrari|nintendo|playstation|uber|airbnb|whole foods|burger king|kfc|subway|dominos|pizza hut|taco bell|chipotle|dunkin|sephora|zara|uniqlo|lululemon|patagonia|the north face|microsoft|facebook|paypal|ubereats|ebay|tiktok|snapchat|visa|red bull|nutella|oreo|kitkat|lays|doritos|heinz|nestle|colgate|sony|nokia|ford|honda|boeing|ryanair|marriott|hilton',
     Sayings: 'ice cream@Food|hot dog@Food|birthday party@Sports & activities|swimming pool@Places & buildings|peanut butter@Food|traffic light@Objects|rainy day@Nature|board game@Sports & activities|fire truck@Objects|polar bear@Animals|movie theater@Places & buildings|bubble bath@Sports & activities|scary movie@Sports & activities|road trip@Sports & activities|pillow fight@Sports & activities|piece of cake|break the ice|under the weather|once in a blue moon|cold shoulder|home sweet home|fish out of water|bucket list|cat nap@Sports & activities|sleeping bag@Objects|water slide@Objects|roller coaster@Objects|chocolate cake@Food|pizza party@Sports & activities|snow angel@Sports & activities|treasure map@Objects|hot air balloon@Objects|time machine@Objects|magic carpet@Objects|best friends|full moon@Nature|day off@Sports & activities|big apple@Places & buildings|funny bone|sweet tooth|piggy bank@Objects|san francisco@Cities|new york@Cities|los angeles@Cities|las vegas@Cities|hong kong@Cities|rio de janeiro@Cities|mexico city@Cities|buenos aires@Cities|cape town@Cities|san diego@Cities|new orleans@Cities|kuala lumpur@Cities|tel aviv@Cities|abu dhabi@Cities'
   };
+  // The same fifteen categories in Spanish and French: the room's keyword language picks which bank the words come from.
+  const BANK_ES = {
+    "Animals": "perro gato caballo vaca oveja cabra cerdo conejo ratón león tigre oso lobo zorro jirafa cebra elefante mono gorila panda koala canguro delfín ballena tiburón pulpo medusa tortuga cocodrilo serpiente lagarto rana sapo águila búho loro pingüino flamenco pavo gallina pato cisne paloma gaviota murciélago hormiga abeja mariposa araña escarabajo mosquito libélula caracol cangrejo langosta foca morsa nutria castor ardilla erizo camello burro hipopótamo rinoceronte leopardo guepardo puma lince ciervo alce jabalí avestruz colibrí hámster gorrión ruiseñor tucán pelícano mapache zorrillo armadillo orangután chimpancé bisonte",
+    "Food": "pizza queso pan leche huevo arroz pasta sopa ensalada manzana naranja plátano fresa uva piña sandía melón limón cereza pera durazno mango aguacate tomate patata zanahoria cebolla ajo pimiento lechuga pepino champiñón brócoli maíz frijol lenteja garbanzo chocolate helado galleta pastel tarta mantequilla yogur miel azúcar sal aceite vinagre mermelada hamburguesa sándwich tortilla taco empanada paella churro croqueta jamón salchicha pollo carne pescado atún gamba calamar espagueti lasaña palomitas cacahuete almendra nuez coco kiwi albaricoque ciruela arándano frambuesa espinaca calabaza berenjena",
+    "Places & buildings": "isla selva desierto glaciar volcán biblioteca puerto castillo bosque valle faro montaña playa cañón puente museo aeropuerto estadio hospital catedral parque cascada rascacielos restaurante supermercado acuario observatorio pueblo jardín granja cueva túnel palacio templo pirámide escuela iglesia mercado estación farmacia panadería cárcel teatro cine hotel banco plaza universidad aeropuerto cementerio zoológico pantano oasis laguna acantilado península archipiélago",
+    "Cities": "parís londres tokio taipéi roma berlín madrid dubái cairo seúl lima oslo viena praga dublín lisboa atenas moscú sídney boston miami seattle chicago toronto pekín bangkok estambul bombay shanghái florencia venecia kioto osaka honolulu barcelona ámsterdam singapur estocolmo vancouver melbourne edimburgo copenhague manila hanói nairobi marrakech jerusalén budapest bruselas sevilla valencia bogotá quito caracas santiago granada toledo córdoba bilbao zaragoza cancún medellín montevideo asunción",
+    "Objects": "paraguas espejo vela tijeras brújula cartera casco cámara reloj escalera tetera manta lápiz botella cesta martillo aguja botón almohada guitarra telescopio microscopio calculadora maleta linterna cepillo destornillador carretilla termómetro cuaderno mochila bicicleta globo trompeta teclado sobre televisión nevera lámpara silla mesa cama sofá ventana puerta llave moneda anillo collar corona bolso zapato calcetín camiseta pantalón sombrero guante bufanda sartén cuchillo tenedor cuchara plato vaso taza aspiradora secador ordenador teléfono impresora cargador auriculares",
+    "Nature": "océano río arcoíris trueno eclipse iceberg pluma mármol sombra cactus relámpago ventisca tornado avalancha terremoto huracán amanecer atardecer pradera tormenta guijarro coral glaciar luna sol estrella nube lluvia nieve viento niebla rocío arena montaña cometa meteorito galaxia aurora tsunami manantial géiser dunas",
+    "Fantasy": "dragón mago unicornio vampiro pirata robot muñeco cohete sirena duende fénix licántropo nave dinosaurio astronauta superhéroe tesoro espantapájaros gigante hada fantasma castillo zombi bruja ogro elfo troll genio centauro esfinge quimera extraterrestre alienígena momia calavera",
+    "Jobs": "médico maestro granjero piloto pintor cocinero enfermera dentista bombero astronauta carpintero fontanero electricista fotógrafo periodista bibliotecario detective científico veterinario panadero camarero cantante conductor abogado mecánico ingeniero arquitecto cartero policía soldado juez peluquero actor bailarín escritor profesor jardinero pescador marinero payaso mago músico",
+    "Sports & activities": "fútbol tenis hockey críquet boxeo karate rugby golf natación baloncesto voleibol bádminton gimnasia snowboard maratón esquí surf ciclismo bolos esgrima lucha béisbol atletismo yoga baile senderismo pesca patinaje buceo escalada remo vela balonmano waterpolo triatlón",
+    "Celebrities": "shakira|rosalía|bad bunny|enrique iglesias|penélope cruz|antonio banderas|salma hayek|javier bardem|lionel messi|rafael nadal|michael jackson|madonna|beyoncé|taylor swift|ed sheeran|lady gaga|brad pitt|tom hanks|will smith|leonardo dicaprio|jackie chan|bruce lee|marilyn monroe|charles chaplin|cristiano ronaldo|michael jordan|serena williams|usain bolt|diego maradona|pelé|julio iglesias|alejandro sanz|ricky martin|maluma|jennifer lópez|gael garcía bernal|sofía vergara|carlos alcaraz|pau gasol|fernando alonso|paco de lucía|gloria estefan|celia cruz|gabriel garcía márquez",
+    "Characters": "sherlock holmes|mickey mouse|harry potter|papá noel|winnie the pooh|peter pan|capitán garfio|robin hood|blancanieves|spider man|super mario|pikachu|cenicienta|batman|la bella durmiente|alicia en el país de las maravillas|rey arturo|darth vader|pato donald|bugs bunny|sonic|mujer maravilla|don quijote|sancho panza|el zorro|el chavo|mafalda|astérix|dora la exploradora|bob esponja|el principito|pinocho|caperucita roja|aladdín|shrek|mulán|rapunzel|frozen|simba|superman|hulk|homer simpson",
+    "Historical figures": "cleopatra|napoleón|albert einstein|leonardo da vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|julio césar|cristóbal colón|reina victoria|martin luther king|mahatma gandhi|juana de arco|alejandro magno|neil armstrong|simón bolívar|miguel de cervantes|pablo picasso|salvador dalí|isabel la católica|hernán cortés|che guevara|benito juárez|frida kahlo|diego rivera|francisco goya|velázquez|nelson mandela|madre teresa|galileo galilei|charles darwin|mozart|beethoven",
+    "Brands & companies": "starbucks|zara|mercadona|amazon|nike|google|netflix|disney|coca cola|pepsi|ikea|costco|walmart|tesla|spotify|youtube|instagram|lego|adidas|samsung|toyota|ferrari|nintendo|playstation|uber|airbnb|burger king|kfc|subway|dominos|pizza hut|telepizza|mcdonalds|iberia|movistar|santander|bbva|seat|desigual|mango|bershka|nutella|oreo|kitkat|doritos|heinz|nestlé|colgate|sony|nokia|ford|honda|boeing|ryanair|marriott|hilton|el corte inglés|cemex|bimbo|oxxo|rappi|mercado libre|inditex|repsol|telefónica|renfe|vueling|havaianas|cola cao",
+    "Sayings": "estar en las nubes|ser pan comido|meter la pata|tomar el pelo|costar un ojo de la cara|hablar por los codos|estar como una cabra|no tener pelos en la lengua|dormir como un lirón|ponerse las pilas|a mal tiempo buena cara|más vale tarde que nunca|quien ríe último ríe mejor|ojo por ojo|luna de miel|cuento de hadas|montaña rusa@Objects|globo aerostático@Objects|máquina del tiempo@Objects|alfombra mágica@Objects|mapa del tesoro@Objects|saco de dormir@Objects|tobogán de agua@Objects|hucha@Objects|oso polar@Animals|pastel de chocolate@Food|perro caliente@Food|mantequilla de maní@Food|luna llena@Nature|piscina@Places & buildings|ciudad de méxico@Cities|buenos aires@Cities|nueva york@Cities|los ángeles@Cities|san francisco@Cities|río de janeiro@Cities|ciudad del cabo@Cities|hong kong@Cities|las vegas@Cities|nueva orleans@Cities|kuala lumpur@Cities|abu dabi@Cities|tel aviv@Cities|san juan@Cities|santo domingo@Cities|punta cana@Cities|puerto vallarta@Cities|castillo de arena@Places & buildings|fuegos artificiales@Objects|cámara lenta|noche buena|año nuevo|día libre@Sports & activities|fiesta de cumpleaños@Sports & activities|viaje por carretera@Sports & activities|batalla de almohadas@Sports & activities"
+  };
+  const BANK_FR = {
+    "Animals": "chien chat cheval vache mouton chèvre cochon lapin souris lion tigre ours loup renard girafe zèbre éléphant singe gorille panda koala kangourou dauphin baleine requin pieuvre méduse tortue crocodile serpent lézard grenouille crapaud aigle hibou perroquet pingouin flamant dinde poule canard cygne pigeon mouette fourmi abeille papillon araignée scarabée moustique libellule escargot crabe homard phoque morse loutre castor écureuil hérisson chameau âne hippopotame rhinocéros léopard guépard puma lynx cerf élan sanglier autruche colibri hamster moineau rossignol toucan pélican ornithorynque chimpanzé bison",
+    "Food": "pizza fromage pain lait riz pâtes soupe salade pomme orange banane fraise raisin ananas pastèque melon citron cerise poire pêche mangue avocat tomate carotte oignon ail poivron laitue concombre champignon brocoli maïs haricot lentille chocolat glace biscuit gâteau tarte beurre yaourt miel sucre sel huile vinaigre confiture hamburger sandwich crêpe croissant baguette fondue raclette quiche cassoulet ratatouille jambon saucisse poulet viande poisson thon crevette calamar spaghetti lasagnes cacahuète amande noix noisette kiwi abricot prune myrtille framboise épinards courgette aubergine citrouille",
+    "Places & buildings": "île jungle désert glacier volcan bibliothèque port château forêt vallée phare montagne plage canyon pont musée aéroport stade hôpital cathédrale parc cascade restaurant supermarché aquarium observatoire village jardin ferme grotte tunnel palais temple pyramide école église marché gare pharmacie boulangerie prison théâtre cinéma hôtel banque place université cimetière marais oasis lagune falaise archipel",
+    "Cities": "paris londres tokyo taipei rome berlin madrid dubaï séoul lima oslo vienne prague dublin lisbonne athènes moscou sydney boston miami seattle chicago toronto pékin bangkok istanbul bombay shanghai florence venise kyoto osaka honolulu barcelone amsterdam singapour stockholm vancouver melbourne édimbourg copenhague manille hanoï nairobi marrakech jérusalem budapest bruxelles lyon marseille bordeaux toulouse nice lille nantes strasbourg genève montréal québec avignon rennes grenoble dijon cannes biarritz casablanca tunis alger dakar abidjan",
+    "Objects": "parapluie miroir bougie ciseaux boussole portefeuille casque appareil horloge échelle bouilloire couverture crayon bouteille panier marteau aiguille bouton oreiller guitare télescope microscope calculatrice valise lampe brosse tournevis brouette thermomètre cahier sac vélo ballon lanterne trompette clavier enveloppe télévision frigo table chaise lit canapé fenêtre porte clé pièce bague collier couronne chapeau gant écharpe chaussure chaussette pantalon poêle couteau fourchette cuillère assiette verre tasse aspirateur sèche ordinateur téléphone imprimante chargeur écouteurs",
+    "Nature": "océan rivière tonnerre éclipse iceberg plume marbre ombre cactus éclair blizzard tornade avalanche séisme ouragan aube crépuscule prairie tempête galet corail glacier lune soleil étoile nuage pluie neige vent brouillard rosée sable comète météorite galaxie aurore tsunami source geyser dunes",
+    "Fantasy": "dragon magicien licorne vampire pirate robot bonhomme fusée sirène lutin phénix sorcière vaisseau dinosaure astronaute superhéros trésor épouvantail géant fée fantôme château zombie sorcier ogre elfe troll génie centaure sphinx chimère extraterrestre momie squelette",
+    "Jobs": "médecin instituteur fermier pilote peintre cuisinier infirmière dentiste pompier astronaute menuisier plombier électricien photographe journaliste bibliothécaire détective scientifique vétérinaire boulanger serveur chanteur chauffeur avocat mécanicien ingénieur architecte facteur policier soldat juge coiffeur acteur danseur écrivain professeur jardinier pêcheur marin clown musicien",
+    "Sports & activities": "football tennis hockey cricket boxe karaté rugby golf natation basket volley badminton gymnastique snowboard marathon ski surf cyclisme bowling escrime lutte baseball athlétisme yoga danse randonnée pêche patinage plongée escalade aviron voile handball triathlon",
+    "Celebrities": "johnny hallyday|édith piaf|charles aznavour|jean reno|marion cotillard|omar sy|zinedine zidane|kylian mbappé|michael jackson|madonna|beyoncé|taylor swift|ed sheeran|lady gaga|brad pitt|tom hanks|will smith|leonardo dicaprio|jackie chan|bruce lee|marilyn monroe|charlie chaplin|cristiano ronaldo|michael jordan|serena williams|usain bolt|gérard depardieu|catherine deneuve|louis de funès|jean dujardin|céline dion|stromae|angèle|coluche|thierry henry|tony parker|brigitte bardot|alain delon|audrey tautou|vincent cassel|léa seydoux|jamel debbouze|dany boon|gad elmaleh|mylène farmer|daft punk",
+    "Characters": "sherlock holmes|mickey mouse|harry potter|père noël|winnie|peter pan|capitaine crochet|robin des bois|blanche neige|spider man|super mario|pikachu|cendrillon|batman|la belle au bois dormant|alice au pays des merveilles|roi arthur|dark vador|donald duck|bugs bunny|sonic|wonder woman|don quichotte|lucky luke|titeuf|babar|le chat botté|le petit chaperon rouge|bob léponge|shrek|mulan|aladdin|raiponce|la reine des neiges|astérix|obélix|tintin|le petit prince|pinocchio|superman|hulk|homer simpson",
+    "Historical figures": "cléopâtre|napoléon|albert einstein|léonard de vinci|william shakespeare|abraham lincoln|marie curie|isaac newton|jules césar|christophe colomb|reine victoria|martin luther king|mahatma gandhi|jeanne d arc|alexandre le grand|neil armstrong|louis xiv|charles de gaulle|victor hugo|molière|louis pasteur|marie antoinette|pablo picasso|claude monet|vincent van gogh|nelson mandela|mère teresa|galilée|charles darwin|mozart|beethoven|simone veil|coco chanel|jacques cousteau",
+    "Brands & companies": "starbucks|carrefour|decathlon|auchan|leclerc|renault|peugeot|citroën|michelin|danone|lacoste|chanel|dior|louis vuitton|hermès|sncf|air france|orange|société générale|bnp paribas|amazon|nike|google|netflix|disney|coca cola|pepsi|ikea|tesla|spotify|youtube|instagram|lego|adidas|samsung|toyota|ferrari|nintendo|playstation|uber|airbnb|burger king|kfc|subway|dominos|mcdonalds|quick|nutella|oreo|kitkat|doritos|heinz|nestlé|colgate|sony|nokia|ford|honda|boeing|ryanair|marriott|hilton|bic|evian|tefal|moulinex|nespresso|yves rocher|sephora|fnac|darty|leroy merlin",
+    "Sayings": "avoir le cafard|poser un lapin|tomber dans les pommes|coûter les yeux de la tête|mettre les pieds dans le plat|il pleut des cordes|avoir la tête dans les nuages|dormir comme un loir|mieux vaut tard que jamais|lune de miel|conte de fées|prendre le taureau par les cornes|avoir un chat dans la gorge|montagnes russes@Objects|montgolfière@Objects|machine à remonter le temps@Objects|tapis volant@Objects|carte au trésor@Objects|sac de couchage@Objects|toboggan aquatique@Objects|tirelire@Objects|ours polaire@Animals|gâteau au chocolat@Food|hot dog@Food|beurre de cacahuète@Food|pleine lune@Nature|piscine@Places & buildings|new york@Cities|los angeles@Cities|san francisco@Cities|rio de janeiro@Cities|buenos aires@Cities|le cap@Cities|hong kong@Cities|las vegas@Cities|la nouvelle orléans@Cities|kuala lumpur@Cities|abou dhabi@Cities|tel aviv@Cities|saint tropez@Cities|château de sable@Places & buildings|ralenti|joyeux noël|nouvel an|jour de congé@Sports & activities|voyage en voiture@Sports & activities|bataille de polochons@Sports & activities"
+  };
   const PHRASE_CATS = ['Celebrities', 'Characters', 'Historical figures', 'Brands & companies', 'Sayings'];   // these lists contain spaces and only appear at the top level (an entry can carry its own category: hot dog@Food)
-  const ALL_WORDS = Object.entries(BANK).flatMap(([cat, list]) =>
+  const BANKS = { en: BANK_EN, es: BANK_ES, fr: BANK_FR };
+  const LANGS = Object.keys(BANKS);
+  const buildWords = BANK => Object.entries(BANK).flatMap(([cat, list]) =>
     (PHRASE_CATS.includes(cat) ? list.split('|').map(x => { const [word, own] = x.split('@'); return { cat: own || cat, word, top: true }; }) : list.split(' ').map(word => ({ cat, word, top: false })))).filter((e, i, all) => all.findIndex(x => x.word === e.word) === i);   // a word listed under two categories counts once
+  const WORDS = Object.fromEntries(LANGS.map(l => [l, buildWords(BANKS[l])]));
+  const ALL_WORDS = WORDS.en;
   // Levels: the words get longer, ending with names and phrases. Plain words qualify for a level by their number of letters.
   const TIERS = [
     { name: '4–6 letters', min: 4, max: 6 },
@@ -31,11 +68,11 @@
     { name: '9–12 letters', min: 9, max: 12 },
     { name: 'Names, brands & phrases', phrases: true }
   ];
-  const CATEGORIES = [...Object.keys(BANK).filter(c => c !== 'Sayings'), ...new Set(ALL_WORDS.map(e => e.cat))].filter((c, i, a) => a.indexOf(c) === i);   // every category a word can carry, in a stable order
-  const tierWords = (level, cats = CATEGORIES) => {
+  const CATEGORIES = [...Object.keys(BANK_EN).filter(c => c !== 'Sayings'), ...new Set(ALL_WORDS.map(e => e.cat))].filter((c, i, a) => a.indexOf(c) === i);   // every category a word can carry, in a stable order
+  const tierWords = (level, cats = CATEGORIES, lang = 'en') => {
     const t = TIERS[level - 1];
-    return ALL_WORDS.filter(e => cats.includes(e.cat) && (t.phrases ? e.top
-      : !e.top && e.word.length >= t.min && e.word.length <= t.max));
+    return (WORDS[lang] || WORDS.en).filter(e => cats.includes(e.cat) && (t.phrases ? e.top
+      : !e.top && norm(e.word).length >= t.min && norm(e.word).length <= t.max));   // a plain word's level goes by its letters, accents not counted
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
   const DEFAULT_SETTINGS = { lang: 'en', teams: 'two', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 15, sequential: false };
@@ -93,7 +130,7 @@
     const G = {
       seatNames: [[], []],                    // custom names for seats one device holds several of: seatNames[team][seat]
       phase: 'lobby',                         // lobby | round | roundEnd | over
-      settings: { ...DEFAULT_SETTINGS },
+      settings: { ...DEFAULT_SETTINGS, lang: LANGS.includes(opts.lang) ? opts.lang : 'en' },   // the language of the keywords, chosen by the host; each player's screen is in their own language
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['Team 1', 'Team 2'],
@@ -165,8 +202,8 @@
       const want = Math.min(TIERS.length, 1 + Math.floor(G.round / LEVEL_EVERY));
       // if the ticked categories have no words at that level, use the nearest level that does (lower first)
       const order = [want, ...Array.from({ length: want - 1 }, (_, i) => want - 1 - i), ...Array.from({ length: TIERS.length - want }, (_, i) => want + 1 + i)];
-      G.level = order.find(l => tierWords(l, s.categories).length) || want;
-      const pool = tierWords(G.level, s.categories);
+      G.level = order.find(l => tierWords(l, s.categories, s.lang).length) || want;
+      const pool = tierWords(G.level, s.categories, s.lang);
       let fresh = pool.filter(e => !G.used.has(e.word));
       if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
       G.card = fresh[Math.floor(Math.random() * fresh.length)]; G.used.add(G.card.word);
@@ -194,7 +231,7 @@
         if (norm(text).includes(answer)) return { error: "You can't type the keyword itself!" };
         if (isPatternClue(text, answer)) return { error: "No pattern clues: symbols can't mark where the letters go." };
         const bad = [...ban].filter(c => text.toLowerCase().includes(c));
-        if (bad.length) return { error: `Banned letters: ${bad.join(', ').toUpperCase()}` };
+        if (bad.length) return { error: 'Banned letters: {0}', args: [bad.join(', ').toUpperCase()] };
       } else {
         text = [...text].filter(c => !ban.includes(c.toLowerCase())).join('');
         if (norm(text).includes(answer) || isPatternClue(text, answer)) text = '';
@@ -258,7 +295,7 @@
       const T = G.teams[t], text = norm(raw).toUpperCase().slice(0, 24);
       if (!text) return {};
       const want = norm(G.card.word).length;
-      if (text.length !== want) return { error: `It has ${want} letters.` };   // the wrong number of letters isn't a guess: no penalty, nothing sent
+      if (text.length !== want) return { error: 'It has {0} letters.', args: [want] };   // the wrong number of letters isn't a guess: no penalty, nothing sent
       if (text.toLowerCase() === norm(G.card.word)) {
         T.log.push({ text, ok: true });
         // A correct guess pays the reward plus the first-to-guess and quick-guess bonuses (letters were already paid for).
@@ -343,6 +380,7 @@
             else { s.mode = 'score'; s.words = 8; }
           }
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value) && s.teams === 'two') s.mode = m.value;
+          else if (m.key === 'lang' && LANGS.includes(m.value)) s.lang = m.value;
           else if (m.key === 'banCount' && [1, 2, 3].includes(n)) s.banCount = n;
           else if (m.key === 'lastChance' && [10, 15, 20].includes(n)) s.lastChance = n;
           else if (m.key === 'teamSize' && [2, 3, 4].includes(n) && !(n === 2 && s.teams === 'one')) {   // playing without an opponent needs at least 2 clue-givers
@@ -363,7 +401,7 @@
         case 'resetSettings': { // back to the defaults (pass-and-play stays on if it was chosen)
           if (!isHost || G.phase !== 'lobby') return {};
           const keep = G.settings.sequential;
-          G.settings = { ...DEFAULT_SETTINGS, sequential: keep };
+          G.settings = { ...DEFAULT_SETTINGS, lang: G.settings.lang, sequential: keep };
           G.seats = G.seats.map(t => Array.from({ length: G.settings.teamSize }, (_, i) => t[i] || null));
           change(); return {};
         }
@@ -425,11 +463,11 @@
             G.passUsed[t] = true; return swapWord(t);
           }
           const o = 1 - t, to = holder(o, 'giver1');
-          if (G.teams[o].stage === 'done') return { error: `${G.names[o]} is already done with this word.` };
+          if (G.teams[o].stage === 'done') return { error: '{0} is already done with this word.', args: [G.names[o]] };
           if (G.pass && G.pass.from === o) return acceptPass();   // both teams want to pass: done
           if (G.passUsed[t]) return { error: 'You already asked to pass this word.' };
           if (G.pass) return {};
-          if (!to || !G.players[to] || !G.players[to].connected) return { error: `${G.names[o]}'s Clue-giver 1 isn't connected.` };
+          if (!to || !G.players[to] || !G.players[to].connected) return { error: "{0}'s Clue-giver 1 isn't connected.", args: [G.names[o]] };
           G.passUsed[t] = true;
           G.pass = { from: t, to, expires: now() + PASS_MS, timer: setT(() => { if (G.pass && G.phase === 'round') declinePass('expired'); }, PASS_MS) };
           change(); return {};
@@ -516,6 +554,6 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, norm, costOf, priceOf, SYMBOLS, SYMBOL_COST, FIRST_COST, START_COST, STEP };
+  const api = { LANGS, WORDS, rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, norm, costOf, priceOf, SYMBOLS, SYMBOL_COST, FIRST_COST, START_COST, STEP };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);

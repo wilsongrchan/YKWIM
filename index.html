@@ -95,7 +95,7 @@
   .modebtn.on { background: var(--mc); border-color: var(--mc); } .modebtn.on b, .modebtn.on span { color: var(--ink); }
   .modebtn:disabled { opacity: 1; cursor: default; } .modebtn:disabled:not(.on) { opacity: .6; }
   .settings.main > div:last-child:nth-child(odd) { grid-column: auto; }   /* the full-width Mode box shifts the count by one */
-  .settings.main > div:last-child:nth-child(even) { grid-column: 1 / -1; }
+  .settings.main > div:last-child:nth-child(even) { grid-column: auto; }   /* the Mode and Keyword-language bars span the row; the rest sit two to a row, the last one in the right-hand column */
   .vb-shadow { position: absolute; left: 0; right: 0; top: 0; height: 0; transition: height .15s ease; border-bottom: 2px solid rgba(0,0,0,.55);
     background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
   .vb-num, .vb-sub, .vb-delta { font-variant-numeric: tabular-nums; }
@@ -165,7 +165,8 @@
   .seg { display: flex; gap: 8px; }
   .seg button { flex: 1; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; padding: 9px 6px; font-size: .95rem; }
   .seg button.on { border-color: var(--ink); }
-  #seg-help { gap: 4px; } #seg-help button { font-size: .74rem; padding: 8px 0; }
+  #seg-help { gap: 4px; } #seg-help button { font-size: .74rem; padding: 8px 0; min-width: 0; }
+  @media (max-width: 340px) { #seg-help button { font-size: .64rem; padding: 8px 0; } }
   .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 4px; }
   .sw { display: block; width: 100%; text-align: left; padding: 10px; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; font-size: .9rem; }
   .sw.on { border-color: var(--ink); }
@@ -366,16 +367,35 @@
   .well .sub:has(+ .factbox) { margin-bottom: 0; }
   .fact-h { font: 600 .68rem var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 4px; }
   .fact { display: flex; align-items: center; justify-content: center; min-height: 4.6em; font-size: .95rem; line-height: 1.35; color: var(--text); }
+  .seg#seg-lang2 button { margin-bottom: 6px; }
+  .zhwrap { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #b7b7c2; text-align: center; }
+  .zhlink { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 6px; border-radius: 12px; border: 3px solid transparent; background: #f2f2f5; color: var(--ink); text-decoration: none; font: 500 .95rem var(--body); }
+  .zhlink span { opacity: .6; }
+  .zhnote { margin: 6px 0 0; font-size: .78rem; color: #6b6b78; line-height: 1.3; }
+  .kwlang label { color: var(--accent-text); font-weight: 700; }   /* one of the settings that matters most: the language of the words */
+  .kwlang .dd-btn { border-color: var(--lime); font-weight: 700; box-shadow: 0 0 0 2px color-mix(in srgb, var(--lime) 35%, transparent); }
+  .langrow { display: flex; gap: 8px; justify-content: center; margin: 4px 0 10px; }
+  .langrow button { padding: 6px 12px; font-size: .8rem; border-radius: 999px; background: color-mix(in srgb, var(--ov) 12%, transparent); color: var(--text); }
+  .langrow button.on { background: var(--lime); color: var(--on-lime); }
+  .langnote { margin: 4px 0 8px; padding: 8px 12px; border-radius: 12px; background: color-mix(in srgb, var(--lime) 22%, transparent); color: var(--text); font-size: .85rem; font-weight: 500; text-align: center; }
+  @media (max-width: 340px) {   /* long words in Spanish and French: squeeze the grade table so its columns still fit */
+    table.gt { font-size: .62rem; } table.gt th, table.gt td { padding-left: 1px; padding-right: 1px; } table.gt th:first-child { padding-left: 0; }
+    table.gt .gchip { min-width: 0; padding: 3px 5px; font-size: .66rem; white-space: nowrap; }
+    table.gt th { white-space: nowrap; } table.gt tr.gr2 td.gq { white-space: normal; max-width: none; }   /* the quotes may wrap on a very narrow screen */
+  }
   .used small b { font-weight: 700; color: var(--text); }
   .used small { display: block; font-family: var(--body); font-size: .72rem; letter-spacing: 0; color: var(--soft); font-weight: 500; }
 
-  .keys { display: grid; grid-template-columns: repeat(22, 1fr); gap: 5px; margin: 8px auto 0; max-width: 480px; }
+  .keys { display: grid; grid-template-columns: repeat(22, minmax(0, 1fr)); gap: 5px; margin: 8px auto 0; max-width: 480px; }
   .keys button { width: 100%; height: 40px; padding: 0; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); border-radius: 10px; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
-  .keys button.fn { font-size: .8rem; }
+  .keys button.fn { font-size: .8rem; overflow: hidden; }
   .keys button.kbtoggle { justify-self: end; width: auto; height: 26px; padding: 0 12px; margin-bottom: 2px; font-size: .72rem; letter-spacing: .06em; border-radius: 999px; box-shadow: none; background: color-mix(in srgb, var(--ov) 10%, transparent); }
   .symrow { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; margin-top: 2px; padding-top: 6px; border-top: 1px dashed color-mix(in srgb, var(--ov) 20%, transparent); }
   .symrow button { background: color-mix(in srgb, var(--ov) 8%, transparent); height: 30px; font-size: .85rem; box-shadow: none; }
-  .symrow::before { content: "Symbols cost 5 each"; grid-column: 1 / -1; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
+  .accrow { grid-column: 1 / -1; display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 2px; }
+  .accrow button { flex: 0 0 auto; min-width: 30px; height: 34px; padding: 0 6px; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); border-radius: 9px; box-shadow: none; font-size: .95rem; }
+  .accrow button:disabled { background: rgba(0,0,0,.2); color: var(--soft); opacity: .5; }
+  .symrow::before { content: var(--symlbl, "Symbols cost 5 each"); grid-column: 1 / -1; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
   .keys button:hover { background: color-mix(in srgb, var(--ov) 24%, transparent); }
   .keys button { position: relative; }
   .keys button.seen::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: currentColor; }   /* a dot marks a letter that showed up in the clues */
@@ -538,13 +558,13 @@
 <div id="wrap">
   <div id="previewbar" class="pvbar hide"></div>
   <header class="masthead">
-    <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="Room code: anyone can rejoin with it. Tap to copy."></button>
-    <div class="mark" data-act="home" role="button" tabindex="0"><span class="markT">YKWIM</span><span id="markIcon"></span><small>you know what i mean</small></div>
+    <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" data-i18n-title="Room code: anyone can rejoin with it. Tap to copy."></button>
+    <div class="mark" data-act="home" role="button" tabindex="0"><span class="markT">YKWIM</span><span id="markIcon"></span><small data-i18n="you know what i mean">you know what i mean</small></div>
     <div class="icons">
-      <a class="icon zhbtn" id="zhbtn" href="zh/" data-confirm="The Chinese and English versions are separate games. Switch to Chinese?" aria-label="中文版 (Chinese version)" title="中文版 (Chinese version)">中</a>
-      <button class="icon" data-act="themes" aria-label="Display settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-      <button class="icon" id="helpbtn" data-act="help" aria-label="How to play">?</button>
-      <div id="helpnudge" class="helpnudge" hidden>New here? Read the rules</div>
+      <button class="icon" id="langbtn" data-act="langmenu" data-i18n-label="Interface language"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19"/><path d="M12 2.5c2.6 2.6 4 5.9 4 9.5s-1.4 6.9-4 9.5c-2.6-2.6-4-5.9-4-9.5s1.4-6.9 4-9.5z"/></svg></button>
+      <button class="icon" data-act="themes" data-i18n-label="Display settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+      <button class="icon" id="helpbtn" data-act="help" data-i18n-label="How to play">?</button>
+      <div id="helpnudge" class="helpnudge" hidden data-i18n="New here? Read the rules">New here? Read the rules</div>
     </div>
   </header>
   <div id="app"></div>
@@ -552,100 +572,44 @@
 <footer class="foot">© 2026 YKWIM</footer>
 <div id="themes" class="modal hide">
   <div class="sheet">
-    <button class="x" data-act="closeThemes" aria-label="Close">✕</button>
-    <h2>Display</h2>
-    <div class="dlabel">Mode</div><div class="seg" id="seg-mode"></div>
-    <div class="dlabel">Text size</div><div class="seg" id="seg-size"></div>
-    <div class="dlabel">Colours</div><div class="swatches" id="swatches"></div>
+    <button class="x" data-act="closeThemes" data-i18n-label="Close">✕</button>
+    <h2 data-i18n="Display">Display</h2>
+    <div class="dlabel" data-i18n="Interface language">Interface language</div><div class="seg" id="seg-lang"></div>
+    <div class="dlabel" data-i18n="Mode">Mode</div><div class="seg" id="seg-mode"></div>
+    <div class="dlabel" data-i18n="Text size">Text size</div><div class="seg" id="seg-size"></div>
+    <div class="dlabel" data-i18n="Colours">Colours</div><div class="swatches" id="swatches"></div>
+  </div>
+</div>
+<div id="langmenu" class="modal hide">
+  <div class="sheet" style="max-width:340px">
+    <button class="x" data-act="closeLangmenu" data-i18n-label="Close">✕</button>
+    <h2 data-i18n="Interface language">Interface language</h2>
+    <div class="seg" id="seg-lang2" style="flex-direction:column"></div>
+    <div id="zhwrap" class="zhwrap">
+      <a class="zhlink" id="zhlink" href="zh/" data-i18n-confirm="The Chinese and English versions are separate games. Switch to Chinese?"><b>中文</b><span>↗</span></a>
+      <p class="zhnote" data-i18n="Not the same game: Chinese has its own rules and rooms.">Not the same game: Chinese has its own rules and rooms.</p>
+    </div>
   </div>
 </div>
 <div id="help" class="modal hide">
   <div class="sheet">
-    <button class="x" data-act="closeHelp" aria-label="Close">✕</button>
-    <h2>How to play</h2>
-    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">Rules</button><button data-act="helpTab" data-tab="cost">Clues</button><button data-act="helpTab" data-tab="flow">Example</button><button data-act="helpTab" data-tab="bar">Score bar</button><button data-act="helpTab" data-tab="result">Results</button></div>
-    <div id="help-rules">
-    <p>Two teams race to guess one keyword from <b>letters, not words</b>.</p>
-    <h3>Clues</h3>
-    <div class="snipcap">What a clue-giver sees</div>
-    <div class="snip">
-      <div class="giverhead"><span class="rolechip">Clue-giver 1: Sam</span><span class="hdr-r"><span class="passbtn"><i class="pin">4</i>Pass?</span><span class="timer inl"><i class="pin">5</i>00:24</span></span></div>
-      <div class="secret">
-        <div class="sec-top"><span class="sec-theme"><i class="pin">1</i>Theme: <b>Animals</b></span><span class="sec-ban"><i class="pin">2</i>Banned: <b>P N</b></span></div>
-        <div class="sec-tag"><i class="pin">3</i>Keyword</div>
-        <div class="sec-key"><span class="w">PANDA</span></div>
-      </div>
-    </div>
-    <ul class="legend">
-      <li><i class="pin">1</i> The theme: what kind of word it is.</li>
-      <li><i class="pin">2</i> Banned letters: the keyword's first few consonants. You can't use them in a clue.</li>
-      <li><i class="pin">3</i> The keyword. Only clue-givers see it, never the guessers.</li>
-      <li><i class="pin">4</i> Don't know the word? Ask the other team to pass it.</li>
-      <li><i class="pin">5</i> Time left to write your clue.</li>
-    </ul>
-    <ul>
-      <li>Type letters that hint at the keyword. Shortening words saves letters.</li>
-      <li>A team is a guesser plus 1, 2 or 3 clue-givers, who write one after another.</li>
-      <li>The keyword's first few consonants are banned.</li>
-      <li>Don't know the word? Clue-giver 1 can tap Pass? and the other team's Clue-giver 1 decides. If they agree, everyone gets a new word.</li>
-      <li>Clue-giver 1 gives a clue first, then Clue-giver 2 gives theirs, seeing which letters Clue-giver 1 used. Add something new.</li>
-      <li>Guessers see only their team's clues.</li>
-    </ul>
-    <div class="snipcap">Clue-giver 2 also sees which letters Clue-giver 1 used</div>
-    <div class="snip"><div class="used"><div class="used-h"><i class="pin">1</i>Used in Clue 1</div>A E <span class="usym">? !</span><small>The clue has <b>3</b> letters and <b>2</b> symbols.<br>Shown in alphabetical order. Repeats only show up once.</small></div></div>
-    <ul class="legend"><li><i class="pin">1</i> Not the order, and each letter only once. Add something new rather than repeating it.</li></ul>
-    <div class="snipcap">What the guesser sees</div>
-    <div class="snip">
-      <div class="slots">
-        <div class="slot got"><div class="txt">AE</div><small><i class="pin">1</i>Sam's clue · 2 letters</small></div>
-        <div class="slot got"><div class="txt">S</div><small>Alex's clue · 1 letter</small></div>
-      </div>
-      <div class="themebar"><div><small>Theme:</small>Animals</div></div>
-      <div class="blanks"><i class="pin" style="margin:auto 6px auto 0">2</i><span></span><span></span><span></span><span></span><span></span></div>
-      <div class="bar"><input readonly tabindex="-1" placeholder="Type your guess"><span class="gcount"><i class="pin">3</i>0/5</span><button type="button" tabindex="-1">➜</button></div>
-    </div>
-    <ul class="legend">
-      <li><i class="pin">1</i> The clues from your own team's clue-givers. The other team's clues stay hidden.</li>
-      <li><i class="pin">2</i> One box for each letter of the keyword.</li>
-      <li><i class="pin">3</i> Type your guess. It needs exactly as many letters as the keyword. A wrong guess costs points.</li>
-    </ul>
-    <h3>Points</h3>
-    <ul>
-      <li>Each team has a bank (200). Every letter costs points, and the cost climbs with each one (5, 8, 10, 12…) but resets for Clue-giver 2. Symbols cost 5.</li>
-      <li>A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the faster one also gets a first-to-guess bonus.</li>
-      <li>You can only write a clue you can afford. A wrong guess costs points; giving up is free. If your team doesn't get the word, the letters are refunded.</li>
-      <li>When one team guesses or gives up, the other gets a last-chance timer. Giving up is final.</li>
-      <li>Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a grade. In VS, both teams get one too.</li>
-    </ul>
-    </div>
-    <div id="help-cost" class="hide">
-      <h3>Clue rules</h3>
-      <ul>
-        <li>Clues are letters and symbols. The keyword itself, and its banned consonants, are not allowed.</li>
-        <li><b>No pattern clues.</b> Symbols can't mark where the letters sit in the word. For PANDA (P and N are banned), <b>*A*</b> or <b>A*DA</b> would be rejected, because they line up with the start or end of the word.</li>
-      </ul>
-      <h3>What a clue costs</h3>
-      <div id="costdiag"></div></div>
+    <button class="x" data-act="closeHelp" data-i18n-label="Close">✕</button>
+    <h2 data-i18n="How to play">How to play</h2>
+    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules" data-i18n="Rules">Rules</button><button data-act="helpTab" data-tab="cost" data-i18n="Clues">Clues</button><button data-act="helpTab" data-tab="flow" data-i18n="Example">Example</button><button data-act="helpTab" data-tab="bar" data-i18n="Score bar">Score bar</button><button data-act="helpTab" data-tab="result" data-i18n="Results">Results</button></div>
+    <div id="help-rules"></div>
+    <div id="help-cost" class="hide"></div>
     <div id="help-flow" class="hide"><div id="flowdiag"></div></div>
-    <div id="help-result" class="hide">
-      <h3>Winning</h3>
-      <ul>
-        <li><b>VS:</b> play to a target score or a set number of words. Most points wins, and a tie plays one more word.</li>
-        <li><b>Co-op:</b> one team plays a set number of words and gets a grade.</li>
-      </ul>
-    <h3>Grades</h3>
-    <p>At the end, every team gets a grade, from M up to YKWIM. The more points you gain over your starting points, the better the grade. In VS the winner is still whoever has more points.</p>
-    <div id="gradediag"></div>
-    </div>
-    <div id="help-bar" class="hide"><p>The bar beside the game shows your team's points and what you could still win.</p><div id="bardiag" style="--lime:var(--t0)"></div><p style="font-size:.85rem">Hover over (or tap) a part of the real bar to see its name.</p></div>
-    <button class="big" data-act="closeHelp">Got it</button>
+    <div id="help-result" class="hide"></div>
+    <div id="help-bar" class="hide"></div>
+    <button class="big" data-act="closeHelp" data-i18n="Got it">Got it</button>
   </div>
 </div>
 <div id="toast" class="toast hide"></div>
 <div id="tip" class="tip hide" role="tooltip"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="game.js?v=20261022g"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="i18n.js?v=20261023g"></script>   <!-- Spanish and French text: bump the ?v= whenever it changes -->
+<script src="game.js?v=20261023a"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -653,6 +617,18 @@ const safeGet = k => { try { return localStorage.getItem(k); } catch { return nu
 const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
 const helpSeen = () => safeGet('ykwim-help') === '1';   // has this device opened How to play?
 const token = safeGet('ykwim-token') || (() => { const t = Math.random().toString(36).slice(2) + Date.now().toString(36); safeSet('ykwim-token', t); return t; })();
+
+
+// ---------- language ----------
+// Each player's screen is in their own language (English, Spanish or French); the language of the keywords is a room setting chosen by the host.
+const UI_LANGS = ['en', 'es', 'fr'];
+const LANG_NAMES = { en: 'English', es: 'Español', fr: 'Français' };
+const LANG_WORD = { en: 'English', es: 'Spanish', fr: 'French' };   // the language's name inside a sentence, translated like any other text
+const detectLang = () => { const s = safeGet('ykwim-lang'); if (UI_LANGS.includes(s)) return s; const n = String(navigator.language || 'en').slice(0, 2).toLowerCase(); return UI_LANGS.includes(n) ? n : 'en'; };
+let LANG = detectLang();
+// tr('Some English text {0}', value): the English text is the key. Unknown keys (or English) come back as written.
+const tr = (key, ...args) => { const d = (typeof I18N !== 'undefined' && I18N[LANG]) || {}; const s = d[key] !== undefined ? d[key] : key; return args.length ? s.replace(/\{(\d+)\}/g, (_, i) => args[+i] !== undefined ? args[+i] : '') : s; };
+const plural = (n, word) => tr(n === 1 ? '{0} ' + word : '{0} ' + word + 's', n);
 
 let V = null, net = null;
 const S = { name: safeGet('ykwim-name') || '', code: (new URLSearchParams(location.search).get('room') || '').toUpperCase(), busy: false, err: '',
@@ -663,6 +639,7 @@ const TEAM_COLORS = ['var(--t0)', 'var(--t1)'];          // fills
 const TEAM_BANK = TEAM_COLORS.map(c => `color-mix(in srgb, ${c} 88%, black)`);   // the bank in the score bars: a deeper shade, so the bonus segments above it stand out
 const TEAM_TEXT = ['var(--t0t)', 'var(--t1t)'];          // the same colours, readable as text in light mode
 const STAGE_TEXT = { waiting: 'waiting for their turn', giver1: 'writing clue 1…', giver2: 'writing clue 2…', giver3: 'writing clue 3…', guess: 'thinking…' };
+const tn = t => { const n = V.names[t]; return n === 'Team ' + (t + 1) ? tr('Team {0}', t + 1) : n; };
 const isWriting = stage => /^giver\d$/.test(stage);                 // a clue-giver is typing
 const stageRoleOf = stage => stage === 'guess' ? 'guesser' : isWriting(stage) ? stage : null;
 const SOLO = () => !!V && V.settings.teams === 'one';                  // no opponent: one team plays for a score
@@ -683,12 +660,12 @@ function hostRoom(name, attempt = 0, renew = false) {
   const peer = new Peer('ykwim-' + code);
   peer.on('error', e => {
     if (e.type === 'unavailable-id' && attempt < 5) return hostRoom(name, attempt + 1, renew);
-    if (renew) return toast("Couldn't make a new code. Try again.");
-    fail(`Couldn't create a room (${e.type}). Check your connection.`);
+    if (renew) return toast(tr("Couldn't make a new code. Try again."));
+    fail(tr("Couldn't create a room ({0}). Check your connection.", e.type));
   });
   peer.on('open', () => {
     const conns = {}, old = renew ? room : null;
-    const game = old ? old.game : YKWIM.createGame({ hostId: 'host', onChange: broadcast });
+    const game = old ? old.game : YKWIM.createGame({ hostId: 'host', lang: LANG, onChange: broadcast });
     room = { peer, conns, game };   // switch first, so nothing more is broadcast to the old room while its players are dropped
     if (old) { old.peer.destroy(); Object.keys(old.conns).forEach(id => game.disconnect(id)); }
     peer.on('connection', conn => {
@@ -696,13 +673,13 @@ function hostRoom(name, attempt = 0, renew = false) {
       conn.on('data', m => {
         if (m.type === 'hello') return game.addPlayer(conn.peer, m.name, m.token);
         const r = game.handle(conn.peer, m);
-        if (r && r.error) conn.send({ type: 'error', msg: r.error });
+        if (r && r.error) conn.send({ type: 'error', msg: r.error, args: r.args });
       });
       conn.on('close', () => { delete conns[conn.peer]; game.disconnect(conn.peer); });
     });
-    net = { code, isHost: true, send: m => { const r = game.handle('host', m); if (r && r.error) toast(r.error); } };
+    net = { code, isHost: true, send: m => { const r = game.handle('host', m); if (r && r.error) toast(tr(r.error, ...(r.args || []))); } };
     S.code = code; S.busy = false;
-    if (old) { broadcast(); toast('New room code: ' + code); } else game.addPlayer('host', name, token);
+    if (old) { broadcast(); toast(tr('New room code: {0}', code)); } else game.addPlayer('host', name, token);
   });
 }
 
@@ -716,7 +693,7 @@ function showReconnect(code) {
   hideReconnect();
   const o = document.createElement('div');
   o.className = 'loadOv'; o.style.pointerEvents = 'auto';
-  o.innerHTML = loaderHtml('big') + `<p class="sub">Reconnecting to room <b>${esc(code)}</b>…</p><button class="ghost" data-act="leaveRoom">Leave room</button>`;
+  o.innerHTML = loaderHtml('big') + `<p class="sub">${tr('Reconnecting to room <b>{0}</b>…', esc(code))}</p><button class="ghost" data-act="leaveRoom">${tr('Leave room')}</button>`;
   document.body.appendChild(o);
 }
 const hideReconnect = () => document.querySelectorAll('.loadOv').forEach(o => o.remove());
@@ -724,7 +701,7 @@ const hideReconnect = () => document.querySelectorAll('.loadOv').forEach(o => o.
 function goHome() {
   if (!V) return;
   if (S.preview) { document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render(); }
-  if (!confirm(room ? "Leave the room? You're the host, so the game ends for everyone." : 'Leave the room? You can come back in with the room code.')) return;
+  if (!confirm(room ? tr("Leave the room? You're the host, so the game ends for everyone.") : tr('Leave the room? You can come back in with the room code.'))) return;
   if (room) { try { room.peer.destroy(); } catch {} room = null; S.code = ''; }
   S.passNoteId = undefined; S.feedback = null;
   leaveRoom();
@@ -737,20 +714,20 @@ function leaveRoom() {
 function startRejoin(code, maxTries = 25) {
   S.rejoin = { code, tries: 0, max: maxTries };
   showReconnect(code);
-  connectGuest(S.name || 'Player', code);
+  connectGuest(S.name || tr('Player'), code);
 }
 function retryRejoin() {
   const r = S.rejoin; if (!r) return;
-  if (++r.tries > r.max) { clearTimeout(retryTimer); S.rejoin = null; hideReconnect(); V = null; net = null; S.code = r.code; return fail(`Couldn't get back into room ${r.code}. Check the code, or ask the host if the room is still open.`); }
+  if (++r.tries > r.max) { clearTimeout(retryTimer); S.rejoin = null; hideReconnect(); V = null; net = null; S.code = r.code; return fail(tr("Couldn't get back into room {0}. Check the code, or ask the host if the room is still open.", r.code)); }
   clearTimeout(retryTimer);
-  retryTimer = setTimeout(() => S.rejoin && connectGuest(S.name || 'Player', r.code), 2000);
+  retryTimer = setTimeout(() => S.rejoin && connectGuest(S.name || tr('Player'), r.code), 2000);
 }
 function joinRoom(name, code) { S.rejoin = null; connectGuest(name, code); }
 function connectGuest(name, code) {
   if (guestPeer) try { guestPeer.destroy(); } catch {}
   const peer = guestPeer = new Peer();
   const lost = msg => { if (peer !== guestPeer) return; if (S.rejoin) retryRejoin(); else { clearSession(); fail(msg); } };
-  peer.on('error', e => lost(e.type === 'peer-unavailable' ? `No room "${code}" found. Check the code.` : `Connection problem (${e.type}).`));
+  peer.on('error', e => lost(e.type === 'peer-unavailable' ? tr('No room "{0}" found. Check the code.', code) : tr('Connection problem ({0}).', e.type)));
   peer.on('open', () => {
     const conn = guestConn = peer.connect('ykwim-' + code, { reliable: true });
     conn.on('open', () => {
@@ -759,8 +736,8 @@ function connectGuest(name, code) {
       conn.send({ type: 'hello', name, token });
       saveSession(code); S.busy = false;
     });
-    conn.on('data', m => { if (peer !== guestPeer) return; if (m.type === 'view') { if (S.rejoin) { S.rejoin = null; hideReconnect(); } onView(m.view); } else if (m.type === 'error') toast(m.msg); });
-    conn.on('close', () => { if (peer !== guestPeer) return; net = null; if (S.rejoin) return retryRejoin(); if (V) startRejoin(code); else fail('Disconnected from the room.'); });
+    conn.on('data', m => { if (peer !== guestPeer) return; if (m.type === 'view') { if (S.rejoin) { S.rejoin = null; hideReconnect(); } onView(m.view); } else if (m.type === 'error') toast(tr(m.msg, ...(m.args || []))); });
+    conn.on('close', () => { if (peer !== guestPeer) return; net = null; if (S.rejoin) return retryRejoin(); if (V) startRejoin(code); else fail(tr('Disconnected from the room.')); });
   });
 }
 // coming back to a phone that went to sleep: the connection is usually dead even if the page doesn't know yet
@@ -776,7 +753,7 @@ const FEEDBACK_MS = 3500;   // pass-and-play: how long the guesser's result scre
 const ICON_SVG = '<svg viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>';
 $('markIcon').innerHTML = ICON_SVG;
 // the YKWIM word with the icon hopping along it, for any waiting screen
-const loaderHtml = (cls = '') => `<div class="ldr ${cls}" role="status" aria-label="Loading">${[...'YKWIM'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
+const loaderHtml = (cls = '') => `<div class="ldr ${cls}" role="status" aria-label="${tr('Loading')}">${[...'YKWIM'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
 function playIntro() {
   const el = document.createElement('div');
   el.className = 'intro';
@@ -812,11 +789,12 @@ function onView(v) {
     if (S.passNoteId === undefined) S.passNoteId = pn ? pn.id : 0;   // joining or reconnecting: don't replay old news
     else if (pn && pn.id !== S.passNoteId) {
       S.passNoteId = pn.id;
-      if (pn.type === 'accepted') { S.draft.clue = ''; S.draft.guess = ''; S.sentKey = ''; S.shownRole = ''; setTimeout(() => toast('Word passed! Here is a new one.'), 0); }
-      else if (mt === pn.from) setTimeout(() => toast(pn.type === 'expired' ? 'No answer, so keep going.' : `${v.names[1 - mt]} said no. Give it a go!`), 0);
+      if (pn.type === 'accepted') { S.draft.clue = ''; S.draft.guess = ''; S.sentKey = ''; S.shownRole = ''; setTimeout(() => toast(tr('Word passed! Here is a new one.')), 0); }
+      else if (mt === pn.from) setTimeout(() => toast(pn.type === 'expired' ? tr('No answer, so keep going.') : tr('{0} said no. Give it a go!', v.names[1 - mt] === 'Team ' + (2 - mt) ? tr('Team {0}', 2 - mt) : v.names[1 - mt])), 0);
     }
   }
   render();
+  langNotice(v);
 }
 
 // ---------- colour themes ----------
@@ -827,7 +805,7 @@ const THEMES = {
   charcoal:  { name: 'Terracotta', colors: ['#1f1c1a', '#5b4c42', '#e8c99b', '#c07f52', '#d6c8ba'] }
 };
 // light / dark / follow-the-device, text size, and palette: remembered per device
-const DISPLAY = { mode: safeGet('ykwim-mode') || 'dark', size: safeGet('ykwim-size') || 'm', keys: safeGet('ykwim-keys') || 'qwerty', theme: safeGet('ykwim-theme') || 'citrus' };
+const DISPLAY = { mode: safeGet('ykwim-mode') || 'dark', size: safeGet('ykwim-size') || 'm', keys: safeGet('ykwim-keys') || (LANG === 'fr' ? 'azerty' : 'qwerty'), theme: safeGet('ykwim-theme') || 'citrus' };
 if (!THEMES[DISPLAY.theme]) DISPLAY.theme = 'citrus';   // a palette that no longer exists (Cobalt)
 const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 function applyDisplay() {
@@ -836,7 +814,8 @@ function applyDisplay() {
   el.dataset.theme = D.theme; el.dataset.size = D.size;
   el.dataset.mode = D.mode === 'auto' ? (darkQuery && !darkQuery.matches ? 'light' : 'dark') : D.mode;
   const seg = (name, opts) => opts.map(([v, label]) => `<button class="${D[name] === v ? 'on' : ''}" data-act="${name}" data-v="${v}">${label}</button>`).join('');
-  $('seg-mode').innerHTML = seg('mode', [['light', '☀ Light'], ['dark', '☾ Dark'], ['auto', 'Auto']]);
+  $('seg-lang').innerHTML = $('seg-lang2').innerHTML = UI_LANGS.map(l => `<button class="${LANG === l ? 'on' : ''}" data-act="lang" data-v="${l}">${LANG_NAMES[l]}</button>`).join('');
+  $('seg-mode').innerHTML = seg('mode', [['light', tr('☀ Light')], ['dark', tr('☾ Dark')], ['auto', tr('Auto')]]);
   $('seg-size').innerHTML = seg('size', [['s', 'S'], ['m', 'M'], ['l', 'L']]);
   $('swatches').innerHTML = Object.entries(THEMES).map(([k, t]) =>
     `<button class="sw ${k === D.theme ? 'on' : ''}" data-act="theme" data-theme="${k}"><i>${t.colors.map(c => `<b style="background:${c}"></b>`).join('')}</i>${t.name}</button>`).join('');
@@ -850,10 +829,13 @@ if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener('change'
 applyDisplay();
 
 // ---------- helpers ----------
+// The same worked example in every language: PANDA, hinted through bamboo ("bambú" in Spanish, "bambou" in French).
+const EXAMPLE = { en: { full: 'BAMBOO', g1: 'BAM', g2: 'BOO' }, es: { full: 'BAMBU', g1: 'BAM', g2: 'BU' }, fr: { full: 'BAMBOU', g1: 'BAM', g2: 'BOU' } };
+const exampleOf = () => EXAMPLE[LANG] || EXAMPLE.en;
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
 // "See an example round": the same round played three ways. a = Clue-giver 2 gets what Clue-giver 1 meant, b = they don't, c = one giver does it all.
 function renderFlow(which) {
-  const price = YKWIM.priceOf, sum = n => YKWIM.costOf(n, 0);
+  const X = exampleOf(), price = YKWIM.priceOf, sum = n => YKWIM.costOf(n, 0);
   const tiles = (w, cls = '') => [...w].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
   const box = (n, head, body) => `<div class="fs"><div class="fs-n">${n}</div><div class="fs-b"><div class="fs-h">${head}</div>${body}</div></div>`;
   // a little player with a thought bubble: colour = role, mouth = mood
@@ -861,52 +843,50 @@ function renderFlow(which) {
   const think = (color, mood, text) => `<div class="th"><svg class="av" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 40c0-9 6-13 15-13s15 4 15 13z" fill="${color}"/><circle cx="20" cy="15" r="10" fill="#f6dcc0" stroke="#123f43" stroke-width="1.5"/><circle cx="16" cy="14" r="1.5" fill="#123f43"/><circle cx="24" cy="14" r="1.5" fill="#123f43"/><path d="${MOUTH[mood]}" fill="none" stroke="#123f43" stroke-width="1.5" stroke-linecap="round"/></svg><div class="bub">${text}</div></div>`;
   const cost = n => `<span class="fs-cost">−${n}</span>`;
   const EM = e => `<span class="em">${e}</span>`;
-  const ban = `<span class="fs-ban">can't use <s>P</s><s>N</s></span>`;
-  const first = which === 'c' ? 'BAMBOO' : 'BAM', second = { a: 'BOO', b: 'KUGFU', c: '' }[which];
+  const ban = `<span class="fs-ban">${tr("can't use")} <s>P</s><s>N</s></span>`;
+  const first = which === 'c' ? X.full : X.g1, second = { a: X.g2, b: 'KUGFU', c: '' }[which];
   const used = [...new Set(first)].sort().join(' ');
   const step1 = which === 'c'
-    ? `${EM('🎋')} Bamboo! I'll just type the whole thing: <b>BAMBOO</b>.`
-    : `${EM('🎋')} Bamboo! But I'll only give <b>BAM</b>, and hope Clue-giver 2 thinks of the same thing and adds <b>BOO</b>.`;
-  const step2 = { a: think('#6fc7bd', 'happy', `3 letters: A, B, M… ${EM('🎋')} bam-boo, bamboo! I'll add <b>BOO</b>.`),
-    b: think('#6fc7bd', 'puzzled', `3 letters: A, B, M… amber??? No idea. I'll go my own way: ${EM('🥋')} kung fu panda! No N allowed, so <b>KUGFU</b>.`),
-    c: think('#6fc7bd', 'happy', `6 letters, from A, B, M, O… that's already ${EM('🎋')} BAMBOO. Nothing to add, so I'll <b>skip</b>.`) }[which];
-  const step3 = { a: `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🐼')} PANDA!`,
-    b: `Animals, 5 letters… ${EM('🎋')} bamboo… ${EM('🥋')} kung fu… ${EM('🐼')} PANDA!`,
-    c: `Animals, 5 letters… ${EM('🎋')} BAMBOO… ${EM('🐼')} PANDA! Easy.` }[which];
+    ? tr("{0} Bamboo! I'll just type the whole thing: <b>{1}</b>.", EM('🎋'), X.full)
+    : tr("{0} Bamboo! But I'll only give <b>{1}</b>, and hope Clue-giver 2 thinks of the same thing and adds <b>{2}</b>.", EM('🎋'), X.g1, X.g2);
+  const step2 = { a: think('#6fc7bd', 'happy', tr("3 letters: A, B, M… {0} bam-boo, bamboo! I'll add <b>{1}</b>.", EM('🎋'), X.g2)),
+    b: think('#6fc7bd', 'puzzled', tr("3 letters: A, B, M… amber??? No idea. I'll go my own way: {0} kung fu panda! No N allowed, so <b>KUGFU</b>.", EM('🥋'))),
+    c: think('#6fc7bd', 'happy', tr("{1} letters, from {2}… that's already {0} {3}. Nothing to add, so I'll <b>skip</b>.", EM('🎋'), X.full.length, [...new Set(X.full)].sort().join(', '), X.full)) }[which];
+  const step3 = { a: tr('Animals, 5 letters… {0} bamboo… {1} PANDA!', EM('🎋'), EM('🐼')),
+    b: tr('Animals, 5 letters… {0} bamboo… {1} kung fu… {2} PANDA!', EM('🎋'), EM('🥋'), EM('🐼')),
+    c: tr('Animals, 5 letters… {0} BAMBOO… {1} PANDA! Easy.', EM('🎋'), EM('🐼')) }[which];
   const letters = sum(first.length) + (second ? sum(second.length) : 0);
   const tab = (v, label) => `<button type="button" class="${which === v ? 'on' : ''}" data-act="flow" data-v="${v}">${label}</button>`;
-  $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', 'They get it')}${tab('b', "They don't")}${tab('c', 'One giver')}</div>` +
-    box(1, 'Clue-giver 1 sees the keyword', `<span class="fs-kw">PANDA</span>${ban}
+  $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', tr('They get it'))}${tab('b', tr("They don't"))}${tab('c', tr('One giver'))}</div>` +
+    box(1, tr('Clue-giver 1 sees the keyword'), `<span class="fs-kw">PANDA</span>${ban}
       ${think('#f5b942', 'hope', step1)}
       <div class="fs-row">${tiles(first)}${cost(sum(first.length))}</div>`) +
-    box(2, 'Clue-giver 2 sees the keyword and the letters used, but not their order', `<span class="fs-kw">PANDA</span>${ban}
-      <div class="fs-h" style="margin:2px 0 0">Used in Clue 1</div><div class="fs-used">${used}</div><div class="fs-say" style="margin-top:2px">The clue has ${first.length} letters and 0 symbols. Shown in alphabetical order, repeats only once.</div>
+    box(2, tr('Clue-giver 2 sees the keyword and the letters used, but not their order'), `<span class="fs-kw">PANDA</span>${ban}
+      <div class="fs-h" style="margin:2px 0 0">${tr('Used in Clue {0}', 1)}</div><div class="fs-used">${used}</div><div class="fs-say" style="margin-top:2px">${tr('The clue has {0} letters and 0 symbols. Shown in alphabetical order, repeats only once.', first.length)}</div>
       ${step2}
-      ${second ? `<div class="fs-row">${tiles(second, 'two')}${cost(sum(second.length))}</div><div class="fs-say">The price starts again at ${price(0)}.</div>`
-        : `<div class="fs-row"><div class="fs-clue fs-skip">skipped</div><span class="fs-cost">free</span></div>`}`) +
-    box(3, 'The guesser sees only the clues', `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">${first}</div><div class="fs-clue">${second || '—'}</div></div>
+      ${second ? `<div class="fs-row">${tiles(second, 'two')}${cost(sum(second.length))}</div><div class="fs-say">${tr('The price starts again at {0}.', price(0))}</div>`
+        : `<div class="fs-row"><div class="fs-clue fs-skip">${tr('skipped')}</div><span class="fs-cost">${tr('free')}</span></div>`}`) +
+    box(3, tr('The guesser sees only the clues'), `<div class="fs-row" style="margin:0 0 6px"><div class="fs-clue">${first}</div><div class="fs-clue">${second || '—'}</div></div>
       <div>${'<span class="fs-blank"></span>'.repeat(5)}</div>
       ${think('#f2907a', 'happy', step3)}`) +
-    box(4, 'Result', `<span class="fs-ok">PANDA ✓</span> The team earns the reward and bonuses, minus ${letters} for the letters.${which === 'c' ? ` One person typing it all pays the rising price: BAM + BOO would have been ${sum(3) * 2}.` : ''}`);
+    box(4, tr('Result'), `<span class="fs-ok">PANDA ✓</span> ${tr('The team earns the reward and bonuses, minus {0} for the letters.', letters)}${which === 'c' ? ' ' + tr('One person typing it all pays the rising price: {0} + {1} would have been {2}.', X.g1, X.g2, sum(X.g1.length) + sum(X.g2.length)) : ''}`);
 }
-renderFlow('a');
-(function costDiagram() {
-  const price = YKWIM.priceOf, sum = n => YKWIM.costOf(n, 0);
+function costDiagram() {
+  const X = exampleOf(), price = YKWIM.priceOf, sum = n => YKWIM.costOf(n, 0);
   const tiles = (word, cls) => [...word].map((c, i) => `<div class="cd-t ${cls}"><b>${c}</b><i>${price(i)}</i></div>`).join('');
-  const all = 'BAMBOO', g1 = 'BAM', g2 = 'BOO';   // PANDA bans P and N (the first 2 consonants); none of these letters are in that set
+  const all = X.full, g1 = X.g1, g2 = X.g2;   // PANDA bans P and N (the first 2 consonants); none of these letters are in that set
   const one = sum(all.length), split = sum(g1.length) + sum(g2.length);
   $('costdiag').innerHTML = `
-    <div class="cd-title">Keyword PANDA. One giver types all of it: <b>${all}</b></div>
+    <div class="cd-title">${tr('Keyword PANDA. One giver types all of it: <b>{0}</b>', all)}</div>
     <div class="cd-row">${tiles(all, '')}</div>
-    <div class="cd-total">${all.length} letters = <b>${one}</b> points</div>
-    <div class="cd-title">Split: Clue-giver 1 types <b>${g1}</b>, Clue-giver 2 sees A B M and adds <b>${g2}</b></div>
+    <div class="cd-total">${tr('{0} letters = <b>{1}</b> points', all.length, one)}</div>
+    <div class="cd-title">${tr('Split: Clue-giver 1 types <b>{0}</b>, Clue-giver 2 sees {1} and adds <b>{2}</b>', g1, [...g1].sort().join(' '), g2)}</div>
     <div class="cd-row">${tiles(g1, '')}<span class="cd-gap"></span>${tiles(g2, 'two')}</div>
-    <div class="cd-total">${sum(g1.length)} + ${sum(g2.length)} = <b>${split}</b> points</div>
-    <div class="cd-note">Same letters, but the price starts again at ${price(0)} for Clue-giver 2, so splitting saves ${one - split}. That's why Clue-giver 1 doesn't just finish the word alone, and has to hope Clue-giver 2 gets it.</div>`;
-})();
+    <div class="cd-total">${sum(g1.length)} + ${sum(g2.length)} = <b>${split}</b> ${tr('points')}</div>
+    <div class="cd-note">${tr("Same letters, but the price starts again at {0} for Clue-giver 2, so splitting saves {1}. That's why Clue-giver 1 doesn't just finish the word alone, and has to hope Clue-giver 2 gets it.", price(0), one - split)}</div>`;
+}
 
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
-const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const lettersOnly = s => (String(s).match(/\p{L}/gu) || []).length;
 const priceOf = i => i === 0 ? V.costs.first : V.costs.start + V.costs.step * i;
 const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += priceOf(used + i); return c; };
@@ -914,16 +894,21 @@ const clueCost = (text, used) => { const n = lettersOnly(text); return costOf(n,
 // ban: keys that can't be used (disabled). seen: keys to flag but leave usable (guesser's hint).
 const KEY_LAYOUTS = {   // rows are [letters, first column] on a 22-column grid, two columns a key; fn = where Clear and backspace sit
   qwerty: { rows: [['QWERTYUIOP', 1], ['ASDFGHJKL', 2], ['ZXCVBNM', 4]], fn: '20 / span 3' },
-  abc: { rows: [['ABCDEFGHI', 1], ['JKLMNOPQR', 1], ['STUVWXYZ', 1]], fn: '19 / span 4' }
+  abc: { rows: [['ABCDEFGHI', 1], ['JKLMNOPQR', 1], ['STUVWXYZ', 1]], fn: '19 / span 4' },
+  azerty: { rows: [['AZERTYUIOP', 1], ['QSDFGHJKLM', 1], ['WXCVBN', 4]], fn: '21 / span 2' }   // the French layout: ten keys on the middle row leave room for one narrow key at the end
 };
+const ACCENTS = { es: 'ÑÁÉÍÓÚÜ', fr: 'ÉÈÊÀÂÇÙÛÎÏÔÜ' };
+const NEXT_LAYOUT = { qwerty: 'azerty', azerty: 'abc', abc: 'qwerty' };
 const keyboard = (ban = [], target, seen = [], L = KEY_LAYOUTS[DISPLAY.keys] || KEY_LAYOUTS.qwerty) =>
   // top row: a small switch between the two layouts (it shows the one you'd get)
-  `<button type="button" class="kbtoggle" data-act="keys" data-v="${L === KEY_LAYOUTS.abc ? 'qwerty' : 'abc'}" style="grid-column:1 / -1;grid-row:1" aria-label="Switch keyboard layout">⌨ ${L === KEY_LAYOUTS.abc ? 'QWERTY' : 'ABC'}</button>`
+  `<button type="button" class="kbtoggle" data-act="keys" data-v="${NEXT_LAYOUT[DISPLAY.keys] || 'qwerty'}" style="grid-column:1 / -1;grid-row:1" aria-label="${tr('Switch keyboard layout')}">⌨ ${(NEXT_LAYOUT[DISPLAY.keys] || 'qwerty').toUpperCase()}</button>`
   + L.rows.map(([row, col], r) => [...row].map((c, i) => `<button data-act="key" data-target="${target}" data-k="${c}" style="grid-column:${col + 2 * i} / span 2;grid-row:${r + 2}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')).join('')
-  + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:${L.fn};grid-row:3" aria-label="Clear all">Clear</button>`
-  + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:${L.fn};grid-row:4" aria-label="Backspace">⌫</button>`
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:${L.fn};grid-row:3" aria-label="${tr('Clear all')}">${L === KEY_LAYOUTS.azerty ? '✕' : tr('Clear')}</button>`
+  + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:${L.fn};grid-row:4" aria-label="${tr('Backspace')}">⌫</button>`
+  // Spanish and French rooms get a row of accented letters (ñ, é, ç…). They count as the plain letter, so they are never needed, only nice to have.
+  + (ACCENTS[V && V.settings ? V.settings.lang : 'en'] ? `<div class="accrow" style="grid-row:${target === 'clue' ? 6 : 5}">${[...ACCENTS[V.settings.lang]].map(c => { const base = c.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); return `<button data-act="key" data-target="${target}" data-k="${c}"${ban.includes(base) ? ' disabled' : ''}>${c}</button>`; }).join('')}</div>` : '')
   // symbols cost a flat 5 each in clues, so only the clue keyboard gets them
-  + (target === 'clue' ? `<div class="symrow" style="grid-row:5">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
+  + (target === 'clue' ? `<div class="symrow" style="grid-row:5;--symlbl:'${tr('Symbols cost 5 each').replace(/'/g, "\\'")}'">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
 // Settings dropdown. Closed, it shows just the short value; the open list can carry a faint hint (easy / hard).
 const sel = (key, opts, cur, fmtFn = x => x, hintFn = () => '') => {
   const rows = opts.map(o => { const val = Array.isArray(o) ? o[0] : o, lab = Array.isArray(o) ? o[1] : o; return { val, label: fmtFn(lab), hint: hintFn(val) }; });
@@ -934,7 +919,7 @@ const sel = (key, opts, cur, fmtFn = x => x, hintFn = () => '') => {
     <div class="dd-list">${rows.map(r => `<button type="button" class="dd-item${String(r.val) === String(cur) ? ' on' : ''}" data-act="ddpick" data-key="${key}" data-v="${r.val}"><span>${r.label}</span>${r.hint ? `<small>${r.hint}</small>` : ''}</button>`).join('')}</div>
   </div>`;
 };
-const EASY_HARD = (easy, hard) => v => v === easy ? 'easy' : v === hard ? 'hard' : '';
+const EASY_HARD = (easy, hard) => v => v === easy ? tr('easy') : v === hard ? tr('hard') : '';
 
 // ---------- screens ----------
 function render() {
@@ -942,10 +927,10 @@ function render() {
   const start = active && active.selectionStart;
   const nudge = !helpSeen() && !!V && V.phase === 'lobby' && !S.preview;   // first visit, in the lobby: point at the rules until they've been opened
   $('helpbtn').classList.toggle('nudge', nudge); $('helpnudge').hidden = !nudge;
-  const chip = $('roomchip'); chip.style.visibility = V && net && net.code ? '' : 'hidden'; if (V && net && net.code) chip.innerHTML = `<small>Room</small>${esc(net.code)}`;
+  const chip = $('roomchip'); chip.style.visibility = V && net && net.code ? '' : 'hidden'; if (V && net && net.code) chip.innerHTML = `<small>${tr('Room')}</small>${esc(net.code)}`;
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
   $('wrap').classList.toggle('landing', !V);
-  $('zhbtn').hidden = !!V;
+  $('zhwrap').hidden = !!V;   // the link to the separate Chinese game only on the landing page: mid-game it would walk you out of the room
   document.documentElement.classList.toggle('landing', !V);
   const fb = !!V && V.phase !== 'lobby' && S.feedback && S.feedback.until > Date.now() ? S.feedback : null;
   // while a word is being played, the accent colour (keyword, buttons, outlines) is the colour of the team on this screen
@@ -957,7 +942,7 @@ function render() {
   const pv = $('previewbar');
   pv.classList.toggle('hide', !S.preview);
   if (S.preview) pv.innerHTML = PREVIEWS.map(([k, label]) => `<button class="${k === S.preview ? 'on' : ''}" data-act="preview" data-kind="${k}">${label}</button>`).join('')
-    + `<button data-act="previewExit">✕ Exit</button>`;
+    + `<button data-act="previewExit">✕ ${tr('Exit')}</button>`;
   updatePreview(); updateGuess(); tick();
   if (S.shake) {
     S.shake = false;
@@ -970,91 +955,95 @@ function render() {
 function homeScreen() {
   return `<div class="stage home">
     <div class="logo display"><svg class="logoBg" viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>YKWIM</div>
-    <p class="tag" style="margin-bottom:6px">Do you know what I mean, though?</p>
-    <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">A word game for 3–8 players</p>
-    <label>Your name</label>
-    <input id="name" maxlength="14" placeholder="Name" value="${esc(S.name)}">
-    <div style="margin-top:18px"><button class="big" data-act="create" ${S.busy ? 'disabled' : ''}>Create room</button></div>
-    <p class="sub center" style="margin:16px 0 8px">or join a friend's room</p>
-    <div class="bar"><input id="code" class="caps" maxlength="4" placeholder="ROOM CODE" value="${esc(S.code)}"><button data-act="join" style="font-size:1.05rem" ${S.busy ? 'disabled' : ''}>Join</button></div>
-    <div class="msg">${esc(S.err)}${S.busy ? 'Connecting…' : ''}</div>
+    <p class="tag" style="margin-bottom:6px">${tr('Do you know what I mean, though?')}</p>
+    <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">${tr('A word game for 3–8 players')}</p>
+    <label>${tr('Your name')}</label>
+    <input id="name" maxlength="14" placeholder="${tr('Name')}" value="${esc(S.name)}">
+    <div style="margin-top:18px"><button class="big" data-act="create" ${S.busy ? 'disabled' : ''}>${tr('Create room')}</button></div>
+    <p class="sub center" style="margin:16px 0 8px">${tr("or join a friend's room")}</p>
+    <div class="bar"><input id="code" class="caps" maxlength="4" placeholder="${tr('ROOM CODE')}" value="${esc(S.code)}"><button data-act="join" style="font-size:1.05rem" ${S.busy ? 'disabled' : ''}>${tr('Join')}</button></div>
+    <div class="msg">${esc(S.err)}${S.busy ? tr('Connecting…') : ''}</div>
     ${IS_LOCAL ? `<button class="ghost" style="width:100%;font-size:.85rem" data-act="preview" data-kind="giver1">👀 Preview the screens (no game needed)</button>` : ''}
   </div>`;
 }
 
+// A player whose screen is in another language than the room's keywords is told so (the screens stay in their language, the words don't)
+const langNote = st => st.lang !== LANG ? `<p class="langnote">⚠ ${tr('This room plays with {0} words.', tr(LANG_WORD[st.lang]))}</p>` : '';
 function lobbyScreen() {
   const link = location.origin + location.pathname + '?room=' + (net ? net.code : '');
   const seatBtn = (t, i) => {
     const s = V.seats[t][i];
-    if (!s) return `<button class="seat empty" data-act="sit" data-team="${t}" data-seat="${i}">Sit here</button>`;
+    if (!s) return `<button class="seat empty" data-act="sit" data-team="${t}" data-seat="${i}">${tr('Sit here')}</button>`;
     if (s.id === V.me && V.seats[t].filter(x => x && x.id === V.me).length > 1)   // one device holding several seats: each player gets a name box
-      return `<span class="editfield seatname">${PEN}<input data-seatname="${t}:${i}" value="${esc(s.name)}" maxlength="14" aria-label="Player name"></span>`;
-    return `<button class="seat ${s.id === V.me ? 'mine' : ''}" ${s.id === V.me ? 'data-act="stand"' : 'disabled'}>${esc(s.name)}${s.id === V.me ? ' (you)' : ''}</button>`;
+      return `<span class="editfield seatname">${PEN}<input data-seatname="${t}:${i}" value="${esc(s.name)}" maxlength="14" aria-label="${tr('Player name')}"></span>`;
+    return `<button class="seat ${s.id === V.me ? 'mine' : ''}" ${s.id === V.me ? 'data-act="stand"' : 'disabled'}>${esc(s.name)}${s.id === V.me ? ' ' + tr('(you)') : ''}</button>`;
   };
   const full = (V.settings.teams === 'one' ? [V.seats[0]] : V.seats).every(t => t.every(Boolean));
   const unseated = V.players.filter(p => !V.seats.flat().some(s => s && s.id === p.id));
   const st = V.settings;
   return `<div class="stage lobby">
     <div class="coderow">
-      <div class="codebox"><div class="sub center" style="margin:0">ROOM CODE</div><div class="code">${esc(net ? net.code : '')}</div></div>
+      <div class="codebox"><div class="sub center" style="margin:0">${tr('ROOM CODE')}</div><div class="code">${esc(net ? net.code : '')}</div></div>
       <div class="codeside">
-        <p class="sub center linkline"><span class="linktxt">Share this link: <b style="color:var(--text)">${esc(link)}</b></span> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">Copy link</button></p>
-        ${V.isHost ? `<div class="center newcode"><button class="linkbtn" data-act="newCode">↻ New room code</button></div>` : ''}
+        <p class="sub center linkline"><span class="linktxt">${tr('Share this link:')} <b style="color:var(--text)">${esc(link)}</b></span> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">${tr('Copy link')}</button></p>
+        ${V.isHost ? `<div class="center newcode"><button class="linkbtn" data-act="newCode">↻ ${tr('New room code')}</button></div>` : ''}
       </div>
     </div>
     <div class="seatgrid${st.teams === 'one' ? ' solo' : ''}">${(st.teams === 'one' ? [0] : [0, 1]).map(t => `<div class="seatcol">
-      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<span class="editfield">${PEN}<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16"></span>` : esc(V.names[t])}</h3>
+      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<span class="editfield">${PEN}<input data-teamname="${t}" value="${esc(tn(t))}" maxlength="16"></span>` : esc(tn(t))}</h3>
       ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
-      ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">Leave: stop playing this team on this device</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? 'Pass-and-play<span class="dev"> on this device</span>' : 'Pass-and-play this team<span class="dev"> on this device</span>'}</button>`}
+      ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">${tr('Leave: stop playing this team on this device')}</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? tr('Pass-and-play<span class="dev"> on this device</span>') : tr('Pass-and-play this team<span class="dev"> on this device</span>')}</button>`}
     </div>`).join('')}</div>
-    ${unseated.length ? `<p class="sub">Waiting to sit: ${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
-    <p class="sub">${{ 2: 'One player writes a clue and the other guesses. You swap every word.', 3: 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.', 4: 'Roles (three clue-givers and a guesser) rotate between the 4 seats every word.' }[st.teamSize]}</p>
-    <div class="settingshead"><h2>Game settings</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">Reset to defaults</button>` : ''}</div>
+    ${unseated.length ? `<p class="sub">${tr('Waiting to sit:')} ${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
+    ${langNote(st)}
+    <p class="sub">${tr({ 2: 'One player writes a clue and the other guesses. You swap every word.', 3: 'Roles (clue-giver 1, clue-giver 2, guesser) rotate between the 3 seats every word.', 4: 'Roles (three clue-givers and a guesser) rotate between the 4 seats every word.' }[st.teamSize])}</p>
+    <div class="settingshead"><h2>${tr('Game settings')}</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">${tr('Reset to defaults')}</button>` : ''}</div>
     <div class="well"><div class="settings main">
-      <div style="grid-column:1 / -1" class="modepick"><label>Game mode</label><div class="modes">${[['two', 'VS', 'Two teams race to guess the same word.', 't0'], ['one', 'Co-op', 'One team plays a set number of words and earns a grade.', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
-      <div><label>Team</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 guesser, 1 clue-giver', 3: '1 guesser, 2 clue-givers', 4: '1 guesser, 3 clue-givers' })[v])}</div>
-      ${st.teams === 'one' ? `<div><label>Number of words</label>${sel('words', [5, 6, 8, 10], st.words, x => x + ' words')}</div>` : `<div><label>Game ends</label>${sel('mode', [['score', 'First to a score'], ['words', 'Set number of words']], st.mode)}</div>
+      <div style="grid-column:1 / -1" class="modepick"><label>${tr('Game mode')}</label><div class="modes">${[['two', 'VS', 'Two teams race to guess the same word.', 't0'], ['one', 'Co-op', 'One team plays a set number of words and earns a grade.', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${tr(name)}</b><span>${tr(desc)}</span></button>`).join('')}</div></div>
+      <div class="kwlang" style="grid-column:1 / -1"><label>${tr('Keyword language')}</label>${sel('lang', UI_LANGS.map(l => [l, LANG_NAMES[l]]), st.lang)}</div>
+      <div><label>${tr('Team')}</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => tr(({ 2: '1 guesser, 1 clue-giver', 3: '1 guesser, 2 clue-givers', 4: '1 guesser, 3 clue-givers' })[v]))}</div>
+      ${st.teams === 'one' ? `<div><label>${tr('Number of words')}</label>${sel('words', [5, 6, 8, 10], st.words, x => tr('{0} words', x))}</div>` : `<div><label>${tr('Game ends')}</label>${sel('mode', [['score', 'First to a score'], ['words', 'Set number of words']], st.mode, x => tr(x))}</div>
       <div>${st.mode === 'words'
-        ? `<label>Number of words</label>${sel('words', [5, 6, 8, 10], st.words, x => x + ' words')}`
-        : `<label>Play to</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
-      <div><label>Starting points</label>${sel('bank', [100, 200, 300], st.bank)}</div>
-      <div><label>Points per correct guess</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
-      <div><label>Time to write each clue</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => x + ' sec')}</div>
+        ? `<label>${tr('Number of words')}</label>${sel('words', [5, 6, 8, 10], st.words, x => tr('{0} words', x))}`
+        : `<label>${tr('Play to')}</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
+      <div><label>${tr('Starting points')}</label>${sel('bank', [100, 200, 300], st.bank)}</div>
+      <div><label>${tr('Points per correct guess')}</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
+      <div><label>${tr('Time to write each clue')}</label>${sel('writeSecs', [20, 30, 45, 60], st.writeSecs, x => tr('{0} sec', x))}</div>
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
-      <summary>Advanced settings</summary>
-      <div class="cats" style="margin:12px 0"><div class="catshead">Categories</div>
-      ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}</div>
+      <summary>${tr('Advanced settings')}</summary>
+      <div class="cats" style="margin:12px 0"><div class="catshead">${tr('Categories')}</div>
+      ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${tr(c)}</button>`).join('')}</div>
       <div class="settings">
-        <div><label>Banned consonants</label>${sel('banCount', [[1, 'First 1'], [2, 'First 2'], [3, 'First 3']], st.banCount, x => x, EASY_HARD(1, 3))}</div>
-        <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
-        ${st.teams === 'one' ? '' : `<div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>`}
-        <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
-        ${st.teams === 'one' ? '' : `<div><label>Last-chance timer</label>${sel('lastChance', [10, 15, 20], st.lastChance, x => x + ' sec', EASY_HARD(20, 10))}</div>`}
+        <div><label>${tr('Banned consonants')}</label>${sel('banCount', [[1, 'First 1'], [2, 'First 2'], [3, 'First 3']], st.banCount, x => tr(x), EASY_HARD(1, 3))}</div>
+        <div><label>${tr('Wrong guess costs')}</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
+        ${st.teams === 'one' ? '' : `<div><label>${tr('First-to-guess bonus')}</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>`}
+        <div><label>${tr('Quick-guess bonus (drops 1 per second)')}</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? tr('up to +{0}', x) : tr('off'))}</div>
+        ${st.teams === 'one' ? '' : `<div><label>${tr('Last-chance timer')}</label>${sel('lastChance', [10, 15, 20], st.lastChance, x => tr('{0} sec', x), EASY_HARD(20, 10))}</div>`}
       </div>
     </details></div>
     <div class="lobbystart" style="margin-top:14px">${V.isHost
-      ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? 'Start game' : 'Fill every seat to start'}</button>
-         ${st.teams === 'one' ? '' : `<button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? '✓ Pass-and-play both teams on this device' : 'Or: pass-and-play both teams on this device'}</button>`}
-         ${st.sequential ? `<p class="sub center" style="margin-top:8px">Everyone shares this screen and the teams take turns. The team that guesses faster gets the first-to-guess bonus; there's no last-chance timer.</p>` : ''}`
-      : `${loaderHtml('small')}<p class="sub center">Waiting for the host to start…</p>`}</div>
+      ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? tr('Start game') : tr('Fill every seat to start')}</button>
+         ${st.teams === 'one' ? '' : `<button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? tr('✓ Pass-and-play both teams on this device') : tr('Or: pass-and-play both teams on this device')}</button>`}
+         ${st.sequential ? `<p class="sub center" style="margin-top:8px">${tr("Everyone shares this screen and the teams take turns. The team that guesses faster gets the first-to-guess bonus; there's no last-chance timer.")}</p>` : ''}`
+      : `${loaderHtml('small')}<p class="sub center">${tr('Waiting for the host to start…')}</p>`}</div>
   </div>`;
 }
 
 const netText = T => { const n = T.earned - (T.spent || 0); return (n < 0 ? '−' : '+') + Math.abs(n); };
-const statusLabel = t => { const T = V.round.teams[t]; return { correct: '✓ guessed it!', out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped', none: '' }[T.result] || ''; };
+const statusLabel = t => { const T = V.round.teams[t]; const k = { correct: '✓ guessed it!', out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped', none: '' }[T.result]; return k ? tr(k) : ''; };
 // net = the whole word's result (reward and bonuses minus the letters), as the round-end breakdown shows it
 function statusLine(t, net) {
   const T = V.round.teams[t], gain = net ? (() => { const n = T.earned - (T.spent || 0); return (n < 0 ? '−' : '+') + Math.abs(n); })() : '+' + T.earned;
-  if (T.stage === 'done') return { correct: `✓ guessed it! ${gain}`, out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped' }[T.result];
-  return T.stage === 'giver1' && V.settings.teamSize === 2 ? 'writing the clue…' : STAGE_TEXT[T.stage];
+  if (T.stage === 'done') return T.result === 'correct' ? tr('✓ guessed it! {0}', gain) : tr({ out: 'out of points', gaveup: 'gave up', timeout: "time's up", skipped: 'skipped' }[T.result]);
+  return tr(T.stage === 'giver1' && V.settings.teamSize === 2 ? 'writing the clue…' : STAGE_TEXT[T.stage]);
 }
 
 function topBar() {
   const r = V.round, st = V.settings;
   return `<div class="top">
-    <div class="pill">Word<b>${r.n + 1}${st.mode === 'words' ? ' / ' + st.words : ''}</b></div>
-    ${V.isHost && V.phase === 'round' ? `<button class="icon" style="width:34px;height:34px;font-size:.9rem;margin-left:auto" data-act="skip" title="Skip this word (if someone is stuck)">⏭</button>` : ''}
+    <div class="pill">${tr('Word')}<b>${r.n + 1}${st.mode === 'words' ? ' / ' + st.words : ''}</b></div>
+    ${V.isHost && V.phase === 'round' ? `<button class="icon" style="width:34px;height:34px;font-size:.9rem;margin-left:auto" data-act="skip" title="${tr('Skip this word (if someone is stuck)')}">⏭</button>` : ''}
   </div>`;
 }
 
@@ -1062,10 +1051,10 @@ function slots(t, role) {
   const T = V.round.teams[t], st = T.stage, clues = T.clues, n = V.settings.teamSize - 1;   // n clue-givers
   // name the clue-giver where we know who it is (our own team); the other team's clues stay "Clue 1", "Clue 2"
   const nm = i => t === V.myTeam && V.round.roleNames && V.round.roleNames['giver' + i];
-  const lbl = i => nm(i) ? (nm(i) === 'You' ? 'Your clue' : `${esc(nm(i))}'s clue`) : `Clue ${i}`;
+  const lbl = i => nm(i) ? (nm(i) === 'You' ? tr('Your clue') : tr("{0}'s clue", esc(nm(i)))) : tr('Clue {0}', i);
   const hidden = i => `<div class="slot"><div class="ic off">🔒</div><small>${lbl(i)}</small></div>`;
   const shown = (i, txt) => `<div class="slot got"><div class="txt">${esc(txt || '—')}</div><small>${lbl(i)} · ${plural(lettersOnly(txt), 'letter')}</small></div>`;
-  const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)} sent</small></div>`;
+  const sent = i => `<div class="slot"><div class="ic">✓</div><small>${tr('{0} sent', lbl(i))}</small></div>`;
   const live = i => `<div class="slot live"><div class="ic">✎</div><small>${lbl(i)}</small></div>`;
   // the guesser has nothing to do while clue-givers write, so the time they have left sits quietly in the slot of the one writing
   const wait = (i, timed) => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small>${timed && t === V.myTeam && V.myRoles.includes('guesser') ? `<span class="slottime" data-timer="dl${t}">00:00</span>` : ''}</div>`;
@@ -1080,9 +1069,9 @@ function slots(t, role) {
 function timerPill(inline) {
   const mt = V.myTeam, T = mt === null ? null : V.round.teams[mt];
   if (!T || T.stage === 'done' || T.stage === 'waiting') return '';
-  if (isWriting(T.stage)) return `<span class="timer${inline ? ' inl' : ''}" data-timer="dl${mt}">00:00${inline ? '' : '<small>time to write</small>'}</span>`;
-  if (T.remaining !== null) return `<span class="timer hot${inline ? ' inl' : ''}" data-timer="dl${mt}">00:10<small>last chance!</small></span>`;
-  return `<span class="timer${inline ? ' inl' : ''}" data-timer="speed">∞<small>no time limit</small></span>`;
+  if (isWriting(T.stage)) return `<span class="timer${inline ? ' inl' : ''}" data-timer="dl${mt}">00:00${inline ? '' : `<small>${tr('time to write')}</small>`}</span>`;
+  if (T.remaining !== null) return `<span class="timer hot${inline ? ' inl' : ''}" data-timer="dl${mt}">00:10<small>${tr('last chance!')}</small></span>`;
+  return `<span class="timer${inline ? ' inl' : ''}" data-timer="speed">∞<small>${tr('no time limit')}</small></span>`;
 }
 
 // Pass-and-play: shown to the guesser for a few seconds when their turn ends, before the device is passed on
@@ -1090,10 +1079,10 @@ function feedbackScreen(fb) {
   const won = fb.result === 'correct';
   return `<div class="stage center feedback">
     <div class="fb-emoji">${won ? '🎉' : fb.result === 'gaveup' ? '🤝' : '⏰'}</div>
-    <h2 style="font-size:2rem">${won ? 'Yay, you got it!' : fb.result === 'gaveup' ? 'You gave up on this one' : "Time's up"}</h2>
-    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">points for the word</p>` : `<p class="sub">Your letters are refunded.</p>`}
-    <p class="sub" style="margin-top:18px">Get ready to pass the device…</p>
-    <button class="ghost" data-act="skipFeedback">Continue now</button>
+    <h2 style="font-size:2rem">${won ? tr('Yay, you got it!') : fb.result === 'gaveup' ? tr('You gave up on this one') : tr("Time's up")}</h2>
+    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">${tr('points for the word')}</p>` : `<p class="sub">${tr('Your letters are refunded.')}</p>`}
+    <p class="sub" style="margin-top:18px">${tr('Get ready to pass the device…')}</p>
+    <button class="ghost" data-act="skipFeedback">${tr('Continue now')}</button>
   </div>`;
 }
 
@@ -1101,32 +1090,32 @@ function roundScreen() {
   if (V.phase === 'roundEnd') return roundEndScreen();
   const r = V.round, mt = V.myTeam;
   const blanks = `<div class="blanks${r.blanks.length > 12 ? ' long' : ''}">${r.blanks.map(b => b ? '<span></span>' : '<span class="gap"></span>').join('')}</div>`;
-  const theme = `<div class="themebar"><div><small>Theme:</small>${esc(r.cat)}</div></div>`;
+  const theme = `<div class="themebar"><div><small>${tr('Theme:')}</small>${esc(tr(r.cat))}</div></div>`;
   let body, role = null, handoff = false;
 
   if (mt === null) {
-    body = `<p class="sub center">You're watching this one.</p>${theme}${blanks}`;
+    body = `<p class="sub center">${tr("You're watching this one.")}</p>${theme}${blanks}`;
   } else {
     const T = r.teams[mt], stageRole = stageRoleOf(T.stage);
     const holds = V.myRoles.includes(stageRole);
     if (T.stage === 'waiting') {
-      body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])} is playing</h2><p class="sub">You're up next.</p></div>`;
+      body = `${theme}${blanks}<div class="well center"><h2>${tr('{0} is playing', esc(tn(1 - mt)))}</h2><p class="sub">${tr("You're up next.")}</p></div>`;
     } else if (T.stage === 'done') {
-      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 Yay, you got it!' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">Waiting for ${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` You get +${V.settings.firstBonus} for being first if they get it too, but slower than you.` : ''}</p>${factHtml()}</div>${logHtml(T)}`;
+      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 ' + tr('Yay, you got it!') : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">${tr('Waiting for {0}…', esc(tn(1 - mt)))}${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ' ' + tr('You get +{0} for being first if they get it too, but slower than you.', V.settings.firstBonus) : ''}</p>${factHtml()}</div>${logHtml(T)}`;
     } else if (holds) {
       const multi = V.sharedDevice;   // one device, several people: hide the screen between them
       const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
       const guesserWaiting = stageRole === 'guesser' && T.awaitReady;   // the quick-guess clock hasn't started: wait for the tap
       if (guesserWaiting && !multi) {
         handoff = true;
-        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">Your clues are in!</h2>
-          <p class="sub">Tap when you're ready to see them. The quick-guess bonus starts counting down when you do.</p>
-          <button class="big" data-act="ready" data-key="${key}" data-guess="1">I'm ready</button></div>`;
+        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">${tr('Your clues are in!')}</h2>
+          <p class="sub">${tr("Tap when you're ready to see them. The quick-guess bonus starts counting down when you do.")}</p>
+          <button class="big" data-act="ready" data-key="${key}" data-guess="1">${tr("I'm ready")}</button></div>`;
       } else if (guesserWaiting || (multi && S.shownRole !== key)) {
         handoff = true;
-        body = `<div class="well center">          <h2 style="color:${TEAM_TEXT[mt]}">${esc(V.names[mt])}</h2><h2>Pass the device to ${esc(r.roleNames[stageRole])}</h2>
-          <p class="sub">${stageRole === 'guesser' ? 'Clue-givers: look away! The quick-guess bonus starts when they tap.' : stageRole !== 'giver1' ? 'The guesser must look away!' : 'Everyone else, look away!'}</p>
-          <button class="big" data-act="ready" data-key="${key}"${stageRole === 'guesser' ? ' data-guess="1"' : ''}>I'm ready</button></div>`;
+        body = `<div class="well center">          <h2 style="color:${TEAM_TEXT[mt]}">${esc(tn(mt))}</h2><h2>${tr('Pass the device to {0}', esc(r.roleNames[stageRole]))}</h2>
+          <p class="sub">${stageRole === 'guesser' ? tr('Clue-givers: look away! The quick-guess bonus starts when they tap.') : stageRole !== 'giver1' ? tr('The guesser must look away!') : tr('Everyone else, look away!')}</p>
+          <button class="big" data-act="ready" data-key="${key}"${stageRole === 'guesser' ? ' data-guess="1"' : ''}>${tr("I'm ready")}</button></div>`;
       } else {
         role = stageRole;
         body = stageRole === 'guesser' ? guesserPanel(T, theme, blanks) : giverPanel(T, theme, blanks);
@@ -1135,20 +1124,20 @@ function roundScreen() {
       const who = r.roleNames[stageRole];
       // a clue-giver whose turn is still to come studies the keyword while the one before them writes (not in pass-and-play, where the screen is shared)
       if (r.word && V.myRoles.some(x => x.startsWith('giver')) && isWriting(T.stage)) {
-        body = `${secretHtml(r)}<div class="well center"><h2>${esc(who)} is writing…</h2><p class="sub">Study the keyword: you're up after them.</p></div>`;
-      } else body = `${theme}${blanks}<div class="well center"><h2>${esc(who)} is ${stageRole === 'guesser' ? 'about to guess' : 'writing…'}</h2>
-        <p class="sub">${stageRole === 'guesser' ? 'Think about the clues together!' : 'Hang tight.'}</p>${T.stage === 'guess' ? '' : factHtml()}</div>${T.stage === 'guess' ? logHtml(T) : ''}`;
+        body = `${secretHtml(r)}<div class="well center"><h2>${tr('{0} is writing…', esc(who))}</h2><p class="sub">${tr("Study the keyword: you're up after them.")}</p></div>`;
+      } else body = `${theme}${blanks}<div class="well center"><h2>${stageRole === 'guesser' ? tr('{0} is about to guess', esc(who)) : tr('{0} is writing…', esc(who))}</h2>
+        <p class="sub">${stageRole === 'guesser' ? tr('Think about the clues together!') : tr('Hang tight.')}</p>${T.stage === 'guess' ? '' : factHtml()}</div>${T.stage === 'guess' ? logHtml(T) : ''}`;
     }
   }
   const pa = r.pass && r.pass.toAnswer;
-  const askBar = pa ? `<div class="passask"><p><b>${esc(pa.by)}</b> (${esc(V.names[pa.team])}) doesn't know this word. Pass it for both teams? You'd both get a new word, and nobody pays for letters already typed.</p><div class="row"><button data-act="answerPass" data-yes="1">Yes, pass</button><button class="ghost" style="background:#e6e6ec;color:var(--ink)" data-act="answerPass" data-yes="0">No</button></div></div>` : '';
+  const askBar = pa ? `<div class="passask"><p>${tr("<b>{0}</b> ({1}) doesn't know this word. Pass it for both teams? You'd both get a new word, and nobody pays for letters already typed.", esc(pa.by), esc(tn(pa.team)))}</p><div class="row"><button data-act="answerPass" data-yes="1">${tr('Yes, pass')}</button><button class="ghost" style="background:#e6e6ec;color:var(--ink)" data-act="answerPass" data-yes="0">${tr('No')}</button></div></div>` : '';
   const mine = mt === null ? null : r.teams[mt];
   // clue-givers get a compact layout (their panel carries its own role label and timer); everyone else sees the clue slots
   const [bodyTop, bodyBottom] = Array.isArray(body) ? body : [body, ''];
   const compact = (role && role.startsWith('giver')) || handoff;
   // everyone else gets the same header row as the clue-givers (role on the left, timer on the right), then the clue slots
   const rowT = mt === null ? null : r.teams[mt], rowRole = rowT && stageRoleOf(rowT.stage);
-  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? 'Guesser' : V.settings.teamSize === 2 ? 'Clue-giver' : 'Clue-giver ' + rowRole.slice(5)}: ${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · last chance!' : ''}</span>${rowRole && rowRole.startsWith('giver') && V.myRoles.includes('guesser') ? '' : timerPill(true)}</div>`;
+  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? tr('Guesser') : V.settings.teamSize === 2 ? tr('Clue-giver') : tr('Clue-giver {0}', rowRole.slice(5))}: ${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · ' + tr('last chance!') : ''}</span>${rowRole && rowRole.startsWith('giver') && V.myRoles.includes('guesser') ? '' : timerPill(true)}</div>`;
   const head = compact ? '' : `${headRow}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
   return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${SOLO() ? '' : vbar(mt === null ? 1 : 1 - mt)}</div></div>${askBar}`;   // phones hide the side bars, so the keyboard here is full width anyway
 }
@@ -1158,8 +1147,8 @@ function roundScreen() {
 // inside it is what the clue being typed would cost. The segments stacked above are what a correct guess
 // could still win: the reward, the first-to-guess bonus, and the quick-guess bonus (shrinks every second, see tick()).
 const PEN = '<svg class="pen" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';   // marks a box as editable
-const TIP = { score: 'Bank: the points the team has now', shadow: "What the clue you are typing will cost (comes out of the bank)", reward: 'Reward for a correct guess',
-  long: 'Long-word bonus: words of 6 or more letters pay extra', first: 'First-to-guess bonus: paid only if the other team gets it too, but slower than you', quick: 'Quick-guess bonus: shrinks every second once the clues appear' };
+const TIP = { get score() { return tr('Bank: the points the team has now'); }, get shadow() { return tr('What the clue you are typing will cost (comes out of the bank)'); }, get reward() { return tr('Reward for a correct guess'); },
+  get long() { return tr('Long-word bonus: words of 6 or more letters pay extra'); }, get first() { return tr('First-to-guess bonus: paid only if the other team gets it too, but slower than you'); }, get quick() { return tr('Quick-guess bonus: shrinks every second once the clues appear'); } };
 // little marks along a bar, one every 100 points (the bar is `scale` points tall)
 const ticks = scale => `<b class="ticks" style="--M:${100 / scale * 100}%"></b>`;
 function vbar(t) {
@@ -1175,8 +1164,8 @@ function vbar(t) {
   const hush = V.settings.sequential && V.phase === 'round' && T.stage === 'done';   // pass-and-play: the team still to play must not learn how the other did
   const icon = V.phase !== 'round' ? '' : T.stage === 'done' ? (hush ? '■' : T.result === 'correct' ? '✓' : '✕') : { giver1: '✎', giver2: '✎', giver3: '✎', guess: '💭', waiting: '⏳' }[T.stage];
   const dataAttrs = active ? ` data-stage="${T.stage}" data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + longWord + firstLeft}" data-await="${T.awaitReady ? 1 : 0}"` : '';
-  return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' && !hush ? ': ' + esc(statusLine(t)) : ''}">
-    <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t].slice(0, 8))}</div>
+  return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(tn(t))}${V.phase === 'round' && !hush ? ': ' + esc(statusLine(t)) : ''}">
+    <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(tn(t).slice(0, 8))}</div>
     <div class="vb-track">
       <i class="vb-score" data-tip="${TIP.score}" style="height:${score}%;background:${TEAM_BANK[t]}">${active ? `<b class="vb-shadow" id="tubeShadow" data-tip="${TIP.shadow}"></b>` : ''}</i>
       ${active ? `<i class="vb-reward" data-tip="${TIP.reward}" style="bottom:${score}%;height:${pct(reward)}%"></i>
@@ -1186,7 +1175,7 @@ function vbar(t) {
       ${ticks(scale)}
     </div>
     <div class="vb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</div>
-    <div class="vb-sub">${active ? `earn up to +<b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</div>
+    <div class="vb-sub">${active ? tr('earn up to +{0}', `<b data-gain>${reward + longWord + firstLeft + quick}</b>`) : (byWords ? '' : '/ ' + st.target)}</div>
     <div class="vb-delta"${active ? ' id="tubeDelta"' : ''}></div>
     <div class="vb-stat">${icon}</div></div>`;
 }
@@ -1204,21 +1193,21 @@ function hbar(t) {
   const quick = active ? (T.stage === 'guess' ? Math.ceil((T.speedLeft || 0) / 1000) : st.speedSecs) : 0;
   const dataAttrs = active ? ` data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + longWord + firstLeft}" data-stage="${T.stage}" data-await="${T.awaitReady ? 1 : 0}"` : '';
   return `<div class="hb${own ? ' me' : ''}"${dataAttrs}>
-    <span class="hb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</span>
+    <span class="hb-name" style="color:${TEAM_TEXT[t]}">${esc(tn(t))}</span>
     <div class="hb-track">
       <i class="hb-score" data-tip="${TIP.score}" style="width:${pct(Math.max(0, V.scores[t]))}%;background:${TEAM_BANK[t]}">${active ? `<b class="hb-shadow" id="tubeShadowH" data-tip="${TIP.shadow}"></b>` : ''}</i>
       ${active ? `<i class="hb-reward" data-tip="${TIP.reward}" style="width:${pct(reward)}%"></i>${longWord ? `<i class="hb-long" data-tip="${TIP.long}" style="width:${pct(longWord)}%"></i>` : ''}${firstLeft ? `<i class="hb-first" data-tip="${TIP.first}" style="width:${pct(firstLeft)}%"></i>` : ''}<i class="hb-quick" data-qbh data-tip="${TIP.quick}" style="width:${pct(quick)}%"></i>` : ''}
       ${ticks(scale)}
     </div>
     <b class="hb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</b>
-    <span class="hb-sub">${active ? `earn up to +<b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</span>
+    <span class="hb-sub">${active ? tr('earn up to +{0}', `<b data-gain>${reward + longWord + firstLeft + quick}</b>`) : (byWords ? '' : '/ ' + st.target)}</span>
     <span class="hb-delta"${active ? ' id="tubeDeltaH"' : ''}></span>
   </div>`;
 }
 const hbars = mine => `<div class="hbars">${hbar(mine)}${SOLO() ? '' : hbar(1 - mine)}</div>`;
 
 // little facts, tips and made-up lore for the waiting screens, like the loading-screen tips in Minecraft
-const KIND = { fact: 'Did you know?', word: 'Did you know?', tip: 'Did you know?', lore: 'Did you know?' };   // one heading for everything: no need to sort them
+const KIND = { fact: 'Did you know?', word: 'Did you know?', wordEn: 'Did you know?', tip: 'Did you know?', lore: 'Did you know?' };   // one heading for everything: no need to sort them
 const FACTS = [["fact", "A group of flamingos is called a flamboyance."],
   ["fact", "Octopuses have three hearts and blue blood."],
   ["fact", "Honey never really spoils. Jars found in ancient Egyptian tombs were still edible."],
@@ -1239,20 +1228,20 @@ const FACTS = [["fact", "A group of flamingos is called a flamboyance."],
   ["lore", "Guessers who squint at the clues guess no faster. (We made that up.)"],
   ["lore", "Somewhere, a clue-giver is typing the whole word in one clue. Their bank is about to cry."],
   ["lore", "The keyword is watching you. It is a word. It cannot watch. Still."],
-  ["word", "\"Rhythms\" is the longest common English word with no a, e, i, o or u."],
-  ["word", "\"Queue\" is just a Q followed by four silent letters."],
-  ["word", "\"Strengths\" is a nine-letter word with just one vowel."],
-  ["word", "\"Uncopyrightable\" is a 15-letter word where no letter repeats."],
-  ["word", "\"Typewriter\" can be typed using only the top row of the keyboard."],
-  ["word", "\"Facetiously\" has all five vowels in alphabetical order."],
-  ["word", "\"Dreamt\" is the only common English word that ends in \"mt\"."],
-  ["word", "A pangram uses every letter of the alphabet: \"The quick brown fox jumps over the lazy dog.\""],
-  ["word", "\"Alphabet\" comes from the first two Greek letters, alpha and beta."],
-  ["word", "\"Googol\" is a 1 followed by 100 zeros, and where the name Google came from."],
-  ["word", "\"Underground\" starts and ends with \"und\"."],
-  ["word", "The longest word in major English dictionaries has 45 letters: pneumonoultramicroscopicsilicovolcanoconiosis."],
-  ["word", "\"Bookkeeper\" has three double letters in a row: oo, kk, ee."],
-  ["word", "\"Stewardesses\" is a 12-letter word you can type with only your left hand."],
+  ["wordEn", "\"Rhythms\" is the longest common English word with no a, e, i, o or u."],
+  ["wordEn", "\"Queue\" is just a Q followed by four silent letters."],
+  ["wordEn", "\"Strengths\" is a nine-letter word with just one vowel."],
+  ["wordEn", "\"Uncopyrightable\" is a 15-letter word where no letter repeats."],
+  ["wordEn", "\"Typewriter\" can be typed using only the top row of the keyboard."],
+  ["wordEn", "\"Facetiously\" has all five vowels in alphabetical order."],
+  ["wordEn", "\"Dreamt\" is the only common English word that ends in \"mt\"."],
+  ["wordEn", "A pangram uses every letter of the alphabet: \"The quick brown fox jumps over the lazy dog.\""],
+  ["wordEn", "\"Alphabet\" comes from the first two Greek letters, alpha and beta."],
+  ["wordEn", "\"Googol\" is a 1 followed by 100 zeros, and where the name Google came from."],
+  ["wordEn", "\"Underground\" starts and ends with \"und\"."],
+  ["wordEn", "The longest word in major English dictionaries has 45 letters: pneumonoultramicroscopicsilicovolcanoconiosis."],
+  ["wordEn", "\"Bookkeeper\" has three double letters in a row: oo, kk, ee."],
+  ["wordEn", "\"Stewardesses\" is a 12-letter word you can type with only your left hand."],
   ["tip", "The first-to-guess bonus only counts if the other team gets the word too."],
   ["tip", "A wrong guess costs points, so think before you tap."],
   ["tip", "Clue-giver 2's prices start over, so splitting a word between givers is cheaper."],
@@ -1260,14 +1249,18 @@ const FACTS = [["fact", "A group of flamingos is called a flamboyance."],
   ["lore", "Every great clue starts with \"wait, what if...\" and ends with \"oh!\""],
   ["lore", "Legend says a perfect YKWIM was once earned by two people who had been married for 40 years. (We made that up.)"],
   ["lore", "The letter Z has never forgiven the banned list."]];
-const factHtml = () => { const f = FACTS[S.factIdx]; return `<div class="factbox"><div class="fact-h" id="facth">${KIND[f[0]]}</div><div class="fact" id="fact">${esc(f[1])}</div></div>`; };
+// the entries this screen can show: facts about English words only on English screens, and each language's own word trivia (already in that language)
+const kindOf = f => f[0] === 'wordEn' ? 'word' : f[0];
+const factList = () => FACTS.filter(f => f[0] !== 'wordEn' || LANG === 'en').concat(LANG !== 'en' && typeof I18N !== 'undefined' && I18N[LANG] && I18N[LANG].__facts ? I18N[LANG].__facts.map(f => [f[0], f[1], true]) : []);
+const factText = f => f[2] ? f[1] : tr(f[1]);
+const factHtml = () => { const L = factList(), f = L[S.factIdx] || L[0]; return `<div class="factbox"><div class="fact-h" id="facth">${tr(KIND[kindOf(f)] || KIND.fact)}</div><div class="fact" id="fact">${esc(factText(f))}</div></div>`; };
 // The order of kinds, so two similar entries never come one after another (a word fact, then a tip, then an animal, then lore...); within a kind the
 // entries come in random order and none repeats until the kind is used up.
 const FACT_CYCLE = ['word', 'fact', 'tip', 'word', 'lore', 'fact', 'word', 'tip'];
 S.factStep = Math.floor(Math.random() * FACT_CYCLE.length); S.factSeen = {};
 function pickFact() {
   const kind = FACT_CYCLE[S.factStep++ % FACT_CYCLE.length];
-  const all = FACTS.map((f, i) => i).filter(i => FACTS[i][0] === kind);
+  const L = factList(), all = L.map((f, i) => i).filter(i => kindOf(L[i]) === kind);
   let pool = all.filter(i => !(S.factSeen[kind] || []).includes(i));
   if (!pool.length) { S.factSeen[kind] = []; pool = all.filter(i => i !== S.factIdx); }
   S.factIdx = pool[Math.floor(Math.random() * pool.length)];
@@ -1282,23 +1275,23 @@ function logHtml(T) {
 function secretHtml(r) {
   const ban = r.banned || [];
   return `<div class="secret">
-      <div class="sec-top"><span class="sec-theme">Theme: <b>${esc(r.cat)}</b></span><span class="sec-ban">Banned: <b>${ban.join(' ') || 'none'}</b></span></div>
-      <div class="sec-tag">Keyword</div>
+      <div class="sec-top"><span class="sec-theme">${tr('Theme:')} <b>${esc(tr(r.cat))}</b></span><span class="sec-ban">${tr('Banned:')} <b>${ban.join(' ') || tr('none')}</b></span></div>
+      <div class="sec-tag">${tr('Keyword')}</div>
       <div class="sec-key"><span class="w" style="${r.word.length > 14 ? 'font-size:1.5rem' : r.word.length > 9 ? 'font-size:1.9rem' : ''}">${esc(r.word)}</span></div>
     </div>`;
 }
 // Clue-giver 1's "Pass?" button (or the note that they've asked), shown in the header row beside the timer
-const passHtml = r => r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? 'Swap this word for a new one' : "Don't know the word? Ask the other team to pass it for both teams"}">Pass?</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">Asking ${esc(V.names[1 - V.myTeam])}…</span>` : '';
+const passHtml = r => r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? tr('Swap this word for a new one') : tr("Don't know the word? Ask the other team to pass it for both teams")}">${tr('Pass?')}</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">${tr('Asking {0}…', esc(tn(1 - V.myTeam)))}</span>` : '';
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
-  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">Used in Clue ${p.n}</div>${esc(p.letters) || '(none)'}${p.symbols ? ` <span class="usym">${esc(p.symbols)}</span>` : ''}<small>The clue has <b>${p.letterCount}</b> ${p.letterCount === 1 ? 'letter' : 'letters'} and <b>${p.symbolCount}</b> ${p.symbolCount === 1 ? 'symbol' : 'symbols'}.<br>Shown in alphabetical order.${(p.letters.split(' ').filter(Boolean).length < p.letterCount || p.symbols.split(' ').filter(Boolean).length < p.symbolCount) ? ' Repeats only show up once.' : ''}</small></div>`).join('');
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${tr('Used in Clue {0}', p.n)}</div>${esc(p.letters) || tr('(none)')}${p.symbols ? ` <span class="usym">${esc(p.symbols)}</span>` : ''}<small>${tr('The clue has {0} and {1}.', `<b>${p.letterCount}</b> ${tr(p.letterCount === 1 ? 'letter' : 'letters')}`, `<b>${p.symbolCount}</b> ${tr(p.symbolCount === 1 ? 'symbol' : 'symbols')}`)}<br>${tr('Shown in alphabetical order.')}${(p.letters.split(' ').filter(Boolean).length < p.letterCount || p.symbols.split(' ').filter(Boolean).length < p.symbolCount) ? ' ' + tr('Repeats only show up once.') : ''}</small></div>`).join('');
   const count = r.blanks.filter(Boolean).length;
-  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span><span class="hdr-r">${passHtml(r)}${timerPill(true)}</span></div>
+  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? tr('Clue-giver') : tr('Clue-giver {0}', n)}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span><span class="hdr-r">${passHtml(r)}${timerPill(true)}</span></div>
     ${secretHtml(r)}
     ${used}
-    <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your clue" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
+    <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${tr('Type your clue')}" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
     <div class="preview" id="preview"></div>
-    <div class="timenote off" id="timenote">Almost out of time! Anything in the box will be sent.</div>`;
+    <div class="timenote off" id="timenote">${tr('Almost out of time! Anything in the box will be sent.')}</div>`;
   return [top, `<div class="keys">${keyboard(ban, 'clue')}</div>`];   // [beside the tubes, full width underneath]
 }
 
@@ -1306,10 +1299,10 @@ function guesserPanel(T, theme, blanks) {
   // Clue-givers can't type the keyword's first few consonants, so a consonant that shows up in a clue is a poor guess.
   const seen = [...new Set([...(T.clues || []).join('')].filter(c => /[A-Z]/.test(c) && !'AEIOU'.includes(c)))];
   const top = `${theme}${blanks}
-    <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your guess" value="${esc(S.draft.guess)}"><span class="gcount" id="gcount"></span><button id="sendguess" data-act="sendGuess">➜</button></div>
-    <div class="preview one">Wrong guess −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">give up</button> (${T.clueSpent ? `+${T.clueSpent} points back` : 'letters refunded'})</div>`;
+    <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${tr('Type your guess')}" value="${esc(S.draft.guess)}"><span class="gcount" id="gcount"></span><button id="sendguess" data-act="sendGuess">➜</button></div>
+    <div class="preview one">${tr('Wrong guess −{0}', V.settings.penalty)} · <button class="linkbtn" data-act="giveup">${tr('give up')}</button> (${T.clueSpent ? tr('+{0} points back', T.clueSpent) : tr('letters refunded')})</div>`;
   return [top, `<div class="keys">${keyboard([], 'guess', seen)}</div>
-    ${seen.length ? `<div class="keyhint">Letters with a <b>dot</b> showed up in the clues, so there's a chance they're not in the keyword.</div>` : ''}
+    ${seen.length ? `<div class="keyhint">${tr("Letters with a <b>dot</b> showed up in the clues, so there's a chance they're not in the keyword.")}</div>` : ''}
     ${logHtml(T)}`];
 }
 
@@ -1321,22 +1314,22 @@ function reviewTeam(t, T) {   // T: one team's record of a word (the round view 
   const costs = clues.map(c => clueCost(c, 0)), letters = costs.reduce((a, c) => a + c, 0);
   const wrong = (T.log || []).filter(g => !g.ok).reduce((a, g) => a + (g.cost || 0), 0), got = T.result === 'correct';
   const rows = [];
-  if (b) rows.push(['Reward', b.base], ...(b.longWord ? [['Long word', b.longWord]] : []), ...(b.first ? [['First to guess', b.first]] : []), ...(b.speed ? [['Quick guess', b.speed]] : []));
-  if (letters) rows.push(['Letters', -letters]);
-  if (wrong) rows.push(['Wrong guesses', -wrong]);
-  if (letters && !got) rows.push(['Letters refunded', letters]);
+  if (b) rows.push([tr('Reward'), b.base], ...(b.longWord ? [[tr('Long word'), b.longWord]] : []), ...(b.first ? [[tr('First to guess'), b.first]] : []), ...(b.speed ? [[tr('Quick guess'), b.speed]] : []));
+  if (letters) rows.push([tr('Letters'), -letters]);
+  if (wrong) rows.push([tr('Wrong guesses'), -wrong]);
+  if (letters && !got) rows.push([tr('Letters refunded'), letters]);
   const net = rows.reduce((a, x) => a + x[1], 0);
   return `<div class="rv-team" style="border-color:${TEAM_COLORS[t]}">
-    <h4 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span>${esc(RESULT_TEXT[T.result]) || 'no answer'}</span></h4>
-    ${clues.map((c, i) => `<div class="line"><span>${V.settings.teamSize === 2 ? 'Clue' : 'Clue ' + (i + 1)} · ${esc(who('giver' + (i + 1)))}</span><span><b class="mono">${esc(c || '—')}</b> <small>−${costs[i]}</small></span></div>`).join('')}
-    <div class="line"><span>Guesser · ${esc(who('guesser'))}</span><span>${(T.log || []).length ? T.log.map(g => `<span class="${g.ok ? 'ok' : 'no'}">${esc(g.text)}${g.ok ? ' ✓' : ''}</span>`).join(', ') : '<small>no guesses</small>'}</span></div>
-    <div class="rv-sum">${rows.map(([k, v]) => `<span>${k} <b>${sign(v)}</b></span>`).join('')}<span class="tot">Net <b>${sign(net)}</b></span></div>
+    <h4 style="color:${TEAM_TEXT[t]}">${esc(tn(t))} <span>${RESULT_TEXT[T.result] ? esc(tr(RESULT_TEXT[T.result])) : tr('no answer')}</span></h4>
+    ${clues.map((c, i) => `<div class="line"><span>${V.settings.teamSize === 2 ? tr('Clue') : tr('Clue {0}', i + 1)} · ${esc(who('giver' + (i + 1)))}</span><span><b class="mono">${esc(c || '—')}</b> <small>−${costs[i]}</small></span></div>`).join('')}
+    <div class="line"><span>${tr('Guesser')} · ${esc(who('guesser'))}</span><span>${(T.log || []).length ? T.log.map(g => `<span class="${g.ok ? 'ok' : 'no'}">${esc(g.text)}${g.ok ? ' ✓' : ''}</span>`).join(', ') : `<small>${tr('no guesses')}</small>`}</span></div>
+    <div class="rv-sum">${rows.map(([k, v]) => `<span>${k} <b>${sign(v)}</b></span>`).join('')}<span class="tot">${tr('Net')} <b>${sign(net)}</b></span></div>
   </div>`;
 }
-const reviewHead = r => `<div class="rv-head">Word ${r.n + 1} · <b>${esc(r.word)}</b> · ${esc(r.cat)} · ${esc(r.levelName)}</div>`;
+const reviewHead = r => `<div class="rv-head">${tr('Word')} ${r.n + 1} · <b>${esc(r.word)}</b> · ${esc(tr(r.cat))} · ${esc(tr(r.levelName))}</div>`;
 function gameReviewHtml(shown) {   // every word of the game, each one collapsed
   if (!V.record || !V.record.length) return '';
-  return `<details class="review gamereview"><summary>Game review</summary>${V.record.map(r => `<details class="rvword"><summary><b>${esc(r.word)}</b>${shown.map(t => { const T = r.teams[t], n = T.earned - T.spent; return `<span class="rvnet" style="color:${TEAM_TEXT[t]}">${shown.length > 1 ? `<i class="tdot sm" style="background:${TEAM_COLORS[t]}"></i>` : ''}${n < 0 ? '−' : '+'}${Math.abs(n)}</span>`; }).join('')}</summary>${reviewHead(r)}${shown.map(t => reviewTeam(t, r.teams[t])).join('')}</details>`).join('')}</details>`;
+  return `<details class="review gamereview"><summary>${tr('Game review')}</summary>${V.record.map(r => `<details class="rvword"><summary><b>${esc(r.word)}</b>${shown.map(t => { const T = r.teams[t], n = T.earned - T.spent; return `<span class="rvnet" style="color:${TEAM_TEXT[t]}">${shown.length > 1 ? `<i class="tdot sm" style="background:${TEAM_COLORS[t]}"></i>` : ''}${n < 0 ? '−' : '+'}${Math.abs(n)}</span>`; }).join('')}</summary>${reviewHead(r)}${shown.map(t => reviewTeam(t, r.teams[t])).join('')}</details>`).join('')}</details>`;
 }
 
 function roundEndScreen() {
@@ -1344,16 +1337,16 @@ function roundEndScreen() {
   const left = V.myTeam === null ? 0 : V.myTeam, shown = SOLO() ? [left] : [left, 1 - left];
   // The clues are the fun part: each team's clues get big tiles that pop in one after the other.
   return `<div class="stage">${topBar()}${hbars(left)}<div class="playrow">${vbar(left)}<div class="playmain">
-    <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">THE KEYWORD WAS</div><div class="brand" style="font-size:2rem;color:var(--accent-text)">${esc(r.word)}</div></div>
+    <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">${tr('THE KEYWORD WAS')}</div><div class="brand" style="font-size:2rem;color:var(--accent-text)">${esc(r.word)}</div></div>
     ${shown.map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || Array(n).fill(''); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
-      <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat"><small>${esc(statusLabel(t))}</small><b class="netbig${(T.earned - (T.spent || 0)) < 0 ? ' neg' : ''}">${netText(T)}</b></span></h3>
-      <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * n + i) * .3}s"><div class="bc-txt">${esc(c || '—')}</div><small>Clue ${i + 1} · ${plural(lettersOnly(c), 'letter')}</small></div>`).join('')}</div>
+      <h3 style="color:${TEAM_TEXT[t]}">${esc(tn(t))} <span class="rstat"><small>${esc(statusLabel(t))}</small><b class="netbig${(T.earned - (T.spent || 0)) < 0 ? ' neg' : ''}">${netText(T)}</b></span></h3>
+      <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * n + i) * .3}s"><div class="bc-txt">${esc(c || '—')}</div><small>${tr('Clue {0}', i + 1)} · ${plural(lettersOnly(c), 'letter')}</small></div>`).join('')}</div>
       ${(() => { const spent = T.spent || 0, net = T.earned - spent;
-        const parts = (b ? `<span>reward +${b.base}</span>${b.longWord ? `<span>long word +${b.longWord}</span>` : ''}${b.first ? `<span>first +${b.first}</span>` : ''}${b.speed ? `<span>quick +${b.speed}</span>` : ''}` : '') + (spent ? `<span>letters −${spent}</span>` : '');
+        const parts = (b ? `<span>${tr('reward +{0}', b.base)}</span>${b.longWord ? `<span>${tr('long word +{0}', b.longWord)}</span>` : ''}${b.first ? `<span>${tr('first +{0}', b.first)}</span>` : ''}${b.speed ? `<span>${tr('quick +{0}', b.speed)}</span>` : ''}` : '') + (spent ? `<span>${tr('letters −{0}', spent)}</span>` : '');
         return parts ? `<div class="breakdown">${parts}<span class="tot">= ${net < 0 ? '−' : '+'}${Math.abs(net)}</span></div>` : ''; })()}
     </div>`; }).join('')}
-    ${!SOLO() && V.settings.mode === 'words' && r.n + 1 >= V.settings.words && V.scores[0] === V.scores[1] ? `<p class="sub center" style="color:var(--accent-text)">Tied! One more word decides it.</p>` : ''}
-    ${V.isHost ? `<button class="big" data-act="next">${SOLO() && r.n + 2 === V.settings.words ? 'Last word' : 'Next word'}</button>` : `${loaderHtml('small')}<p class="sub center">Waiting for the host…</p>`}
+    ${!SOLO() && V.settings.mode === 'words' && r.n + 1 >= V.settings.words && V.scores[0] === V.scores[1] ? `<p class="sub center" style="color:var(--accent-text)">${tr('Tied! One more word decides it.')}</p>` : ''}
+    ${V.isHost ? `<button class="big" data-act="next">${SOLO() && r.n + 2 === V.settings.words ? tr('Last word') : tr('Next word')}</button>` : `${loaderHtml('small')}<p class="sub center">${tr('Waiting for the host…')}</p>`}
   </div>${SOLO() ? '' : vbar(1 - left)}</div></div>`;
 }
 
@@ -1371,29 +1364,29 @@ function climb(history) {
   const ticks = [1, 2, 3, 4].map(i => `<line x1="${L}" x2="${W - R}" y1="${Y(cut(i)).toFixed(1)}" y2="${Y(cut(i)).toFixed(1)}" stroke="#000" stroke-opacity=".2" stroke-dasharray="3 3"/><text x="${L - 4}" y="${(Y(cut(i)) + 3).toFixed(1)}" class="cg" text-anchor="end">${Math.round(cut(i))}</text>`).join('');
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.total).toFixed(1)}`).join(' ');
   const dots = pts.map((p, i) => { const x = X(i).toFixed(1), y = Y(p.total).toFixed(1), miss = i && p.result !== 'correct';
-    const label = i === 0 ? 'start' : String(p.word).toUpperCase();
+    const label = i === 0 ? tr('start') : String(p.word).toUpperCase();
     return `<circle cx="${x}" cy="${y}" r="4.5" fill="${i === 0 ? '#1d2b2e' : miss ? '#c2392b' : '#2e8b57'}" stroke="#fff" stroke-width="1.5"/>
       ${i ? `<text x="${x}" y="${(+y - 8).toFixed(1)}" class="cn${miss ? ' miss' : ''}" text-anchor="middle">${p.net >= 0 ? '+' : '−'}${Math.abs(p.net)}</text>` : ''}
-      ${i === 0 ? `<text x="${x}" y="${T + PH + 12}" class="cg" text-anchor="middle">start</text>`
+      ${i === 0 ? `<text x="${x}" y="${T + PH + 12}" class="cg" text-anchor="middle">${tr('start')}</text>`
         : `<text x="${(+x - 2).toFixed(1)}" y="${T + PH + 11}" class="cg${miss ? ' miss' : ''}" transform="rotate(45 ${(+x - 2).toFixed(1)} ${T + PH + 11})">${esc(label)}</text>`}`; }).join('');
-  return `<svg class="climb" viewBox="0 0 ${W} ${H}" role="img" aria-label="Score after each word">${bands}${ticks}
+  return `<svg class="climb" viewBox="0 0 ${W} ${H}" role="img" aria-label="${tr('Score after each word')}">${bands}${ticks}
     <path d="${line}" fill="none" stroke="#1d2b2e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
 }
 
 function overScreen() {
-  const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">Back to lobby</button>` : `${loaderHtml('small')}<p class="sub">Waiting for the host…</p>`;
+  const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">${tr('Back to lobby')}</button>` : `${loaderHtml('small')}<p class="sub">${tr('Waiting for the host…')}</p>`;
   if (SOLO()) {
     const R = V.rating;
-    return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0]).toUpperCase()} · ${V.settings.words} WORDS</div>
-      <div class="gradehead"><div class="logo display" style="font-size:clamp(2.8rem,15vw,4.6rem);color:var(--g${R.rank})">${esc(R.label)}</div><div class="quote">“${esc(R.quote)}”</div></div>
-      <div class="finalscore"><b>${R.score}</b> points</div>
+    return `<div class="stage center"><div class="sub" style="margin-top:14px">${tr('{0} · {1} WORDS', esc(tn(0)).toUpperCase(), V.settings.words)}</div>
+      <div class="gradehead"><div class="logo display" style="font-size:clamp(2.8rem,15vw,4.6rem);color:var(--g${R.rank})">${esc(R.label)}</div><div class="quote">“${esc(tr(R.quote))}”</div></div>
+      <div class="finalscore"><b>${R.score}</b> ${tr('points')}</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
       ${gameReviewHtml([0])}${back}</div>`;
   }
   return `<div class="stage center">
-    <div class="sub" style="margin-top:14px">GAME OVER</div>
-    <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]}">${esc(V.names[V.winner])} wins!</div>
-    ${V.ratings ? `<div class="vsgrades">${[0, 1].map(t => { const R = V.ratings[t]; return `<div class="vsg${t === V.winner ? ' won' : ''}"><div class="n" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</div><div class="s">${V.scores[t]} points</div><div class="g" style="color:var(--g${R.rank})">${esc(R.label)}</div><div class="q">“${esc(R.quote)}”</div></div>`; }).join('')}</div>` : `<div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>`}
+    <div class="sub" style="margin-top:14px">${tr('GAME OVER')}</div>
+    <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]}">${tr('{0} wins!', esc(tn(V.winner)))}</div>
+    ${V.ratings ? `<div class="vsgrades">${[0, 1].map(t => { const R = V.ratings[t]; return `<div class="vsg${t === V.winner ? ' won' : ''}"><div class="n" style="color:${TEAM_TEXT[t]}">${esc(tn(t))}</div><div class="s">${V.scores[t]} ${tr('points')}</div><div class="g" style="color:var(--g${R.rank})">${esc(R.label)}</div><div class="q">“${esc(tr(R.quote))}”</div></div>`; }).join('')}</div>` : `<div class="sub">${esc(tn(0))} ${V.scores[0]} – ${V.scores[1]} ${esc(tn(1))}</div>`}
     ${gameReviewHtml([0, 1])}${back}
   </div>`;
 }
@@ -1407,7 +1400,7 @@ function tick() {
   else if (!S.factAt) S.factAt = now;
   else if (now - S.factAt > 6500) {
     S.factAt = now; fx.classList.add('out');   // only the text fades: the heading never changes
-    setTimeout(() => { pickFact(); const f = $('fact'), h = $('facth'); if (f && h) { f.textContent = FACTS[S.factIdx][1]; h.textContent = KIND[FACTS[S.factIdx][0]]; f.classList.remove('out'); } }, 600);
+    setTimeout(() => { pickFact(); const f = $('fact'), h = $('facth'); if (f && h) { const L = factList(), e = L[S.factIdx] || L[0]; f.textContent = factText(e); h.textContent = tr(KIND[kindOf(e)] || KIND.fact); f.classList.remove('out'); } }, 600);
   }
   if (S.preview) { // fake timers never run out while previewing
     S.dl = S.dl.map(d => d && d - now < 2000 ? now + 25000 : d);
@@ -1417,8 +1410,8 @@ function tick() {
     const k = el.dataset.timer, dl = k === 'speed' ? S.speedDl : S.dl[+k.slice(2)];
     if (k === 'speed') {
       if (dl && dl > now) { el.firstChild.textContent = (el.classList.contains('inl') ? '⚡+' : '+') + Math.ceil((dl - now) / 1000);   // the small label is hidden in the header row, so the bolt says what it is
-      el.className = 'timer bonus' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = '⚡ quick bonus'; }
-      else { el.firstChild.textContent = '∞'; el.className = 'timer' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = 'no time limit'; }
+      el.className = 'timer bonus' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = '⚡ ' + tr('quick bonus'); }
+      else { el.firstChild.textContent = '∞'; el.className = 'timer' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = tr('no time limit'); }
     } else if (dl) {
       el.firstChild.textContent = fmt(dl - now);
       if (!el.classList.contains('hot')) el.classList.toggle('warn', dl - now <= 5000);   // the writing clock: blink red for the last 5 seconds
@@ -1457,7 +1450,7 @@ function updatePreview() {
   const el = $('preview'), inp = $('clue'); if (!el || !inp || !V || !V.round) return;
   const T = V.round.teams[V.myTeam], used = T.used || 0, n = lettersOnly(inp.value), c = clueCost(inp.value, used);
   const bank = V.scores[V.myTeam], over = c > bank;
-  el.innerHTML = over ? `<b class="red">Costs ${c}: you only have ${bank}</b>` : (c ? `Costs <b>${c}</b> · next letter ` : 'Next letter costs ') + `<b>${priceOf(used + n)}</b>`;
+  el.innerHTML = over ? `<b class="red">${tr('Costs {0}: you only have {1}', c, bank)}</b>` : (c ? tr('Costs <b>{0}</b> · next letter ', c) : tr('Next letter costs ')) + `<b>${priceOf(used + n)}</b>`;
   const send = document.querySelector('[data-act="sendClue"]'); if (send) send.disabled = over;
   // shade the part of the bank this clue would drain
   const sh = $('tubeShadow'), dl = $('tubeDelta');
@@ -1519,21 +1512,21 @@ function mockView(kind) {
 function showPreview(kind) {
   if (!IS_LOCAL) return;
   S.preview = kind; S.shownRole = ''; S.draft = { clue: '', guess: '' };
-  net = { code: 'ABCD', isHost: true, send: () => toast('Preview only: buttons do nothing here') };
+  net = { code: 'ABCD', isHost: true, send: () => toast(tr('Preview only: buttons do nothing here')) };
   document.querySelectorAll('.loadOv').forEach(o => o.remove());
   onView(mockView(kind === 'intro' || kind === 'loading' ? 'lobby' : kind));
   if (kind === 'intro') playIntro();
   if (kind === 'loading') {   // what a dropped connection looks like: the hopping loader over everything
     const o = document.createElement('div');
     o.className = 'loadOv';
-    o.innerHTML = loaderHtml('big') + '<p class="sub">Reconnecting…</p>';
+    o.innerHTML = loaderHtml('big') + `<p class="sub">${tr('Reconnecting…')}</p>`;
     document.body.appendChild(o);
   }
 }
 
 // ---------- events ----------
 // links between the two versions ask first: they are separate games, not one game shown in two languages
-document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[data-confirm]'); if (a && !confirm(a.dataset.confirm)) e.preventDefault(); });
+document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[data-i18n-confirm]'); if (a && !confirm(tr(a.dataset.i18nConfirm))) e.preventDefault(); });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if (S.ddOpen && !(b && ['ddopen', 'ddpick'].includes(b.dataset.act))) { S.ddOpen = null; render(); }   // clicking elsewhere closes an open dropdown
@@ -1542,15 +1535,15 @@ document.addEventListener('click', e => {
   switch (d.act) {
     case 'create': case 'join': {
       S.name = ($('name').value || '').trim(); S.code = ($('code').value || '').trim().toUpperCase();
-      if (!S.name) return fail('Enter your name first.');
+      if (!S.name) return fail(tr('Enter your name first.'));
       safeSet('ykwim-name', S.name);
-      if (d.act === 'join' && S.code.length !== 4) return fail('Room codes are 4 letters.');
+      if (d.act === 'join' && S.code.length !== 4) return fail(tr('Room codes are 4 letters.'));
       S.err = ''; S.busy = true; render();
       return d.act === 'create' ? hostRoom(S.name) : joinRoom(S.name, S.code);
     }
     case 'leaveRoom': return leaveRoom();
     case 'home': return goHome();
-    case 'copyCode': if (navigator.clipboard && net) navigator.clipboard.writeText(net.code).then(() => toast('Room code copied'), () => {}); return;
+    case 'copyCode': if (navigator.clipboard && net) navigator.clipboard.writeText(net.code).then(() => toast(tr('Room code copied')), () => {}); return;
     case 'preview': return showPreview(d.kind);
     case 'previewExit': document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render();
     case 'themes': $('themes').classList.remove('hide'); return;
@@ -1560,6 +1553,10 @@ document.addEventListener('click', e => {
     case 'skipFeedback': S.feedback = null; return render();
     case 'size': return setDisplay({ size: d.v });
     case 'keys': setDisplay({ keys: d.v }); if (V) render(); return;
+    case 'lang': $('langmenu').classList.add('hide'); return setLang(d.v);
+    case 'langmenu': $('langmenu').classList.remove('hide'); return;
+    case 'closeLangmenu': $('langmenu').classList.add('hide'); return;
+    case 'closeLangNotice': { const m = $('langmodal'); if (m) m.remove(); return; }
     case 'passPlay': return send({ type: 'passAndPlay' });
     case 'help': $('help').classList.remove('hide'); safeSet('ykwim-help', '1'); render(); return;
     case 'helpTab': ['rules', 'cost', 'flow', 'bar', 'result'].forEach(t => $('help-' + t).classList.toggle('hide', d.tab !== t)); document.querySelectorAll('#seg-help button').forEach(b => b.classList.toggle('on', b.dataset.tab === d.tab)); if (d.tab === 'bar') $('bardiag').innerHTML = barDiagram(); if (d.tab === 'result') $('gradediag').innerHTML = gradeTable(); return;
@@ -1573,24 +1570,25 @@ document.addEventListener('click', e => {
     case 'resetSettings': return send({ type: 'resetSettings' });
     case 'proposePass': return send({ type: 'proposePass' });
     case 'answerPass': return send({ type: 'answerPass', yes: d.yes === '1' });
-    case 'giveup': if (!confirm("Give up on this word? You can't guess again." + (V.settings.sequential || SOLO() ? '' : ' The other team gets a last-chance timer.'))) return; return send({ type: 'giveup' });
+    case 'giveup': if (!confirm(tr("Give up on this word? You can't guess again.") + (V.settings.sequential || SOLO() ? '' : ' ' + tr('The other team gets a last-chance timer.')))) return; return send({ type: 'giveup' });
     case 'start': case 'next': case 'toLobby': case 'skip': return send({ type: d.act });
-    case 'newCode': if (V && V.phase === 'lobby' && room && confirm('Make a new room code? Anyone who already joined will need to join again with the new code.')) hostRoom(S.name, 0, true); return;
-    case 'flow': return renderFlow(d.v);
-    case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('Link copied!')); return;
+    case 'newCode': if (V && V.phase === 'lobby' && room && confirm(tr('Make a new room code? Anyone who already joined will need to join again with the new code.'))) hostRoom(S.name, 0, true); return;
+    case 'flow': S.flow = d.v; return renderFlow(d.v);
+    case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast(tr('Link copied!'))); return;
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
     case 'sendClue': S.draft.clue = ''; return send({ type: 'clue', text: $('clue').value });
     case 'sendGuess': { const g = $('guess').value; if (lettersOnly(g) !== V.round.blanks.filter(Boolean).length) return; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
     case 'key': {
       const inp = $(d.target); if (!inp) return;
-      inp.value = d.k === 'CLEAR' ? '' : d.k === '⌫' ? inp.value.slice(0, -1) : inp.value + d.k;
+      inp.value = d.k === 'CLEAR' ? '' : d.k === '⌫' ? inp.value.slice(0, -1) : inp.value + (d.target === 'clue' ? d.k.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : d.k);
       S.draft[d.target] = inp.value; if (d.target === 'clue') updatePreview(); else updateGuess(); return;
     }
   }
 });
 document.addEventListener('input', e => {
   const t = e.target;
-  if (t.id === 'clue') t.value = [...t.value].filter(c => /[A-Za-z]/.test(c) || YKWIM.SYMBOLS.includes(c)).join('');
+  // accented letters are welcome in any language (ñ, é, ç…): they count as the plain letter, so "niño" and "nino" are the same clue
+  if (t.id === 'clue') t.value = [...t.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')].filter(c => /[A-Za-z]/.test(c) || YKWIM.SYMBOLS.includes(c)).join('');
   if (t.id === 'clue' || t.id === 'guess') { t.value = t.value.toUpperCase(); S.draft[t.id] = t.value; if (t.id === 'clue') updatePreview(); else updateGuess(); }
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
@@ -1637,14 +1635,14 @@ function barDiagram() {
   const y = p => 280 - p * 0.65, X0 = 40, W = 30, TOP = y(400);   // the bar is a tall pill, 400 points high, like the real one
   const seg = (from, to, fill) => `<rect x="${X0}" y="${y(to)}" width="${W}" height="${y(from) - y(to)}" style="fill:${fill}"/>`;
   const parts = [   // [from, to, fill, label, description], top of the bar first
-    [345, 360, 'color-mix(in srgb, var(--lime) 30%, white)', 'Quick-guess bonus', 'shrinks every second'],
-    [325, 345, 'url(#lgFirst)', 'First-to-guess bonus', 'if the other team gets it too, but slower'],
-    [300, 325, 'url(#lgLong)', 'Long-word bonus', 'words of 6+ letters pay extra'],
-    [200, 300, 'color-mix(in srgb, var(--lime) 78%, white)', 'Reward', 'for a correct guess'],
-    [160, 200, 'url(#lgShadow)', 'Clue cost', 'what the clue you are typing will cost'],
-    [0, 160, 'color-mix(in srgb, var(--t0) 88%, black)', 'Bank', "your team's points"]];
+    [345, 360, 'color-mix(in srgb, var(--lime) 30%, white)', tr('Quick-guess bonus'), tr('shrinks every second')],
+    [325, 345, 'url(#lgFirst)', tr('First-to-guess bonus'), tr('if the other team gets it too, but slower')],
+    [300, 325, 'url(#lgLong)', tr('Long-word bonus'), tr('words of 6+ letters pay extra')],
+    [200, 300, 'color-mix(in srgb, var(--lime) 78%, white)', tr('Reward'), tr('for a correct guess')],
+    [160, 200, 'url(#lgShadow)', tr('Clue cost'), tr('what the clue you are typing will cost')],
+    [0, 160, 'color-mix(in srgb, var(--t0) 88%, black)', tr('Bank'), tr("your team's points")]];
   const labelY = [34, 70, 106, 142, 186, 236];
-  let svg = `<svg viewBox="0 0 340 300" width="100%" role="img" aria-label="Parts of the score bar" style="max-width:380px;display:block;margin:6px auto">
+  let svg = `<svg viewBox="0 0 340 300" width="100%" role="img" aria-label="${tr('Parts of the score bar')}" style="max-width:380px;display:block;margin:6px auto">
     <defs><pattern id="lgShadow" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" style="fill:color-mix(in srgb, var(--t0) 88%, black)"/><rect width="5" height="10" fill="rgba(0,0,0,.45)"/></pattern>
     <clipPath id="lgPill"><rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}"/></clipPath>
     <linearGradient id="lgShine" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -1681,12 +1679,124 @@ function barDiagram() {
 
 // The co-op grades for the How to play page, straight from the game's own table so the numbers never drift
 function gradeTable() {   // built when the Results tab opens, so nothing here can stop the page from loading
-  return `<table class="gt"><caption>Points you need to gain</caption><tr><th>Grade</th>${GRADE_WORDS.map(w => `<th>${w} words</th>`).join('')}</tr>`
-  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr class="gr1"><th><b class="gchip" style="background:var(--gd${YKWIM.RATINGS.length - 1 - i})">${label}</b></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) + '<small class="gor">or under</small>' : 'over ' + YKWIM.gradeNeed(cut, w)}</td>`).join('')}</tr><tr class="gr2"><td colspan="${GRADE_WORDS.length + 1}" class="gq">“${quote}”</td></tr>`).join('')
-  + '</table><p style="font-size:.8rem;margin:4px 0 0">Points gained = your final points minus your starting points. The more words you play, the more points each grade needs.</p>';
+  return `<table class="gt"><caption>${tr('Points you need to gain')}</caption><tr><th>${tr('Grade')}</th>${GRADE_WORDS.map(w => `<th>${tr('{0} words', w)}</th>`).join('')}</tr>`
+  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr class="gr1"><th><b class="gchip" style="background:var(--gd${YKWIM.RATINGS.length - 1 - i})">${label}</b></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) + `<small class="gor">${tr('or under')}</small>` : tr('over {0}', YKWIM.gradeNeed(cut, w))}</td>`).join('')}</tr><tr class="gr2"><td colspan="${GRADE_WORDS.length + 1}" class="gq">“${tr(quote)}”</td></tr>`).join('')
+  + `</table><p style="font-size:.8rem;margin:4px 0 0">${tr('Points gained = your final points minus your starting points. The more words you play, the more points each grade needs.')}</p>`;
+}
+// ---------- language switching ----------
+// Static text in the page carries data-i18n (text), data-i18n-title, data-i18n-label (aria-label); the How to play pages are built here.
+function applyStatic() {
+  document.documentElement.lang = LANG;
+  document.title = tr('YKWIM – You Know What I Mean');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = tr(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = tr(el.dataset.i18nTitle); });
+  document.querySelectorAll('[data-i18n-label]').forEach(el => { el.setAttribute('aria-label', tr(el.dataset.i18nLabel)); });
+}
+function buildHelp() {
+  const pin = n => `<i class="pin">${n}</i>`;
+  $('help-rules').innerHTML = `
+    <p>${tr('Two teams race to guess one keyword from <b>letters, not words</b>.')}</p>
+    <h3>${tr('Clues')}</h3>
+    <div class="snipcap">${tr('What a clue-giver sees')}</div>
+    <div class="snip">
+      <div class="giverhead"><span class="rolechip">${tr('Clue-giver {0}', 1)}: Sam</span><span class="hdr-r"><span class="passbtn">${pin(4)}${tr('Pass?')}</span><span class="timer inl">${pin(5)}00:24</span></span></div>
+      <div class="secret">
+        <div class="sec-top"><span class="sec-theme">${pin(1)}${tr('Theme:')} <b>${tr('Animals')}</b></span><span class="sec-ban">${pin(2)}${tr('Banned:')} <b>P N</b></span></div>
+        <div class="sec-tag">${pin(3)}${tr('Keyword')}</div>
+        <div class="sec-key"><span class="w">PANDA</span></div>
+      </div>
+    </div>
+    <ul class="legend">
+      <li>${pin(1)} ${tr('The theme: what kind of word it is.')}</li>
+      <li>${pin(2)} ${tr("Banned letters: the keyword's first few consonants. You can't use them in a clue.")}</li>
+      <li>${pin(3)} ${tr('The keyword. Only clue-givers see it, never the guessers.')}</li>
+      <li>${pin(4)} ${tr("Don't know the word? Ask the other team to pass it.")}</li>
+      <li>${pin(5)} ${tr('Time left to write your clue.')}</li>
+    </ul>
+    <ul>
+      <li>${tr('Type letters that hint at the keyword. Shortening words saves letters.')}</li>
+      <li>${tr('A team is a guesser plus 1, 2 or 3 clue-givers, who write one after another.')}</li>
+      <li>${tr("The keyword's first few consonants are banned.")}</li>
+      <li>${tr("Don't know the word? Clue-giver 1 can tap Pass? and the other team's Clue-giver 1 decides. If they agree, everyone gets a new word.")}</li>
+      <li>${tr('Clue-giver 1 gives a clue first, then Clue-giver 2 gives theirs, seeing which letters Clue-giver 1 used. Add something new.')}</li>
+      <li>${tr("Guessers see only their team's clues.")}</li>
+    </ul>
+    <div class="snipcap">${tr('Clue-giver 2 also sees which letters Clue-giver 1 used')}</div>
+    <div class="snip"><div class="used"><div class="used-h">${pin(1)}${tr('Used in Clue {0}', 1)}</div>A E <span class="usym">? !</span><small>${tr('The clue has {0} and {1}.', '<b>3</b> ' + tr('letters'), '<b>2</b> ' + tr('symbols'))}<br>${tr('Shown in alphabetical order.')} ${tr('Repeats only show up once.')}</small></div></div>
+    <ul class="legend"><li>${pin(1)} ${tr('Not the order, and each letter only once. Add something new rather than repeating it.')}</li></ul>
+    <div class="snipcap">${tr('What the guesser sees')}</div>
+    <div class="snip">
+      <div class="slots">
+        <div class="slot got"><div class="txt">AE</div><small>${pin(1)}${tr("{0}'s clue", 'Sam')} · ${plural(2, 'letter')}</small></div>
+        <div class="slot got"><div class="txt">S</div><small>${tr("{0}'s clue", 'Alex')} · ${plural(1, 'letter')}</small></div>
+      </div>
+      <div class="themebar"><div><small>${tr('Theme:')}</small>${tr('Animals')}</div></div>
+      <div class="blanks"><i class="pin" style="margin:auto 6px auto 0">2</i><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="bar"><input readonly tabindex="-1" placeholder="${tr('Type your guess')}"><span class="gcount">${pin(3)}0/5</span><button type="button" tabindex="-1">➜</button></div>
+    </div>
+    <ul class="legend">
+      <li>${pin(1)} ${tr("The clues from your own team's clue-givers. The other team's clues stay hidden.")}</li>
+      <li>${pin(2)} ${tr('One box for each letter of the keyword.')}</li>
+      <li>${pin(3)} ${tr('Type your guess. It needs exactly as many letters as the keyword. A wrong guess costs points.')}</li>
+    </ul>
+    <h3>${tr('Points')}</h3>
+    <ul>
+      <li>${tr('Each team has a bank (200). Every letter costs points, and the cost climbs with each one (5, 8, 10, 12…) but resets for Clue-giver 2. Symbols cost 5.')}</li>
+      <li>${tr('A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the faster one also gets a first-to-guess bonus.')}</li>
+      <li>${tr("You can only write a clue you can afford. A wrong guess costs points; giving up is free. If your team doesn't get the word, the letters are refunded.")}</li>
+      <li>${tr('When one team guesses or gives up, the other gets a last-chance timer. Giving up is final.')}</li>
+      <li>${tr('Not enough players for two teams? Pick Co-op: one team plays a set number of words and gets a grade. In VS, both teams get one too.')}</li>
+    </ul>
+    <h3>${tr('Languages')}</h3>
+    <ul>
+      <li>${tr("The keyword language is a room setting, chosen by the host. Your own screen can be in any language: change it in Display settings. If a room's keywords are in another language than your screen, you'll be told.")}</li>
+    </ul>`;
+  $('help-cost').innerHTML = `
+      <h3>${tr('Clue rules')}</h3>
+      <ul>
+        <li>${tr('Clues are letters and symbols. The keyword itself, and its banned consonants, are not allowed.')}</li>
+        <li>${tr("<b>No pattern clues.</b> Symbols can't mark where the letters sit in the word. For PANDA (P and N are banned), <b>*A*</b> or <b>A*DA</b> would be rejected, because they line up with the start or end of the word.")}</li>
+      </ul>
+      <h3>${tr('What a clue costs')}</h3>
+      <div id="costdiag"></div>`;
+  $('help-result').innerHTML = `
+      <h3>${tr('Winning')}</h3>
+      <ul>
+        <li>${tr('<b>VS:</b> play to a target score or a set number of words. Most points wins, and a tie plays one more word.')}</li>
+        <li>${tr('<b>Co-op:</b> one team plays a set number of words and gets a grade.')}</li>
+      </ul>
+    <h3>${tr('Grades')}</h3>
+    <p>${tr('At the end, every team gets a grade, from M up to YKWIM. The more points you gain over your starting points, the better the grade. In VS the winner is still whoever has more points.')}</p>
+    <div id="gradediag"></div>`;
+  $('help-bar').innerHTML = `<p>${tr("The bar beside the game shows your team's points and what you could still win.")}</p><div id="bardiag" style="--lime:var(--t0)"></div><p style="font-size:.85rem">${tr('Hover over (or tap) a part of the real bar to see its name.')}</p>`;
+  costDiagram(); renderFlow(S.flow || 'a');
+  // keep whichever tab is open showing its picture
+  const open = (document.querySelector('#seg-help button.on') || {}).dataset;
+  if (open && open.tab === 'bar') $('bardiag').innerHTML = barDiagram();
+  if (open && open.tab === 'result') $('gradediag').innerHTML = gradeTable();
+}
+function setLang(l) {
+  if (!UI_LANGS.includes(l)) return;
+  LANG = l; safeSet('ykwim-lang', l);
+  if (!safeGet('ykwim-keys')) DISPLAY.keys = l === 'fr' ? 'azerty' : 'qwerty';   // French keyboards are AZERTY unless the player chose otherwise
+  S.factSeen = {}; pickFact(); S.factAt = 0; S.langNoticeKey = null;
+  applyStatic(); applyDisplay(); buildHelp(); render();
+  if (V) langNotice(V);
+}
+// Someone whose screen is in one language joins a room whose keywords are in another: say so, once per room and language.
+function langNotice(v) {
+  if (!v || !v.settings || v.settings.lang === LANG || v.isHost || S.preview || !net) return;
+  const key = net.code + ':' + v.settings.lang + ':' + LANG;
+  if (S.langNoticeKey === key) return;
+  S.langNoticeKey = key;
+  const w = tr(LANG_WORD[v.settings.lang]);
+  const el = document.createElement('div');
+  el.className = 'modal'; el.id = 'langmodal';
+  el.innerHTML = `<div class="sheet" style="max-width:380px;text-align:center"><h2>${tr('Heads up')}</h2><p style="font-size:1.05rem">${tr('This game uses <b>{0}</b> words. Your screen stays in your language, but the keywords and clues will be in {0}.', w)}</p><button class="big" data-act="closeLangNotice">${tr('Got it')}</button></div>`;
+  document.body.appendChild(el);
 }
 const GRADE_WORDS = [6, 8, 10];   // the word counts the lobby offers for Co-op
-render();
+applyStatic(); buildHelp(); render();
 {   // reloaded or reopened while in a room: go straight back (a few tries, then fall back to the join form)
   const s = loadSession();
   if (s && S.name && !S.code && !new URLSearchParams(location.search).has('preview')) { S.code = s.code; startRejoin(s.code, 4); }
