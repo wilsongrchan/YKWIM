@@ -8,7 +8,7 @@
 <title>字字珠璣 · YKWIM Chinese Version</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&family=Mochiy+Pop+One&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&family=Mochiy+Pop+One&family=ZCOOL+KuaiLe&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     /* "Lagoon" (default). --lime is the accent colour whatever the theme. */
@@ -582,6 +582,8 @@
   /* the landing header keeps its small "YKWIM Chinese Version" line, on phones too (it is the only place the line is shown there) */
   @media (max-width: 480px) { #wrap.landing .masthead .mark small { display: block; font-size: .5rem; letter-spacing: .1em; margin-top: 1px; white-space: nowrap; } }
   @media (max-width: 340px) { #wrap.landing .masthead .mark small { display: none; } }
+  .gradehead .logo, .vsg .g { font-weight: 400; }
+  :root[data-script="sc"] .gradehead .logo, :root[data-script="sc"] .vsg .g { font-family: "Lilita One", "ZCOOL KuaiLe", var(--cjk); }   /* the grade names have simplified-only characters the logo face lacks, so one rounded simplified face carries the whole name */
   :root[data-script="sc"] { --cjk: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif; }
 </style>
 </head>
