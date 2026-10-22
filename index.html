@@ -43,6 +43,7 @@
   .roomchip { justify-self: start; padding: 5px 10px; border-radius: 999px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; font-size: .85rem; letter-spacing: .12em; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); }
   @media (max-width: 380px) { .roomchip { padding: 5px 8px; font-size: .78rem; letter-spacing: .08em; } .roomchip small { display: none; } }
   .roomchip small { font-family: var(--body); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-right: 6px; }
+  #wrap:not(.landing) .masthead .mark { cursor: pointer; }
   .masthead .mark { text-align: center; font-family: var(--display); font-style: normal; font-size: 1.7rem; letter-spacing: .06em; line-height: 1; }
   .masthead .mark #markIcon svg { height: .95em; width: auto; vertical-align: -.1em; margin-left: .1em; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; }
   .masthead .mark small { display: block; font-family: var(--body); font-style: normal; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--soft); margin-top: 3px; }
@@ -333,6 +334,14 @@
   .sec-key .kw { font-size: .85rem; font-weight: 500; opacity: .75; }
   .sec-key .w { overflow-wrap: anywhere; }
   .secret small { display: block; font-weight: 500; opacity: .75; font-size: .8rem; }
+  .secret { padding: 6px 12px 10px; }
+  .sec-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: .74rem; font-weight: 500; text-align: left; }
+  .sec-top .sec-ban { text-align: right; } .sec-top b { font-weight: 600; letter-spacing: .06em; }
+  .sec-tag { margin-top: 2px; font-size: .62rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; opacity: .65; }
+  .secret .w { font-size: 2.9rem; line-height: 1.05; }
+  .hdr-r { display: flex; align-items: center; gap: 8px; flex: none; }
+  .hdr-r .passbtn { position: static; padding: 5px 12px; font-size: .8rem; background: var(--lime); color: var(--on-lime); }
+  .hdr-r .passbtn.asked { background: transparent; color: var(--soft); border: 1px dashed currentColor; }
   .giverhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
   .rolechip { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; background: var(--navy); border-radius: 999px; padding: 6px 14px; font-weight: 500; font-size: .95rem; }
   .timer.inl { margin: 0; width: 6.2rem; border-radius: 999px; padding: 4px 8px; font-size: 1.4rem; }
@@ -340,6 +349,7 @@
   .used { text-align: center; background: var(--well); border-radius: 12px; padding: 6px 10px; margin-bottom: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 1.15rem; letter-spacing: .3em; font-weight: 500; }
   .usym { color: var(--accent-text); letter-spacing: .25em; margin-left: .6em; }
   .used-h { font: 500 .72rem var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+  .used small b { font-weight: 700; color: var(--text); }
   .used small { display: block; font-family: var(--body); font-size: .72rem; letter-spacing: 0; color: var(--soft); font-weight: 500; }
 
   .keys { display: grid; grid-template-columns: repeat(22, 1fr); gap: 5px; margin: 8px auto 0; max-width: 480px; }
@@ -350,8 +360,8 @@
   .symrow button { background: color-mix(in srgb, var(--ov) 8%, transparent); height: 30px; font-size: .85rem; box-shadow: none; }
   .symrow::before { content: "Symbols cost 5 each"; grid-column: 1 / -1; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
   .keys button:hover { background: color-mix(in srgb, var(--ov) 24%, transparent); }
-  .keys button.seen { opacity: .4; }
-  .keys button.seen:hover { opacity: .7; }
+  .keys button { position: relative; }
+  .keys button.seen::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: currentColor; }   /* a dot marks a letter that showed up in the clues */
   .keyhint { text-align: center; font-size: .74rem; color: var(--soft); margin-top: 6px; }
   .keyhint b { font-weight: 500; opacity: .8; }
   .keys button:disabled { background: rgba(0,0,0,.2); color: var(--soft); opacity: .5; box-shadow: none; }
@@ -364,6 +374,8 @@
   .log .cost { color: var(--bad); letter-spacing: 0; }
 
   /* lobby */
+  .gcount { display: flex; align-items: center; padding: 0 10px; background: var(--field); color: color-mix(in srgb, var(--ink) 48%, var(--field)); font: 500 .85rem var(--body); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .gcount.ok { color: var(--ink); font-weight: 600; }
   .bar.shake { animation: shakeX .45s cubic-bezier(.36,.07,.19,.97) both; box-shadow: 0 0 0 3px var(--bad); }
   @keyframes shakeX { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(5px); } 30%, 50%, 70% { transform: translateX(-9px); } 40%, 60% { transform: translateX(9px); } }
   @media (prefers-reduced-motion: reduce) { .bar.shake { animation: none; } }
@@ -374,8 +386,8 @@
   :root { --g0: #f2766b; --g1: #f29a5b; --g2: #f5c84a; --g3: #9fd77a; --g4: #4fc08a; }   /* the grade scale, red (M) to green (YKWIM) */
   :root { --gd0: #c2392b; --gd1: #c4651e; --gd2: #a87000; --gd3: #4c8f2a; --gd4: #1f8a5b; }   /* deeper grade colours: white letters sit on these (the How to play table) */
   :root[data-mode="light"] { --g0: #c2392b; --g1: #c4651e; --g2: #9a6700; --g3: #4c8f2a; --g4: #1f8a5b; }
-  .gradehead { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 6px 0 0; text-align: left; }
-  .gradehead .logo { margin: 0; flex: none; } .gradehead .quote { margin: 0; font-size: 1.1rem; line-height: 1.2; min-width: 0; }
+  .gradehead { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 6px 0 0; text-align: center; }
+  .gradehead .logo { margin: 0; flex: none; } .gradehead .quote { margin: 0; font-size: 1.15rem; line-height: 1.2; min-width: 0; }
   .finalscore { font: 500 1rem var(--display); color: var(--soft); margin: 4px 0 6px; } .finalscore b { font: 500 2.2rem var(--display); color: var(--text); margin-right: 4px; }
   .quote { font: italic 500 1.35rem var(--display); margin-top: 8px; }
   .climb { display: block; width: 100%; max-width: 460px; margin: 10px auto 0; overflow: visible; box-sizing: border-box; padding: 12px 8px 8px; background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.18); } .climb .cg { font: 500 7.5px var(--body); fill: #4d5a5e; } .climb .cg.miss { fill: #c2392b; } .climb .cn { font: 600 9px var(--body); fill: #1d2b2e; } .climb .cn.miss { fill: #c2392b; }
@@ -441,7 +453,7 @@
   #wrap.landing .stage.home { padding-bottom: 30px; }
   .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
   /* landing page: the colour is the whole screen's background, edge to edge, with nothing to scroll */
-  html.landing, html.landing body { height: 100vh; height: 100dvh; overflow: hidden; padding: 0; }
+  html.landing, html.landing body { height: 100vh; height: 100dvh; overflow: hidden; padding: 0; position: fixed; inset: 0; width: 100%; }
   #wrap.landing { height: 100vh; height: 100dvh; max-width: none; position: relative; }
   #wrap.landing #app, #wrap.landing .stage.home { height: 100%; }
   #wrap.landing .masthead { position: absolute; top: 0; left: 0; right: 0; z-index: 5; border-bottom: 0; margin: 0; padding: 10px 12px 0; }
@@ -464,7 +476,7 @@
     .slots { padding: 22px 8px 8px; margin-bottom: 8px; gap: 8px; } .slot { min-height: 52px; padding: 5px 4px; } .slot .txt { font-size: 1.15rem; } .slot.got { min-height: 70px; } .slot.got .txt { font-size: 1.7rem; }
     .timer { padding: 5px 20px 7px; font-size: 1.6rem; margin-bottom: -16px; }
     .themebar div { padding: 5px; font-size: .92rem; } .blanks { margin: 0 0 8px; gap: 5px; } .blanks span { width: 26px; height: 30px; }
-    .secret { padding: 5px 10px 7px; margin-bottom: 8px; } .secret .w { font-size: 1.7rem; }
+    .secret { padding: 5px 10px 7px; margin-bottom: 8px; } .secret .w { font-size: 2.4rem; }
     .giverhead { margin-bottom: 8px; } .rolechip { padding: 2px 10px; font-size: .76rem; } .timer.inl { width: 5.4rem; font-size: 1.2rem; padding: 2px 6px; }
     #clue, #guess { font-size: .95rem; letter-spacing: .06em; } #clue::placeholder, #guess::placeholder { font-size: .8rem; letter-spacing: .04em; } .used { padding: 4px 8px; margin-bottom: 8px; font-size: 1rem; }
     input { padding: 10px 12px; } .bar button { padding: 0 16px; }
@@ -510,7 +522,7 @@
   <div id="previewbar" class="pvbar hide"></div>
   <header class="masthead">
     <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="Room code: anyone can rejoin with it. Tap to copy."></button>
-    <div class="mark"><span class="markT">YKWIM</span><span id="markIcon"></span><small>you know what i mean</small></div>
+    <div class="mark" data-act="home" role="button" tabindex="0"><span class="markT">YKWIM</span><span id="markIcon"></span><small>you know what i mean</small></div>
     <div class="icons">
       <a class="icon zhbtn" id="zhbtn" href="zh/" aria-label="中文版 (Chinese version)" title="中文版 (Chinese version)">中</a>
       <button class="icon" data-act="themes" aria-label="Display settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
@@ -582,7 +594,7 @@
 <div id="tip" class="tip hide" role="tooltip"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="game.js?v=20261022e"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022g"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -657,6 +669,15 @@ function showReconnect(code) {
   document.body.appendChild(o);
 }
 const hideReconnect = () => document.querySelectorAll('.loadOv').forEach(o => o.remove());
+// Clicking the branding goes back to the landing page. In a room that means leaving it (the host's room closes with them).
+function goHome() {
+  if (!V) return;
+  if (S.preview) { document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render(); }
+  if (!confirm(room ? "Leave the room? You're the host, so the game ends for everyone." : 'Leave the room? You can come back in with the room code.')) return;
+  if (room) { try { room.peer.destroy(); } catch {} room = null; S.code = ''; }
+  S.passNoteId = undefined; S.feedback = null;
+  leaveRoom();
+}
 function leaveRoom() {
   clearTimeout(retryTimer); S.rejoin = null; clearSession();
   if (guestPeer) try { guestPeer.destroy(); } catch {}
@@ -886,7 +907,7 @@ function render() {
   pv.classList.toggle('hide', !S.preview);
   if (S.preview) pv.innerHTML = PREVIEWS.map(([k, label]) => `<button class="${k === S.preview ? 'on' : ''}" data-act="preview" data-kind="${k}">${label}</button>`).join('')
     + `<button data-act="previewExit">✕ Exit</button>`;
-  updatePreview(); tick();
+  updatePreview(); updateGuess(); tick();
   if (S.shake) {
     S.shake = false;
     const bar = $('guess') && $('guess').closest('.bar');
@@ -958,7 +979,7 @@ function lobbyScreen() {
         <div><label>Wrong guess costs</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
         ${st.teams === 'one' ? '' : `<div><label>First-to-guess bonus</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>`}
         <div><label>Quick-guess bonus (drops 1 per second)</label>${sel('speedSecs', [0, 10, 15, 20], st.speedSecs, x => x ? 'up to +' + x : 'off')}</div>
-        ${st.teams === 'one' ? '' : `<div><label>Last-chance timer</label>${sel('lastChance', [5, 10, 15], st.lastChance, x => x + ' sec', EASY_HARD(15, 5))}</div>`}
+        ${st.teams === 'one' ? '' : `<div><label>Last-chance timer</label>${sel('lastChance', [10, 15, 20], st.lastChance, x => x + ' sec', EASY_HARD(20, 10))}</div>`}
       </div>
     </details></div>
     <div class="lobbystart" style="margin-top:14px">${V.isHost
@@ -1149,20 +1170,22 @@ function logHtml(T) {
 }
 
 // the keyword box a clue-giver sees: theme, banned letters, the keyword (with the Pass? button for Clue-giver 1 when `canPass`)
-function secretHtml(r, canPass) {
+function secretHtml(r) {
   const ban = r.banned || [];
   return `<div class="secret">
-      ${canPass && r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? 'Swap this word for a new one' : "Don't know the word? Ask the other team to pass it for both teams"}">Pass?</button>` : canPass && r.pass && r.pass.asking ? `<span class="passbtn asked">Asking ${esc(V.names[1 - V.myTeam])}…</span>` : ''}
-      <div class="sec-theme">Theme: <b>${esc(r.cat)}</b> · banned: <b>${ban.join(' ') || 'none'}</b></div>
-      <div class="sec-key"><span class="kw">Keyword:</span> <span class="w" style="${r.word.length > 14 ? 'font-size:1.15rem' : r.word.length > 9 ? 'font-size:1.45rem' : ''}">${esc(r.word)}</span></div>
+      <div class="sec-top"><span class="sec-theme">Theme: <b>${esc(r.cat)}</b></span><span class="sec-ban">Banned: <b>${ban.join(' ') || 'none'}</b></span></div>
+      <div class="sec-tag">Keyword</div>
+      <div class="sec-key"><span class="w" style="${r.word.length > 14 ? 'font-size:1.5rem' : r.word.length > 9 ? 'font-size:1.9rem' : ''}">${esc(r.word)}</span></div>
     </div>`;
 }
+// Clue-giver 1's "Pass?" button (or the note that they've asked), shown in the header row beside the timer
+const passHtml = r => r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? 'Swap this word for a new one' : "Don't know the word? Ask the other team to pass it for both teams"}">Pass?</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">Asking ${esc(V.names[1 - V.myTeam])}…</span>` : '';
 function giverPanel(T, theme, blanks) {
   const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
-  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">Used in Clue ${p.n}</div>${esc(p.letters) || '(none)'}${p.symbols ? ` <span class="usym">${esc(p.symbols)}</span>` : ''}<small>The clue has ${plural(p.letterCount, 'letter')} and ${plural(p.symbolCount, 'symbol')}. Shown in alphabetical order, repeats only once.</small></div>`).join('');
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">Used in Clue ${p.n}</div>${esc(p.letters) || '(none)'}${p.symbols ? ` <span class="usym">${esc(p.symbols)}</span>` : ''}<small>The clue has <b>${p.letterCount}</b> ${p.letterCount === 1 ? 'letter' : 'letters'} and <b>${p.symbolCount}</b> ${p.symbolCount === 1 ? 'symbol' : 'symbols'}.<br>Shown in alphabetical order, repeats only once.</small></div>`).join('');
   const count = r.blanks.filter(Boolean).length;
-  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
-    ${secretHtml(r, true)}
+  const top = `<div class="giverhead"><span class="rolechip">${V.settings.teamSize === 2 ? `Clue-giver` : `Clue-giver ${n}`}${r.roleNames ? `: ${esc(r.roleNames['giver' + n])}` : ''}</span><span class="hdr-r">${passHtml(r)}${timerPill(true)}</span></div>
+    ${secretHtml(r)}
     ${used}
     <div class="bar"><input id="clue" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your clue" value="${esc(S.draft.clue)}"><button data-act="sendClue">➜</button></div>
     <div class="preview" id="preview"></div>
@@ -1174,10 +1197,10 @@ function guesserPanel(T, theme, blanks) {
   // Clue-givers can't type the keyword's first few consonants, so a consonant that shows up in a clue is a poor guess.
   const seen = [...new Set([...(T.clues || []).join('')].filter(c => /[A-Z]/.test(c) && !'AEIOU'.includes(c)))];
   const top = `${theme}${blanks}
-    <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your guess" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
+    <div class="bar"><input id="guess" class="caps" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type your guess" value="${esc(S.draft.guess)}"><span class="gcount" id="gcount"></span><button id="sendguess" data-act="sendGuess">➜</button></div>
     <div class="preview one">Wrong guess −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">give up</button> (${T.clueSpent ? `+${T.clueSpent} points back` : 'letters refunded'})</div>`;
   return [top, `<div class="keys">${keyboard([], 'guess', seen)}</div>
-    ${seen.length ? `<div class="keyhint"><b>Dimmed</b> letters showed up in the clues, so there's a chance they're not in the keyword.</div>` : ''}
+    ${seen.length ? `<div class="keyhint">Letters with a <b>dot</b> showed up in the clues, so there's a chance they're not in the keyword.</div>` : ''}
     ${logHtml(T)}`];
 }
 
@@ -1253,7 +1276,7 @@ function overScreen() {
   if (SOLO()) {
     const R = V.rating;
     return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0]).toUpperCase()} · ${V.settings.words} WORDS</div>
-      <div class="gradehead"><div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--g${R.rank})">${esc(R.label)}</div><div class="quote">“${esc(R.quote)}”</div></div>
+      <div class="gradehead"><div class="logo display" style="font-size:clamp(2.8rem,15vw,4.6rem);color:var(--g${R.rank})">${esc(R.label)}</div><div class="quote">“${esc(R.quote)}”</div></div>
       <div class="finalscore"><b>${R.score}</b> points</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
       ${gameReviewHtml([0])}${back}</div>`;
@@ -1306,6 +1329,13 @@ function tick() {
 }
 setInterval(tick, 250);
 
+// a guess needs exactly as many letters as the keyword has: the counter shows how close it is, and Send waits until it matches
+function updateGuess() {
+  const inp = $('guess'); if (!inp || !V || !V.round) return;
+  const need = V.round.blanks.filter(Boolean).length, n = lettersOnly(inp.value), c = $('gcount'), b = $('sendguess');
+  if (c) { c.textContent = n + '/' + need; c.classList.toggle('ok', n === need); }
+  if (b) b.disabled = n !== need;
+}
 function updatePreview() {
   const el = $('preview'), inp = $('clue'); if (!el || !inp || !V || !V.round) return;
   const T = V.round.teams[V.myTeam], used = T.used || 0, n = lettersOnly(inp.value), c = clueCost(inp.value, used);
@@ -1338,7 +1368,7 @@ function mockView(kind) {
   const names = ['Team 1', 'Team 2'];
   const v = {
     phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { first: YKWIM.FIRST_COST, start: YKWIM.START_COST, step: YKWIM.STEP, symbol: YKWIM.SYMBOL_COST }, myTeam: 0, myRoles: [],
-    settings: { lang: 'en', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false },
+    settings: { lang: 'en', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 15, sequential: false },
     players: [{ id: 'host', name: 'You', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'You' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
   };
@@ -1400,6 +1430,7 @@ document.addEventListener('click', e => {
       return d.act === 'create' ? hostRoom(S.name) : joinRoom(S.name, S.code);
     }
     case 'leaveRoom': return leaveRoom();
+    case 'home': return goHome();
     case 'copyCode': if (navigator.clipboard && net) navigator.clipboard.writeText(net.code).then(() => toast('Room code copied'), () => {}); return;
     case 'preview': return showPreview(d.kind);
     case 'previewExit': document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render();
@@ -1430,38 +1461,40 @@ document.addEventListener('click', e => {
     case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('Link copied!')); return;
     case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
     case 'sendClue': S.draft.clue = ''; return send({ type: 'clue', text: $('clue').value });
-    case 'sendGuess': { const g = $('guess').value; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
+    case 'sendGuess': { const g = $('guess').value; if (lettersOnly(g) !== V.round.blanks.filter(Boolean).length) return; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
     case 'key': {
       const inp = $(d.target); if (!inp) return;
       inp.value = d.k === 'CLEAR' ? '' : d.k === '⌫' ? inp.value.slice(0, -1) : inp.value + d.k;
-      S.draft[d.target] = inp.value; if (d.target === 'clue') updatePreview(); return;
+      S.draft[d.target] = inp.value; if (d.target === 'clue') updatePreview(); else updateGuess(); return;
     }
   }
 });
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'clue') t.value = [...t.value].filter(c => /[A-Za-z]/.test(c) || YKWIM.SYMBOLS.includes(c)).join('');
-  if (t.id === 'clue' || t.id === 'guess') { t.value = t.value.toUpperCase(); S.draft[t.id] = t.value; if (t.id === 'clue') updatePreview(); }
+  if (t.id === 'clue' || t.id === 'guess') { t.value = t.value.toUpperCase(); S.draft[t.id] = t.value; if (t.id === 'clue') updatePreview(); else updateGuess(); }
   if (t.id === 'name') S.name = t.value;
   if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
 });
 // iOS can leave the landing page shifted up after the keyboard closes: ease it back, once, after typing there.
 // (never anywhere else, and never just because the viewport resized: that fires while you scroll, as the browser bar collapses)
-let unshiftTimer, typedOnLanding = false;
+let unshiftTimers = [], typedOnLanding = false;
 const unshift = () => {
-  clearTimeout(unshiftTimer);
-  unshiftTimer = setTimeout(() => {
+  unshiftTimers.forEach(clearTimeout);
+  unshiftTimers = [160, 450, 900].map((ms, i) => setTimeout(() => {   // the keyboard takes a moment to leave: check a few times
     const a = document.activeElement;
     if (!typedOnLanding || (a && a.matches && a.matches('input, textarea'))) return;
-    typedOnLanding = false;
+    if (i === 2) typedOnLanding = false;
     const s = document.querySelector('.stage.home');
     if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
     if (s && s.scrollTop > 0) s.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 160);
+    // iOS can also leave the page panned up without any scrolling at all (the visual viewport, not the page): a plain scroll to the top resets that
+    if (window.visualViewport && visualViewport.offsetTop > 0) window.scrollTo(0, 0);
+  }, ms));
 };
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea') && document.documentElement.classList.contains('landing')) typedOnLanding = true; });
 document.addEventListener('focusout', () => { if (typedOnLanding) unshift(); });
-if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (typedOnLanding) unshift(); });
+if (window.visualViewport) ['resize', 'scroll'].forEach(ev => visualViewport.addEventListener(ev, () => { if (typedOnLanding && !(document.activeElement && document.activeElement.matches && document.activeElement.matches('input, textarea'))) unshift(); }));
 // landing page: freeze the drifting background while a text box has focus (the phone keyboard is up)
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('typing'); });
 document.addEventListener('focusout', () => document.documentElement.classList.remove('typing'));
@@ -1472,6 +1505,7 @@ document.addEventListener('change', e => {
   if (t.dataset.teamname !== undefined && net) net.send({ type: 'teamName', team: +t.dataset.teamname, name: t.value });
 });
 document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('mark')) { e.preventDefault(); goHome(); return; }
   if (e.key === 'Escape' && S.ddOpen) { S.ddOpen = null; render(); return; }
   if (e.key !== 'Enter') return;
   if (e.target.id === 'clue') document.querySelector('[data-act="sendClue"]').click();

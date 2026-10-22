@@ -38,7 +38,7 @@
       : !e.top && e.word.length >= t.min && e.word.length <= t.max));
   };
   const SYMBOL_COST = 5;             // every symbol costs a flat 5, and doesn't move the letter price up
-  const DEFAULT_SETTINGS = { lang: 'en', teams: 'two', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 10, sequential: false };
+  const DEFAULT_SETTINGS = { lang: 'en', teams: 'two', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 15, sequential: false };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the
   // starting bank (they scale with the number of words and the bank). Worked out for a 1 + 2 team where a solved word pays ~128
   // (reward plus bonuses), letters cost 5, 8, 10, 12... per clue-giver, and a word the team doesn't get costs nothing (letters refunded):
@@ -257,6 +257,8 @@
     function guess(t, raw) {
       const T = G.teams[t], text = norm(raw).toUpperCase().slice(0, 24);
       if (!text) return {};
+      const want = norm(G.card.word).length;
+      if (text.length !== want) return { error: `It has ${want} letters.` };   // the wrong number of letters isn't a guess: no penalty, nothing sent
       if (text.toLowerCase() === norm(G.card.word)) {
         T.log.push({ text, ok: true });
         // A correct guess pays the reward plus the first-to-guess and quick-guess bonuses (letters were already paid for).
@@ -342,7 +344,7 @@
           }
           else if (m.key === 'mode' && ['score', 'words'].includes(m.value) && s.teams === 'two') s.mode = m.value;
           else if (m.key === 'banCount' && [1, 2, 3].includes(n)) s.banCount = n;
-          else if (m.key === 'lastChance' && [5, 10, 15].includes(n)) s.lastChance = n;
+          else if (m.key === 'lastChance' && [10, 15, 20].includes(n)) s.lastChance = n;
           else if (m.key === 'teamSize' && [2, 3, 4].includes(n) && !(n === 2 && s.teams === 'one')) {   // playing without an opponent needs at least 2 clue-givers
             if (s.teams === 'one' && s.words === 2 * s.teamSize) s.words = 2 * n;   // co-op: two words per player, until the host picks another number
             s.teamSize = n; // seats beyond the new size are dropped
