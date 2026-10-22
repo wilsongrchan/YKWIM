@@ -495,6 +495,14 @@
   .timer.hot { margin: 0 auto 10px; border-radius: 999px; } .timer.hot.inl { margin: 0; } .timer.hot + .slots { padding-top: 10px; }
   .giverhead + .slots { padding-top: 10px; }
   .timer.inl small { display: none; }
+  /* the link to the Chinese version: a round button top right, landing page only (mid-game it would walk you out of the room).
+     Three round buttons on the right (中, settings, help): wider side columns, the same on both sides so the name stays centred. */
+  .icon.zhbtn, .icon.zhbtn:hover { text-decoration: none !important; font: 600 .95rem var(--body); }
+  .zhbtn[hidden] { display: none; }
+  .masthead { grid-template-columns: 144px 1fr 144px; }
+  .icons .icon { flex: 0 0 auto; width: 38px; height: 38px; aspect-ratio: 1; }   /* always a small round button: never squeezed into an oval */
+  @media (max-width: 480px) { .masthead, #wrap.landing .masthead { grid-template-columns: 112px 1fr 112px; } .icons { gap: 5px; } .icons .icon { width: 34px; height: 34px; } }
+  @media (max-width: 340px) { .masthead, #wrap.landing .masthead { grid-template-columns: 100px 1fr 100px; } .icons { gap: 4px; } .icons .icon { width: 30px; height: 30px; font-size: .95rem; } .zhbtn { font-size: .8rem; } }
 </style>
 </head>
 <body>
@@ -504,6 +512,7 @@
     <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="Room code: anyone can rejoin with it. Tap to copy."></button>
     <div class="mark"><span class="markT">YKWIM</span><span id="markIcon"></span><small>you know what i mean</small></div>
     <div class="icons">
+      <a class="icon zhbtn" id="zhbtn" href="zh/" aria-label="中文版 (Chinese version)" title="中文版 (Chinese version)">中</a>
       <button class="icon" data-act="themes" aria-label="Display settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       <button class="icon" id="helpbtn" data-act="help" aria-label="How to play">?</button>
       <div id="helpnudge" class="helpnudge" hidden>New here? Read the rules</div>
@@ -864,6 +873,7 @@ function render() {
   const chip = $('roomchip'); chip.style.visibility = V && net && net.code ? '' : 'hidden'; if (V && net && net.code) chip.innerHTML = `<small>Room</small>${esc(net.code)}`;
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
   $('wrap').classList.toggle('landing', !V);
+  $('zhbtn').hidden = !!V;
   document.documentElement.classList.toggle('landing', !V);
   const fb = !!V && V.phase !== 'lobby' && S.feedback && S.feedback.until > Date.now() ? S.feedback : null;
   // while a word is being played, the accent colour (keyword, buttons, outlines) is the colour of the team on this screen
@@ -896,7 +906,6 @@ function homeScreen() {
     <p class="sub center" style="margin:16px 0 8px">or join a friend's room</p>
     <div class="bar"><input id="code" class="caps" maxlength="4" placeholder="ROOM CODE" value="${esc(S.code)}"><button data-act="join" style="font-size:1.05rem" ${S.busy ? 'disabled' : ''}>Join</button></div>
     <div class="msg">${esc(S.err)}${S.busy ? 'Connecting…' : ''}</div>
-    <p class="sub center" style="font-size:.8rem;margin:0 0 8px"><a href="zh/" style="color:inherit">中文版 →</a></p>
     ${IS_LOCAL ? `<button class="ghost" style="width:100%;font-size:.85rem" data-act="preview" data-kind="giver1">👀 Preview the screens (no game needed)</button>` : ''}
   </div>`;
 }
