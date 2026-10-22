@@ -769,7 +769,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022zza"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022zzb"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1525,14 +1525,20 @@ function giverPanel(T, theme, blanks) {
 
 // The keyword never shares a sound with a clue (those characters are banned), so an answer with a character that sounds like a clue character
 // can't be right: warn before it is sent and costs a wrong guess.
-const GUESS_WARN = '這個答案含有與提示同音的字', GUESS_ASK = '這個答案含有與提示同音的字，是否確定提交？';
+// Says which character it is and how it is read (in the pinyin or zhuyin this device is set to), e.g. 「寶」讀 bao，和提示「報」同音
 function guessWarn(text) {
   const T = V && V.round && V.myTeam !== null && V.round.teams[V.myTeam];
-  if (!T || !T.clues || !READ) return false;
-  const keys = new Set();
-  T.clues.flat().forEach(it => { const rs = it.han && readingsOf(it.han); if (rs) rs.forEach(x => keys.add(YKWIM.soundKey(x))); });
-  return [...String(text || '')].some(ch => { if (!YKWIM.isHan(ch)) return false; const rs = readingsOf(ch); return !!rs && rs.some(x => keys.has(YKWIM.soundKey(x))); });
+  if (!T || !T.clues || !READ) return null;
+  const clueOf = new Map();   // sound -> the clue character that has it
+  T.clues.flat().forEach(it => { const rs = it.han && readingsOf(it.han); if (rs) rs.forEach(x => { const k = YKWIM.soundKey(x); if (!clueOf.has(k)) clueOf.set(k, it.han); }); });
+  for (const ch of String(text || '')) {
+    if (!YKWIM.isHan(ch)) continue;
+    const rs = readingsOf(ch), hit = rs && rs.find(x => clueOf.has(YKWIM.soundKey(x)));
+    if (hit) return { ch, sound: phText(YKWIM.soundOf(hit)), clue: clueOf.get(YKWIM.soundKey(hit)) };
+  }
+  return null;
 }
+const guessWarnText = w => `「${w.ch}」讀 ${w.sound}，和提示「${w.clue}」同音`;
 // an answer needs exactly as many characters as the keyword has: the counter shows how close it is, and Send waits until it matches
 function updateGuess() {
   const inp = $('guess'); if (!inp || !V || !V.round) return;
@@ -1542,7 +1548,7 @@ function updateGuess() {
 }
 function updateGuessWarn() {
   const w = $('gwarn'), g = $('guess'); if (!w || !g) return;
-  const on = guessWarn(g.value); w.hidden = !on; if (on) w.textContent = '⚠ ' + GUESS_WARN;
+  const on = guessWarn(g.value); w.hidden = !on; if (on) w.textContent = '⚠ ' + guessWarnText(on);
 }
 function guesserPanel(T, theme, blanks) {
   const top = `${theme}${blanks}
@@ -1720,7 +1726,7 @@ function checkClue() {
       if (rs && !rs.length) m = `查不到「${ch}」的讀音`;
       else if (rs) {
         const hit = rs.find(x => ban.includes(YKWIM.soundOf(x).py));
-        if (hit) m = `「${ch}」讀 ${YKWIM.soundOf(hit).py}，和謎底同音，不能用`;
+        if (hit) m = `「${ch}」讀 ${phText(YKWIM.soundOf(hit))}，和謎底同音，不能用`;
         else { const sounds = [...new Map(rs.map(x => [YKWIM.soundKey(x), YKWIM.soundOf(x)])).values()]; if (later && sounds.length > 1) asks.set(ch, sounds); }
       }
     }
@@ -1870,7 +1876,7 @@ document.addEventListener('click', e => {
       if (c.total > CLUE_ASK && !confirm(`這個提示字要花 ${c.total} 點，超過 ${CLUE_ASK} 點。確定要提交嗎？`)) return;
       return send({ type: 'clue', text: S.draft.clue, picks: S.draft.picks });
     }
-    case 'sendGuess': { const g = $('guess').value; if ([...g].filter(YKWIM.isHan).length !== V.round.blanks.length) return; if (guessWarn(g) && !confirm(GUESS_ASK)) return; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
+    case 'sendGuess': { const g = $('guess').value; if ([...g].filter(YKWIM.isHan).length !== V.round.blanks.length) return; { const gw = guessWarn(g); if (gw && !confirm(guessWarnText(gw) + '，確定要提交嗎？')) return; } S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
   }
 });
 document.addEventListener('input', e => {
