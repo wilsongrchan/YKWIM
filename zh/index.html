@@ -585,12 +585,16 @@
   .gradehead .logo, .vsg .g { font-weight: 400; }
   .gname { display: inline-block; white-space: nowrap; } .gname .gz { display: inline-block; transform-origin: 50% 70%; } .gname .gt { display: inline-block; }
   .gname .gz.play { opacity: 0; animation: gzIn .5s ease-out forwards; animation-delay: calc(1s + var(--k, 0) * .3s); }
-  .gname .gz.slam.play { animation: gzSlam .6s cubic-bezier(.2, .9, .3, 1) forwards; animation-delay: .15s; }
+  .gname .gz.slam { position: relative; } .gname .gz.slam.play { animation: gzSlam .7s cubic-bezier(.3, .8, .35, 1) forwards, gzShadow .7s ease-out forwards; animation-delay: .15s; transform-origin: 50% 90%; }
   @keyframes gzIn { from { opacity: 0; transform: translateY(.35em) scale(.9); } to { opacity: 1; transform: none; } }
-  @keyframes gzSlam { 0% { opacity: 0; transform: scale(3.4) rotate(-14deg); } 55% { opacity: 1; transform: scale(.88) rotate(2deg); } 75% { transform: scale(1.06) rotate(-1deg); } 100% { opacity: 1; transform: none; } }
-  .gradehead:has(.gz.slam.play) { animation: gzThud .35s ease-out .5s; }
-  @keyframes gzThud { 0%, 100% { transform: translate(0); } 25% { transform: translate(-2px, 3px); } 55% { transform: translate(2px, -2px); } 80% { transform: translate(-1px, 1px); } }
-  @media (prefers-reduced-motion: reduce) { .gname .gz.play, .gname .gz.slam.play, .gradehead:has(.gz.slam.play) { animation: none; opacity: 1; } }
+  @keyframes gzSlam { 0% { opacity: 0; transform: scale(3.6) rotate(-14deg); } 50% { opacity: 1; transform: scale(1) rotate(0); } 58% { transform: scale(1.18, .72) rotate(0); } 72% { transform: scale(.94, 1.08) rotate(-1.5deg); } 86% { transform: scale(1.02, .98); } 100% { opacity: 1; transform: none; } }
+  @keyframes gzShadow { 0% { filter: drop-shadow(0 .9em .5em rgba(0, 0, 0, .0)); } 40% { filter: drop-shadow(0 .6em .35em rgba(0, 0, 0, .55)); } 55% { filter: drop-shadow(0 .06em .04em rgba(0, 0, 0, .9)); } 100% { filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0)); } }
+  .gname .imp { position: absolute; left: 50%; bottom: -.08em; width: 1.3em; height: .38em; margin-left: -.65em; border-radius: 50%; border: .07em solid rgba(255, 255, 255, .75); background: radial-gradient(ellipse at center, rgba(0, 0, 0, .45), rgba(0, 0, 0, 0) 70%); opacity: 0; pointer-events: none; animation: gzImp .55s ease-out .52s forwards; }
+  .gname .imp.r2 { border-width: .03em; animation-delay: .6s; }
+  @keyframes gzImp { 0% { opacity: .95; transform: scale(.3, .3); } 100% { opacity: 0; transform: scale(2.6, 1.9); } }
+  .gradehead:has(.gz.slam.play) { animation: gzThud .45s ease-out .52s; }
+  @keyframes gzThud { 0%, 100% { transform: translate(0); } 15% { transform: translate(-3px, 5px); } 40% { transform: translate(3px, -3px); } 65% { transform: translate(-2px, 2px); } 85% { transform: translate(1px, -1px); } }
+  @media (prefers-reduced-motion: reduce) { .gname .gz.play, .gname .gz.slam.play, .gradehead:has(.gz.slam.play) { animation: none; opacity: 1; } .gname .imp { display: none; } }
   :root[data-script="sc"] .gradehead .logo, :root[data-script="sc"] .vsg .g { font-family: "Lilita One", "ZCOOL KuaiLe", var(--cjk); }   /* the grade names have simplified-only characters the logo face lacks, so one rounded simplified face carries the whole name */
   :root[data-script="sc"] { --cjk: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif; }
 </style>
@@ -1397,8 +1401,11 @@ function climb(history) {
 function gradeWord(label, score) {
   const chars = [...label], last = chars.map(isHanCh).lastIndexOf(true), key = label + ':' + score, play = S.gradeKey !== key;
   S.gradeKey = key;
-  const units = chars.slice(0, last).map(c => [c, '']).concat([[chars[last], chars.slice(last + 1).join('')]]);   // trailing ！ or ⋯⋯ travels with the last character
-  return units.map(([c, tail], i) => `<span class="gz${i === last ? ' slam' : ''}${play ? ' play' : ''}" style="--k:${i}">${esc(c)}${tail ? `<span class="gt">${esc(tail)}</span>` : ''}</span>`).join('');
+  const tail = chars.slice(last + 1).join('');   // a trailing ！ or ⋯⋯ comes in with the rest, never with the stamp
+  const one = (c, cls, k) => `<span class="gz${cls}${play ? ' play' : ''}" style="--k:${k}">${esc(c)}</span>`;
+  return chars.slice(0, last).map((c, i) => one(c, '', i)).join('')
+    + `<span class="gz slam${play ? ' play' : ''}">${esc(chars[last])}${play ? '<i class="imp"></i><i class="imp r2"></i>' : ''}</span>`
+    + (tail ? one(tail, ' gp', last) : '');
 }
 const isHanCh = c => /\p{Script=Han}/u.test(c);
 function overScreen() {
