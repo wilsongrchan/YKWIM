@@ -43,6 +43,11 @@
   .masthead { display: grid; grid-template-columns: 92px 1fr 92px; align-items: center; padding: 0 2px 8px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--ov) 18%, transparent); }
   .roomchip { justify-self: start; padding: 5px 10px; border-radius: 999px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; font-size: .85rem; letter-spacing: .12em; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); }
   @media (max-width: 380px) { .roomchip { padding: 5px 8px; font-size: .78rem; letter-spacing: .08em; } .roomchip small { display: none; } }
+  .roomchip.two { display: flex; gap: 10px; padding: 6px 12px; border-radius: 16px; text-align: left; line-height: 1.2; }
+  .roomchip.two .rc { display: flex; flex-direction: column; align-items: flex-start; }
+  .roomchip.two .rc small { display: block; margin: 0 0 3px; font-size: .64rem; letter-spacing: .1em; white-space: nowrap; }
+  .roomchip.two .kwl { color: var(--accent-text); }
+  @media (max-width: 380px) { .roomchip.two { gap: 9px; padding: 6px 10px; } .roomchip.two .rc small { display: block; font-size: .6rem; letter-spacing: .08em; } }
   .roomchip small { font-family: var(--body); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-right: 6px; }
   #wrap:not(.landing) .masthead .mark { cursor: pointer; }
   .masthead .mark { text-align: center; font-family: var(--display); font-style: normal; font-size: 1.7rem; letter-spacing: .06em; line-height: 1; }
@@ -303,7 +308,8 @@
   .timer.warn { color: var(--bad); animation: blinkred .5s steps(2, jump-none) infinite; }   /* last 5 seconds of writing */
   @keyframes blinknum { 50% { color: var(--text); } }
   @keyframes blinkred { 50% { background: var(--bad); color: var(--navy); } }
-  .timenote { margin-top: 4px; min-height: 1.3em; text-align: center; font-size: .85rem; font-weight: 500; color: var(--bad); } .timenote.off { visibility: hidden; }   /* hidden, not removed, so showing it doesn't move the keyboard */
+  .timenote { height: 1.7rem; margin-top: -1.7rem; display: flex; align-items: center; justify-content: center; text-align: center; font-size: .8rem; line-height: 1.15; font-weight: 500; color: var(--bad); position: relative; } .timenote.off { visibility: hidden; }   /* sits over the cost line (which hides while it shows), so it takes no room and showing it doesn't move the keyboard */
+  .preview:has(+ .timenote:not(.off)) { visibility: hidden; }
   .slots { display: flex; gap: 10px; background: var(--well); border-radius: 18px; padding: 26px 10px 10px; margin-bottom: 12px; }
   .slot { flex: 1; min-height: 70px; border-radius: 12px; background: color-mix(in srgb, var(--ov) 6%, transparent); display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center; padding: 8px 4px; overflow: hidden; }
@@ -386,15 +392,18 @@
   .used small b { font-weight: 700; color: var(--text); }
   .used small { display: block; font-family: var(--body); font-size: .72rem; letter-spacing: 0; color: var(--soft); font-weight: 500; }
 
-  .keys { display: grid; grid-template-columns: repeat(22, minmax(0, 1fr)); gap: 5px; margin: 8px auto 0; max-width: 480px; }
+  .keys { display: grid; grid-template-columns: repeat(22, minmax(0, 1fr)); gap: 5px; margin: 2px auto 0; max-width: 480px; }
   .keys button { width: 100%; height: 40px; padding: 0; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); border-radius: 10px; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
   .keys button.fn { font-size: .8rem; overflow: hidden; }
-  .keys button.kbtoggle { justify-self: end; width: auto; height: 26px; padding: 0 12px; margin-bottom: 2px; font-size: .72rem; letter-spacing: .06em; border-radius: 999px; box-shadow: none; background: color-mix(in srgb, var(--ov) 10%, transparent); }
+  .keys button.kbtoggle { grid-column: 17 / -1; justify-self: end; width: auto; height: 26px; padding: 0 12px; margin-bottom: 2px; font-size: .72rem; letter-spacing: .06em; border-radius: 999px; box-shadow: none; background: color-mix(in srgb, var(--ov) 10%, transparent); }
   .symrow { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; margin-top: 2px; padding-top: 6px; border-top: 1px dashed color-mix(in srgb, var(--ov) 20%, transparent); }
   .symrow button { background: color-mix(in srgb, var(--ov) 8%, transparent); height: 30px; font-size: .85rem; box-shadow: none; }
-  .accrow { grid-column: 1 / -1; display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 2px; }
-  .accrow button { flex: 0 0 auto; min-width: 30px; height: 34px; padding: 0 6px; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); border-radius: 9px; box-shadow: none; font-size: .95rem; }
-  .accrow button:disabled { background: rgba(0,0,0,.2); color: var(--soft); opacity: .5; }
+  .accgrp { grid-column: 1 / span 16; grid-row: 1; display: flex; gap: 3px; align-items: center; margin-bottom: 2px; min-width: 0; }
+  .accgrp.open { grid-column: 1 / -1; z-index: 1; }   /* opened, it takes over the row above Q W E R T Y U … and the layout switch waits underneath */
+  .keys:has(.accgrp.open) .kbtoggle { visibility: hidden; }
+  .keys .accgrp button { flex: 1 1 0; min-width: 0; max-width: 38px; width: auto; height: 30px; padding: 0; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); border-radius: 8px; box-shadow: none; font-size: .9rem; }
+  .keys .accgrp button.acctog { flex: 0 0 auto; max-width: none; padding: 0 10px; font-size: .75rem; letter-spacing: .04em; }
+  .keys .accgrp button:disabled { background: rgba(0,0,0,.2); color: var(--soft); opacity: .5; }
   .symrow::before { content: var(--symlbl, "Symbols cost 5 each"); grid-column: 1 / -1; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
   .keys button:hover { background: color-mix(in srgb, var(--ov) 24%, transparent); }
   .keys button { position: relative; }
@@ -608,8 +617,8 @@
 <div id="tip" class="tip hide" role="tooltip"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="i18n.js?v=20261023g"></script>   <!-- Spanish and French text: bump the ?v= whenever it changes -->
-<script src="game.js?v=20261023a"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="i18n.js?v=20261023l"></script>   <!-- Spanish and French text: bump the ?v= whenever it changes -->
+<script src="game.js?v=20261023d"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -888,8 +897,7 @@ function costDiagram() {
 
 const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
 const lettersOnly = s => (String(s).match(/\p{L}/gu) || []).length;
-const priceOf = i => i === 0 ? V.costs.first : V.costs.start + V.costs.step * i;
-const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += priceOf(used + i); return c; };
+const priceOf = YKWIM.priceOf, costOf = YKWIM.costOf;
 const clueCost = (text, used) => { const n = lettersOnly(text); return costOf(n, used) + V.costs.symbol * ([...text].length - n); };
 // ban: keys that can't be used (disabled). seen: keys to flag but leave usable (guesser's hint).
 const KEY_LAYOUTS = {   // rows are [letters, first column] on a 22-column grid, two columns a key; fn = where Clear and backspace sit
@@ -897,16 +905,21 @@ const KEY_LAYOUTS = {   // rows are [letters, first column] on a 22-column grid,
   abc: { rows: [['ABCDEFGHI', 1], ['JKLMNOPQR', 1], ['STUVWXYZ', 1]], fn: '19 / span 4' },
   azerty: { rows: [['AZERTYUIOP', 1], ['QSDFGHJKLM', 1], ['WXCVBN', 4]], fn: '21 / span 2' }   // the French layout: ten keys on the middle row leave room for one narrow key at the end
 };
-const ACCENTS = { es: 'ÑÁÉÍÓÚÜ', fr: 'ÉÈÊÀÂÇÙÛÎÏÔÜ' };
-const NEXT_LAYOUT = { qwerty: 'azerty', azerty: 'abc', abc: 'qwerty' };
-const keyboard = (ban = [], target, seen = [], L = KEY_LAYOUTS[DISPLAY.keys] || KEY_LAYOUTS.qwerty) =>
+const KW_CODE = { en: 'ENG', es: 'ESP', fr: 'FRA' };   // the room's keyword language, shown when it differs from the interface language
+const ACCENTS = { es: 'ÑÁÉÍÓÚ', fr: 'ÉÈÊÀÂÇÙÛÎÏÔ' };   // only what the room's language uses
+let ACC_OPEN = false;   // the accent keys sit folded away above Q W E until asked for
+const layoutNow = () => DISPLAY.keys === 'azerty' && LANG !== 'fr' ? 'qwerty' : (KEY_LAYOUTS[DISPLAY.keys] ? DISPLAY.keys : 'qwerty');   // AZERTY is only offered on a French interface
+const nextLayout = () => ({ qwerty: LANG === 'fr' ? 'azerty' : 'abc', azerty: 'abc', abc: 'qwerty' })[layoutNow()];
+const keyboard = (ban = [], target, seen = [], L = KEY_LAYOUTS[layoutNow()]) =>
   // top row: a small switch between the two layouts (it shows the one you'd get)
-  `<button type="button" class="kbtoggle" data-act="keys" data-v="${NEXT_LAYOUT[DISPLAY.keys] || 'qwerty'}" style="grid-column:1 / -1;grid-row:1" aria-label="${tr('Switch keyboard layout')}">⌨ ${(NEXT_LAYOUT[DISPLAY.keys] || 'qwerty').toUpperCase()}</button>`
+  `<button type="button" class="kbtoggle" data-act="keys" data-v="${nextLayout()}" style="grid-row:1" aria-label="${tr('Switch keyboard layout')}">⌨ ${nextLayout().toUpperCase()}</button>`
   + L.rows.map(([row, col], r) => [...row].map((c, i) => `<button data-act="key" data-target="${target}" data-k="${c}" style="grid-column:${col + 2 * i} / span 2;grid-row:${r + 2}"${ban.includes(c) ? ' disabled' : seen.includes(c) ? ' class="seen"' : ''}>${c}</button>`).join('')).join('')
   + `<button class="fn" data-act="key" data-target="${target}" data-k="CLEAR" style="grid-column:${L.fn};grid-row:3" aria-label="${tr('Clear all')}">${L === KEY_LAYOUTS.azerty ? '✕' : tr('Clear')}</button>`
   + `<button class="fn" data-act="key" data-target="${target}" data-k="⌫" style="grid-column:${L.fn};grid-row:4" aria-label="${tr('Backspace')}">⌫</button>`
-  // Spanish and French rooms get a row of accented letters (ñ, é, ç…). They count as the plain letter, so they are never needed, only nice to have.
-  + (ACCENTS[V && V.settings ? V.settings.lang : 'en'] ? `<div class="accrow" style="grid-row:${target === 'clue' ? 6 : 5}">${[...ACCENTS[V.settings.lang]].map(c => { const base = c.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); return `<button data-act="key" data-target="${target}" data-k="${c}"${ban.includes(base) ? ' disabled' : ''}>${c}</button>`; }).join('')}</div>` : '')
+  // Spanish and French rooms get their accented letters (ñ, é, ç…) in the empty corner above Q W E: folded to a small button, it opens rightward. They count as the plain letter, so they are never needed, only nice to have.
+  + (ACCENTS[V && V.settings ? V.settings.lang : 'en'] ? (() => { const A = [...ACCENTS[V.settings.lang]]; return `<div class="accgrp${ACC_OPEN ? ' open' : ''}">` + (ACC_OPEN
+      ? `<button type="button" class="acctog" data-act="acc" aria-label="${tr('Close')}">‹</button>` + A.map(c => { const base = c.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); return `<button data-act="key" data-target="${target}" data-k="${c}"${ban.includes(base) ? ' disabled' : ''}>${c}</button>`; }).join('')
+      : `<button type="button" class="acctog" data-act="acc" aria-label="${tr('Accented letters')}">${A.slice(0, 3).join('')} ›</button>`) + `</div>`; })() : '')
   // symbols cost a flat 5 each in clues, so only the clue keyboard gets them
   + (target === 'clue' ? `<div class="symrow" style="grid-row:5;--symlbl:'${tr('Symbols cost 5 each').replace(/'/g, "\\'")}'">${[...YKWIM.SYMBOLS].map(c => `<button data-act="key" data-target="clue" data-k="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : '');
 // Settings dropdown. Closed, it shows just the short value; the open list can carry a faint hint (easy / hard).
@@ -927,7 +940,12 @@ function render() {
   const start = active && active.selectionStart;
   const nudge = !helpSeen() && !!V && V.phase === 'lobby' && !S.preview;   // first visit, in the lobby: point at the rules until they've been opened
   $('helpbtn').classList.toggle('nudge', nudge); $('helpnudge').hidden = !nudge;
-  const chip = $('roomchip'); chip.style.visibility = V && net && net.code ? '' : 'hidden'; if (V && net && net.code) chip.innerHTML = `<small>${tr('Room')}</small>${esc(net.code)}`;
+  const chip = $('roomchip'); chip.style.visibility = V && net && net.code ? '' : 'hidden'; if (V && net && net.code) {
+    chip.classList.toggle('two', V.settings.lang !== LANG);
+    chip.innerHTML = V.settings.lang !== LANG   // the room's words are in another language than this screen: say which, with a label over each
+      ? `<span class="rc"><small>${tr('Code')}</small>${esc(net.code)}</span><span class="rc kwl" title="${tr('Keyword language')}"><small>${tr('Lang')}</small>${KW_CODE[V.settings.lang] || ''}</span>`
+      : `<small>${tr('Room')}</small>${esc(net.code)}`;
+  }
   $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
   $('wrap').classList.toggle('landing', !V);
   $('zhwrap').hidden = !!V;   // the link to the separate Chinese game only on the landing page: mid-game it would walk you out of the room
@@ -1477,7 +1495,7 @@ function mockView(kind) {
   const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
   const names = ['Team 1', 'Team 2'];
   const v = {
-    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { first: YKWIM.FIRST_COST, start: YKWIM.START_COST, step: YKWIM.STEP, symbol: YKWIM.SYMBOL_COST }, myTeam: 0, myRoles: [],
+    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { symbol: YKWIM.SYMBOL_COST }, myTeam: 0, myRoles: [],
     settings: { lang: 'en', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 15, sequential: false },
     players: [{ id: 'host', name: 'Will', connected: true }, { id: 'f', name: 'Riley', connected: true }],
     seats: [[{ id: 'host', name: 'Will' }, { id: 'a', name: 'Sam' }, { id: 'b', name: 'Alex' }], [{ id: 'c', name: 'Jo' }, { id: 'd', name: 'Kai' }, null]]
@@ -1552,6 +1570,7 @@ document.addEventListener('click', e => {
     case 'mode': return setDisplay({ mode: d.v });
     case 'skipFeedback': S.feedback = null; return render();
     case 'size': return setDisplay({ size: d.v });
+    case 'acc': ACC_OPEN = !ACC_OPEN; if (V) render(); return;
     case 'keys': setDisplay({ keys: d.v }); if (V) render(); return;
     case 'lang': $('langmenu').classList.add('hide'); return setLang(d.v);
     case 'langmenu': $('langmenu').classList.remove('hide'); return;
@@ -1741,7 +1760,7 @@ function buildHelp() {
     </ul>
     <h3>${tr('Points')}</h3>
     <ul>
-      <li>${tr('Each team has a bank (200). Every letter costs points, and the cost climbs with each one (5, 8, 10, 12…) but resets for Clue-giver 2. Symbols cost 5.')}</li>
+      <li>${tr('Each team has a bank (200). Every letter costs points, and the cost climbs with each one (5, 8, 13, 21…) but resets for Clue-giver 2. Symbols cost 5.')}</li>
       <li>${tr('A correct guess earns a reward plus a quick-guess bonus. If both teams get it, the faster one also gets a first-to-guess bonus.')}</li>
       <li>${tr("You can only write a clue you can afford. A wrong guess costs points; giving up is free. If your team doesn't get the word, the letters are refunded.")}</li>
       <li>${tr('When one team guesses or gives up, the other gets a last-chance timer. Giving up is final.')}</li>
@@ -1802,6 +1821,7 @@ applyStatic(); buildHelp(); render();
   if (s && S.name && !S.code && !new URLSearchParams(location.search).has('preview')) { S.code = s.code; startRejoin(s.code, 4); }
 }
 if (IS_LOCAL && new URLSearchParams(location.search).has('preview')) showPreview('giver1');
+if (IS_LOCAL && new URLSearchParams(location.search).has('bot')) document.body.appendChild(Object.assign(document.createElement('script'), { src: 'bot.js' }));   // a bot plays Co-op by itself (see bot.js)
 </script>
 </body>
 </html>

@@ -78,9 +78,10 @@
   const DEFAULT_SETTINGS = { lang: 'en', teams: 'two', banCount: 2, teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: CATEGORIES, reward: 100, writeSecs: 30, penalty: 5, firstBonus: 20, speedSecs: 15, lastChance: 15, sequential: false };
   // One-team mode: a fixed number of words, then a grade from the final score. Cutoffs are points gained per 5 words over the
   // starting bank (they scale with the number of words and the bank). Worked out for a 1 + 2 team where a solved word pays ~128
-  // (reward plus bonuses), letters cost 5, 8, 10, 12... per clue-giver, and a word the team doesn't get costs nothing (letters refunded):
-  // grades go by the average gained a word: 75 for YKWIM, 65 for KWIM, 50 for WIM, 35 for IM (so 5 words: 375 / 325 / 250 / 175).
-  const RATING_CUTS = [175, 250, 325, 375];   // points gained per 5 words: an average of 35 / 50 / 65 / 75 a word
+  // (reward plus bonuses), letters cost 5, 8, 13, 21... per clue-giver, and a word the team doesn't get costs nothing (letters refunded):
+  // a solved word nets about 128 less 26-60 of clue cost (2+2, 2+3 or 2+4 letters), 52 for 3+3. YKWIM is 4-5 words right at that cost (~85 a word),
+  // KWIM about 4 right at 3+3 or 2+4 letters (~70), then 3 right for WIM and 2 right for IM: 5 words are 325 / 260 / 190 / 110.
+  const RATING_CUTS = [110, 190, 260, 325];   // points gained per 5 words: an average of 22 / 38 / 52 / 65 a word
   // The five grades are YKWIM > KWIM > WIM > IM > M, each with its own little quote, from confident down to a shrug.
   const RATINGS = [[RATING_CUTS[3], 'YKWIM', 'You know what I mean!'], [RATING_CUTS[2], 'KWIM', 'Kinda wild, I\'m mind-reading!'],
     [RATING_CUTS[1], 'WIM', 'Wait, I meant…'], [RATING_CUTS[0], 'IM', 'Interesting misunderstandings…'], [-Infinity, 'M', 'Muddled…']];
@@ -93,8 +94,7 @@
   const LEVEL_EVERY = 2;              // the word level goes up every this many words (not a setting: it just happens)
   const LONG_WORD_MIN = 6;            // letters (spaces don't count) a word needs before it pays the long-word bonus
   const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;   // longer words pay a bonus on top of the reward: +25% of it per level
-  const FIRST_COST = 5, START_COST = 6, STEP = 2;   // a clue-giver's letters cost 5, 8, 10, 12, 14...: the first is a gentle 5, then START + STEP * index
-  const priceOf = i => i === 0 ? FIRST_COST : START_COST + STEP * i;   // price of the letter at index i (0 = the first one that clue-giver types)
+  const priceOf = i => { let a = 5, b = 8; for (; i > 0; i--) [a, b] = [b, a + b]; return a; };   // a clue-giver's letters cost 5, 8, 13, 21, 34... (Fibonacci); i = 0 is the first one that clue-giver types
   const LATE_GIVER_MS = 10000;        // pass-and-play: extra writing time for Clue-giver 2 and 3, who haven't been able to study the keyword while Clue-giver 1 wrote
   const PASS_MS = 20000;              // how long the other team's Clue-giver 1 has to answer a request to pass a word
   const FEEDBACK_MS = 4000;          // pass-and-play: how long the guesser's result screen shows before the device is passed on
@@ -116,6 +116,25 @@
     if (!c.some(ch => SYMBOLS.includes(ch)) || !c.some(ch => /[A-Z]/.test(ch)) || c.length > w.length) return false;
     const fits = off => c.every((ch, i) => SYMBOLS.includes(ch) || ch === w[off + i]);
     return fits(0) || fits(w.length - c.length);
+  }
+  // Codes count as pattern clues too: a Caesar shift of the keyword (any shift, 4+ letters of it) or its Morse code (dots and dashes).
+  const MORSE = { a: '.-', b: '-...', c: '-.-.', d: '-..', e: '.', f: '..-.', g: '--.', h: '....', i: '..', j: '.---', k: '-.-', l: '.-..', m: '--', n: '-.', o: '---', p: '.--.', q: '--.-', r: '.-.', s: '...', t: '-', u: '..-', v: '...-', w: '.--', x: '-..-', y: '-.--', z: '--..' };
+  const UNMORSE = Object.fromEntries(Object.entries(MORSE).map(([k, v]) => [v, k]));
+  function isCodedClue(text, word) {
+    const answer = norm(word), letters = norm(text);
+    if (letters.length >= 4) for (let k = 1; k < 26; k++) {
+      const shifted = [...answer].map(c => String.fromCharCode((c.charCodeAt(0) - 97 + k) % 26 + 97)).join('');
+      if (shifted.includes(letters) || letters.includes(shifted)) return true;
+    }
+    if (!letters && /^[.\-/]{3,}$/.test(text)) {
+      if (text.includes('/')) {   // letters set apart by slashes: decode them
+        const said = text.split('/').filter(Boolean).map(g => UNMORSE[g] || '?').join('');
+        return said.length >= 2 && !said.includes('?') && answer.includes(said);
+      }
+      const dots = [...answer].map(c => MORSE[c]).join(''), c = text.replace(/\//g, '');
+      return c.length >= 4 && (dots.startsWith(c) || dots.endsWith(c));   // run together, it can only be matched from either end of the word
+    }
+    return false;
   }
   const letterCount = s => (String(s).match(/[A-Za-z]/g) || []).length;
   const costOf = (n, used) => { let c = 0; for (let i = 0; i < n; i++) c += priceOf(used + i); return c; };
@@ -230,11 +249,12 @@
       if (!auto) {
         if (norm(text).includes(answer)) return { error: "You can't type the keyword itself!" };
         if (isPatternClue(text, answer)) return { error: "No pattern clues: symbols can't mark where the letters go." };
+        if (isCodedClue(text, answer)) return { error: 'No pattern clues: codes are out.' };
         const bad = [...ban].filter(c => text.toLowerCase().includes(c));
         if (bad.length) return { error: 'Banned letters: {0}', args: [bad.join(', ').toUpperCase()] };
       } else {
         text = [...text].filter(c => !ban.includes(c.toLowerCase())).join('');
-        if (norm(text).includes(answer) || isPatternClue(text, answer)) text = '';
+        if (norm(text).includes(answer) || isPatternClue(text, answer) || isCodedClue(text, answer)) text = '';
       }
       if (auto) while (text && clueCost(text, T.used) > G.scores[t]) text = text.slice(0, -1);   // out of time: keep what the team can afford
       else if (clueCost(text, T.used) > G.scores[t]) return { error: "You can't afford that clue." };
@@ -498,7 +518,7 @@
       const v = {
         phase: G.phase, me: id, isHost: id === hostId, hostId, settings: G.settings, names: G.names, scores: G.scores,
         winner: G.winner, ratings: !G.solo && G.phase === 'over' ? [0, 1].map(t => rating(G.scores[t], G.settings.bank, Math.max(1, G.record.length))) : null,   // VS: every team gets a grade too, over the words actually played
-        history: G.solo && G.phase === 'over' ? G.history : null, record: G.phase === 'over' ? G.record : null, rating: G.solo && G.phase === 'over' ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, costs: { first: FIRST_COST, start: START_COST, step: STEP, symbol: SYMBOL_COST },
+        history: G.solo && G.phase === 'over' ? G.history : null, record: G.phase === 'over' ? G.record : null, rating: G.solo && G.phase === 'over' ? rating(G.scores[0], G.settings.bank, G.settings.words) : null, costs: { symbol: SYMBOL_COST },
         players: Object.entries(G.players).map(([pid, p]) => ({ id: pid, name: p.name, connected: p.connected })),
         seats: G.seats.map((t, ti) => t.map((s, si) => s ? { id: s, name: seatName(ti, si) } : null)),
         myTeam: actTeam(id) < 0 ? null : actTeam(id),
@@ -554,6 +574,6 @@
     return { addPlayer, disconnect, handle, view, state: G };
   }
 
-  const api = { LANGS, WORDS, rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, norm, costOf, priceOf, SYMBOLS, SYMBOL_COST, FIRST_COST, START_COST, STEP };
+  const api = { isCodedClue, LANGS, WORDS, rating, gradeNeed, RATINGS, RATING_CUTS, CATEGORIES, TIERS, tierWords, createGame, norm, costOf, priceOf, SYMBOLS, SYMBOL_COST };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.YKWIM = api;
 })(typeof window !== 'undefined' ? window : globalThis);
