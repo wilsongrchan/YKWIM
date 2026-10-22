@@ -1529,7 +1529,7 @@ function mockView(kind) {
       team('done', { result: 'correct', earned: 140, spent: 30, clues, clueCosts: [0, 10], breakdown: { base: 100, longWord: 25, first: 0, speed: 15, spent: 30 } }),
       team('done', { result: 'none' })] }; return v;
     case 'grade4': case 'grade3': case 'grade2': case 'grade1': case 'grade0': {   // the co-op game over screen, one example per grade
-      const nets = { grade4: [105, 100, 125, 120, 140], grade3: [95, 95, 115, 105, 0], grade2: [95, 90, 0, 110, 90], grade1: [90, 0, 95, 0, 100], grade0: [90, 0, -5, 0, 80] }[kind];
+      const nets = { grade4: [110, 105, 125, 120, 140], grade3: [105, 100, 120, 110, 0], grade2: [95, 90, 0, 110, 90], grade1: [90, 0, 95, 0, 100], grade0: [90, 0, -5, 0, 80] }[kind];
       const words = ['熊貓', '檸檬', '長頸鹿', '蚵仔煎', '守株待兔']; let total = 200;
       const history = nets.map((net, i) => ({ n: i, word: words[i], result: net <= 0 ? 'gaveup' : 'correct', net, total: total += net }));
       v.phase = 'over'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [total, 200]; v.winner = 0; v.history = history;
