@@ -583,6 +583,14 @@
   @media (max-width: 480px) { #wrap.landing .masthead .mark small { display: block; font-size: .5rem; letter-spacing: .1em; margin-top: 1px; white-space: nowrap; } }
   @media (max-width: 340px) { #wrap.landing .masthead .mark small { display: none; } }
   .gradehead .logo, .vsg .g { font-weight: 400; }
+  .gname { display: inline-block; white-space: nowrap; } .gname .gz { display: inline-block; transform-origin: 50% 70%; } .gname .gt { display: inline-block; }
+  .gname .gz.play { opacity: 0; animation: gzIn .5s ease-out forwards; animation-delay: calc(1s + var(--k, 0) * .3s); }
+  .gname .gz.slam.play { animation: gzSlam .6s cubic-bezier(.2, .9, .3, 1) forwards; animation-delay: .15s; }
+  @keyframes gzIn { from { opacity: 0; transform: translateY(.35em) scale(.9); } to { opacity: 1; transform: none; } }
+  @keyframes gzSlam { 0% { opacity: 0; transform: scale(3.4) rotate(-14deg); } 55% { opacity: 1; transform: scale(.88) rotate(2deg); } 75% { transform: scale(1.06) rotate(-1deg); } 100% { opacity: 1; transform: none; } }
+  .gradehead:has(.gz.slam.play) { animation: gzThud .35s ease-out .5s; }
+  @keyframes gzThud { 0%, 100% { transform: translate(0); } 25% { transform: translate(-2px, 3px); } 55% { transform: translate(2px, -2px); } 80% { transform: translate(-1px, 1px); } }
+  @media (prefers-reduced-motion: reduce) { .gname .gz.play, .gname .gz.slam.play, .gradehead:has(.gz.slam.play) { animation: none; opacity: 1; } }
   :root[data-script="sc"] .gradehead .logo, :root[data-script="sc"] .vsg .g { font-family: "Lilita One", "ZCOOL KuaiLe", var(--cjk); }   /* the grade names have simplified-only characters the logo face lacks, so one rounded simplified face carries the whole name */
   :root[data-script="sc"] { --cjk: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif; }
 </style>
@@ -800,7 +808,7 @@ const loaderHtml = (cls = '') => `<div class="ldr ${cls}" data-keep role="status
 function playIntro() {
   const el = document.createElement('div');
   el.className = 'intro';
-  el.innerHTML = '<div class="introWord" data-keep>' + [...'字字珠璣'].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
+  el.innerHTML = '<div class="introWord" data-keep>' + [...'字字珠璣'].map((c, i) => `<span style="--k:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2300);
 }
@@ -811,6 +819,7 @@ function onView(v) {
     const was = (prev.round.teams[v.myTeam].log || []), now = (v.round.teams[v.myTeam].log || []);
     if (now.length > was.length && now[now.length - 1].ok === false) S.shake = true;
   }
+  if (v.phase !== 'over') S.gradeKey = null;   // the next result plays the stamp animation again
   if (prev && prev.phase === 'lobby' && v.phase === 'round') playIntro();
   if (v.phase === 'round') safeSet('ykwimzh-help', '1');   // they're playing: they'll have worked it out
   // Pass-and-play: the moment a guesser's turn ends, the device already belongs to the next team, so remember to show them how it went first
@@ -1383,12 +1392,21 @@ function climb(history) {
     <path d="${line}" fill="none" stroke="#1d2b2e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
 }
 
+// The grade name for the co-op end screen: the last character is stamped on first, then the rest of the phrase follows.
+// It only plays the first time this result is drawn, so later re-renders show the finished name.
+function gradeWord(label, score) {
+  const chars = [...label], last = chars.map(isHanCh).lastIndexOf(true), key = label + ':' + score, play = S.gradeKey !== key;
+  S.gradeKey = key;
+  const units = chars.slice(0, last).map(c => [c, '']).concat([[chars[last], chars.slice(last + 1).join('')]]);   // trailing ！ or ⋯⋯ travels with the last character
+  return units.map(([c, tail], i) => `<span class="gz${i === last ? ' slam' : ''}${play ? ' play' : ''}" style="--k:${i}">${esc(c)}${tail ? `<span class="gt">${esc(tail)}</span>` : ''}</span>`).join('');
+}
+const isHanCh = c => /\p{Script=Han}/u.test(c);
 function overScreen() {
   const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">回到大廳</button>` : `${loaderHtml('small')}<p class="sub">等房主…</p>`;
   if (SOLO()) {
     const R = V.rating;
     return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0])} · ${V.settings.words} 個詞</div>
-      <div class="gradehead"><div class="logo display" style="font-size:clamp(1.7rem,8vw,2.8rem);color:var(--g${R.rank})">${esc(R.label)}</div>${R.quote ? `<div class="quote">「${esc(R.quote)}」</div>` : ''}</div>
+      <div class="gradehead"><div class="logo display gname" style="font-size:clamp(1.7rem,8vw,2.8rem);color:var(--g${R.rank})">${gradeWord(R.label, R.score)}</div>${R.quote ? `<div class="quote">「${esc(R.quote)}」</div>` : ''}</div>
       <div class="finalscore"><b>${R.score}</b> 點</div>
       ${V.history && V.history.length ? climb(V.history) : ''}
       ${gameReviewHtml([0])}${back}</div>`;
@@ -1541,7 +1559,7 @@ function mockView(kind) {
 }
 function showPreview(kind) {
   if (!IS_LOCAL) return;
-  S.preview = kind; S.shownRole = ''; resetDraft();
+  S.preview = kind; S.shownRole = ''; S.gradeKey = null; resetDraft();
   net = { code: 'ABCD', isHost: true, send: () => toast('這裡只是預覽，按鈕沒有作用') };
   document.querySelectorAll('.loadOv').forEach(o => o.remove());
   onView(mockView(kind === 'intro' || kind === 'loading' ? 'lobby' : kind));
