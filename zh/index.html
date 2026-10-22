@@ -1310,7 +1310,7 @@ function giverPanel(T, theme, blanks) {
 
 function guesserPanel(T, theme, blanks) {
   const top = `${theme}${blanks}
-    <div class="bar"><input id="guess" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="輸入你的答案（漢字）" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
+    <div class="bar"><input id="guess" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="輸入你的答案" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
     <div class="preview one">猜錯 −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">放棄</button>（${T.clueSpent ? `拿回 ${T.clueSpent} 點` : '花的點數退還'}）</div>`;
   return [top, `${logHtml(T)}`];
 }
