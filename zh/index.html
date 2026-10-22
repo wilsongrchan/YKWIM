@@ -688,7 +688,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022zw"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022zv"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -973,7 +973,7 @@ function markOrig() {
   });
 }
 const clueText = items => (items || []).map(it => it.han).join('') || '沒給字';
-const price = i => V.costs.prices[Math.min(i, V.costs.prices.length - 1)];
+const price = i => V.costs.prices[0] * 2 ** i;   // each character doubles, with no upper limit
 
 // The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
 // "See an example round": a = Clue-giver 2 gets what Clue-giver 1 meant, b = they stay quiet, c = a team with one clue-giver.
@@ -1023,7 +1023,7 @@ document.querySelectorAll('.pr').forEach(e => { e.textContent = YKWIM.PRICES[+e.
     <table class="gt" style="text-align:center"><tr><th style="text-align:left">第幾個字</th>${P.map((_, i) => `<th style="text-align:center">${i + 1}</th>`).join('')}</tr>
       <tr><th style="text-align:left">這個字</th>${P.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr>
       <tr><th style="text-align:left">一個人寫，累計</th>${cum.map(p => `<td style="text-align:center">${p}</td>`).join('')}</tr></table>
-    <div class="cd-note">提示人 2 從頭重新計價（又是 ${P[0]} 點起）。所以「竹子葉」一個人寫要 ${cum[2]} 點，拆成「竹子」和「葉」兩個人寫只要 ${cum[1]} + ${P[0]} = ${cum[1] + P[0]} 點。一個提示字最多 ${YKWIM.MAX_CHARS} 個字。</div>
+    <div class="cd-note">提示人 2 從頭重新計價（又是 ${P[0]} 點起）。所以「竹子葉」一個人寫要 ${cum[2]} 點，拆成「竹子」和「葉」兩個人寫只要 ${cum[1]} + ${P[0]} = ${cum[1] + P[0]} 點。</div>
     <div class="cd-note">這些花費只是「暫記」：你們隊猜中這個詞才會真的扣掉，猜不中全額退還。隊伍的點數不夠付的話，就必須刪短提示字。</div>`;
 })();
 
@@ -1506,7 +1506,6 @@ function checkClue() {
     if (/\s/.test(ch)) continue;
     let m = '';
     if (!YKWIM.isHan(ch)) m = `「${ch}」不是漢字，提示字只能用漢字`;
-    else if (hans >= V.costs.max) m = `一個提示字最多 ${V.costs.max} 個字`;
     else if (kw.has(ch)) m = `「${ch}」是謎底裡的字，不能用`;
     else {
       const rs = readingsOf(ch);

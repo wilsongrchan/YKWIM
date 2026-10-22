@@ -152,7 +152,7 @@
   // A clue is written characters only (no sound-only clues). A clue-giver's first character costs 15, the second 30, the third 60 (each one
   // double the one before), and the count starts again for the next clue-giver. A clue is made of Chinese characters only: no symbols or punctuation.
   const BASE_PRICE = 15;
-  const MAX_CHARS = 4;               // characters in one clue
+  const MAX_CHARS = 4;               // how many prices the how-to shows; a clue has no length limit, only what the team can pay
   const priceOf = i => BASE_PRICE * 2 ** i;
   const PRICES = Array.from({ length: MAX_CHARS }, (_, i) => priceOf(i));
   const clueCost = items => items.reduce((a, _, k) => a + priceOf(k), 0);
@@ -295,7 +295,6 @@
         if (/\s/.test(ch)) continue;
         let err = null, item = null;
         if (!isHan(ch)) err = `「${ch}」不是漢字，提示字只能用漢字`;
-        else if (hans >= MAX_CHARS) err = `一個提示字最多 ${MAX_CHARS} 個字`;
         else if (mine.has(ch)) err = `「${ch}」是謎底裡的字，不能用`;
         else if (readings) {
           const rs = readings(ch);
