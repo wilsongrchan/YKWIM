@@ -1523,7 +1523,7 @@ function updatePreview() {
 
 // ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
 const PREVIEWS = [['lobby', '大廳'], ['giver1', '提示人 1'], ['passask', '跳過請求'], ['giver2', '提示人 2'], ['guesser', '猜謎人'], ['ready', '猜謎人：準備畫面'], ['lastchance', '猜謎人：最後機會'],
-  ['waiting', '等待'], ['intro', '開場動畫'], ['loading', '載入／重新連線'], ['roundEnd', '一個詞結束'], ['over', '遊戲結束'], ['coopEnd', '合作：一個詞結束'], ['grade4', '合作：字字珠璣'], ['grade3', '合作：屢創佳績'], ['grade2', '合作：有危也有機'], ['grade1', '合作：唧唧復唧唧'], ['grade0', '合作：菜雞']];
+  ['waiting', '等待'], ['intro', '開場動畫'], ['loading', '載入／重新連線'], ['roundEnd', '一個詞結束'], ['over', '遊戲結束'], ['coopEnd', '合作：一個詞結束'], ['grade4', '合作：字字珠璣'], ['grade3', '合作：無懈可擊'], ['grade2', '合作：有危也有機'], ['grade1', '合作：唧唧復唧唧'], ['grade0', '合作：菜雞']];
 const MOCK = han => ({ han });   // one character of a clue
 function mockRecord() {   // two fake words for the game review in the preview tool
   const people = [{ role: 'giver1', name: '小明' }, { role: 'giver2', name: '小華' }, { role: 'guesser', name: '阿凱' }];
