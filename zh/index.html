@@ -670,7 +670,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022w"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022x"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1492,10 +1492,10 @@ const MOCK = han => ({ han });   // one character of a clue
 function mockRecord() {   // two fake words for the game review in the preview tool
   const people = [{ role: 'giver1', name: '小明' }, { role: 'giver2', name: '小華' }, { role: 'guesser', name: '阿凱' }];
   const syl = [{ py: 'xióng', zy: 'ㄒㄩㄥˊ' }, { py: 'māo', zy: 'ㄇㄠ' }];
-  return [{ n: 0, word: '熊貓', syl, cat: '動物', levelName: '二字詞', teams: [
+  return [{ n: 0, word: '熊貓', syl, cat: '動物', levelName: '二至三字', teams: [
       { result: 'correct', earned: 117, spent: 30, breakdown: { base: 100, longWord: 0, first: 5, speed: 12 }, clues: [[MOCK('竹')], [MOCK('川')]], costs: [15, 15], log: [{ text: '老虎', ok: false, cost: 5 }, { text: '熊貓', ok: true }], people },
       { result: 'gaveup', earned: 0, spent: 5, breakdown: null, clues: [[MOCK('黑'), MOCK('白')], []], costs: [45, 0], log: [{ text: '斑馬', ok: false, cost: 5 }], people } ] },
-    { n: 1, word: '檸檬', syl: [{ py: 'ning2', zy: 'ㄋㄧㄥˊ' }, { py: 'meng2', zy: 'ㄇㄥˊ' }], cat: '食物', levelName: '二字詞', teams: [
+    { n: 1, word: '檸檬', syl: [{ py: 'ning2', zy: 'ㄋㄧㄥˊ' }, { py: 'meng2', zy: 'ㄇㄥˊ' }], cat: '食物', levelName: '二至三字', teams: [
       { result: 'correct', earned: 112, spent: 20, breakdown: { base: 100, longWord: 0, first: 0, speed: 12 }, clues: [[MOCK('酸')], [MOCK('黃')]], costs: [10, 0], log: [{ text: '檸檬', ok: true }], people },
       { result: 'correct', earned: 125, spent: 30, breakdown: { base: 100, longWord: 0, first: 20, speed: 5 }, clues: [[MOCK('酸'), MOCK('水')], []], costs: [30, 0], log: [{ text: '檸檬', ok: true }], people } ] }];
 }
@@ -1508,7 +1508,7 @@ function mockView(kind) {
     players: [{ id: 'host', name: '你', connected: true }, { id: 'f', name: '阿里', connected: true }],
     seats: [[{ id: 'host', name: '你' }, { id: 'a', name: '小華' }, { id: 'b', name: '阿凱' }], [{ id: 'c', name: '小美' }, { id: 'd', name: '大雄' }, null]]
   };
-  const round = { n: 2, level: 1, levelName: '二字詞', reward: 100, longBonus: 0, cat: '動物', blanks: [1, 1], roleNames: { giver1: '你', giver2: '小華', guesser: '阿凱' } };
+  const round = { n: 2, level: 1, levelName: '二至三字', reward: 100, longBonus: 0, cat: '動物', blanks: [1, 1], roleNames: { giver1: '你', giver2: '小華', guesser: '阿凱' } };
   const other = team('giver2', { remaining: 12000 });
   const secret = { word: '熊貓', syl: [{ py: 'xióng', zy: 'ㄒㄩㄥˊ' }, { py: 'māo', zy: 'ㄇㄠ' }], banned: [{ py: 'xiong', zy: 'ㄒㄩㄥ' }, { py: 'mao', zy: 'ㄇㄠ' }] };
   const clues = [[MOCK('竹')], [MOCK('川')]];
