@@ -1094,7 +1094,7 @@ function lobbyScreen() {
       <div class="cats" style="margin:12px 0"><div class="catshead">類別</div>
       ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}</div>
       <div class="settings">
-        <div><label>猜錯扣點</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
+        <div><label>猜錯罰點</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
         ${st.teams === 'one' ? '' : `<div><label>搶先猜中獎勵</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>`}
         <div><label>速度獎勵（每秒少 1）</label>${sel('speedSecs', [0, 10, 20, 30], st.speedSecs, x => x ? '最多 +' + x : '關閉')}</div>
         ${st.teams === 'one' ? '' : `<div><label>最後機會計時</label>${sel('lastChance', [10, 15, 20], st.lastChance, x => x + ' 秒', EASY_HARD(20, 10))}</div>`}
