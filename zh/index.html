@@ -1187,8 +1187,8 @@ function roundScreen() {
       const guesserWaiting = stageRole === 'guesser' && T.awaitReady;   // the quick-guess clock hasn't started: wait for the tap
       if (guesserWaiting && !multi) {
         handoff = true;
-        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">提示字都到了！</h2>
-          <p class="sub">準備好再按，才看得到提示字。按下去的同時，速度獎勵開始倒數。</p>
+        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">提示全部寫好了！</h2>
+          <p class="sub">按下按鈕後速度獎勵倒計時就會開始。</p>
           <button class="big" data-act="ready" data-key="${key}" data-guess="1">我準備好了</button></div>`;
       } else if (guesserWaiting || (multi && S.shownRole !== key)) {
         handoff = true;
