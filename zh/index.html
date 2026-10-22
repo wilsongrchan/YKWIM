@@ -1,0 +1,1656 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../icon.svg">
+<link rel="apple-touch-icon" href="../icon.png">
+<title>YKWIM 中文版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* "Lagoon" (default). --lime is the accent colour whatever the theme. */
+    --navy: #123f43; --indigo: #1f8083; --deep: #176567; --well: #124f52;
+    --lime: #f5b942; --ink: #123f43; --on-lime: var(--ink); --soft: #a9e3dc;   /* --on-lime: text colour on accent-coloured fills */
+    --text: #f4f1ea; --field: #f6f3ec; --ov: #fff; --track: rgba(0,0,0,.28);   /* text colour, input/bar background, overlay tint, empty bar track */
+    --accent-text: var(--lime); --t0t: var(--t0); --t1t: var(--t1);              /* accent / team colours used as text */
+    --t0: #f28b6e; --t1: #f2d96b; --good: #6fdc9e; --bad: #f2766b;
+    --display: "Fredoka", system-ui, sans-serif;
+    --brand: "Lilita One", "Arial Black", system-ui, sans-serif;   /* chunky face: only for the logo and the keyword */
+    --body: "Fredoka", system-ui, -apple-system, sans-serif;
+  }
+  :root[data-theme="bubblegum"] { --navy: #38142c; --indigo: #b83a68; --deep: #962f55; --well: #78243f; --lime: #f5d27a; --ink: #38142c; --soft: #f5bfd5; --t0: #9ee3b4; --t1: #7ed0ea; }
+  :root[data-theme="mint"]      { --navy: #0c1424; --indigo: #1f4274; --deep: #17325a; --well: #112746; --lime: #6fe0be; --ink: #0c1424; --soft: #a3bbe0; --t0: #f291ab; --t1: #f0c978; }
+  :root[data-theme="charcoal"]  { --navy: #1f1c1a; --indigo: #5b4c42; --deep: #483c34; --well: #302a26; --lime: #e8c99b; --ink: #1f1c1a; --soft: #d6c8ba; --t0: #e8c99b; --t1: #c07f52; }
+  /* light mode: every palette gets a pale background and darker text/accent-text; fills keep the brand colours */
+  :root[data-mode="dark"] { color-scheme: dark; }
+  :root[data-mode="light"] { color-scheme: light; --navy: #e6f1f0; --indigo: #d3e9e7; --deep: #c3e0de; --well: #b5d6d3; --soft: #4f716f;
+    --text: #123f43; --field: #fff; --ov: #000; --track: rgba(0,0,0,.10); --bad: #c2392b; --good: #2e8b57;
+    --accent-text: #9a6700; --t0: #f28b6e; --t1: #e8c94a; --t0t: #b5472b; --t1t: #8a6d00; }
+  :root[data-theme="bubblegum"][data-mode="light"] { --navy: #f8e6ee; --indigo: #f2d3e1; --deep: #ecc3d6; --well: #e3b3ca; --soft: #8a4a66; --text: #38142c; --accent-text: #8a5a00; --t0: #4fbf86; --t1: #5bb8d9; --t0t: #1f7a50; --t1t: #1f6f8f; }
+  :root[data-theme="mint"][data-mode="light"] { --navy: #e8eef8; --indigo: #d5e0f2; --deep: #c5d4ec; --well: #b6c8e6; --soft: #4b6285; --text: #0c1424; --accent-text: #1b7a5e; --t0: #f291ab; --t1: #f0c978; --t0t: #b0345a; --t1t: #8a6200; }
+  :root[data-theme="charcoal"][data-mode="light"] { --navy: #f2ece5; --indigo: #e5dacd; --deep: #d9ccbd; --well: #cdbdab; --soft: #6b5a4d; --text: #231d19; --lime: #5b4132; --ink: #231d19; --on-lime: #fff; --accent-text: #5b3d28; --t0: #a67848; --t1: #6c432a; --t0t: #8a6232; --t1t: #6b4026; }
+  html { font-size: 16px; } html[data-size="s"] { font-size: 14px; } html[data-size="l"] { font-size: 18px; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--navy); color: var(--text); font-family: var(--body);
+    display: flex; justify-content: center; align-items: flex-start; padding: 14px; }
+  #wrap { width: 100%; max-width: 760px; }
+  #app { width: 100%; }
+  /* NYT-Games-style masthead: centered title, thin rule, icon buttons at the edges */
+  .masthead { display: grid; grid-template-columns: 92px 1fr 92px; align-items: center; padding: 0 2px 8px; margin-bottom: 10px; border-bottom: 1px solid color-mix(in srgb, var(--ov) 18%, transparent); }
+  .roomchip { justify-self: start; padding: 5px 10px; border-radius: 999px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; font-size: .85rem; letter-spacing: .12em; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); }
+  @media (max-width: 380px) { .roomchip { padding: 5px 8px; font-size: .78rem; letter-spacing: .08em; } .roomchip small { display: none; } }
+  .roomchip small { font-family: var(--body); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-right: 6px; }
+  .masthead .mark { text-align: center; font-family: var(--display); font-style: normal; font-size: 1.7rem; letter-spacing: .06em; line-height: 1; }
+  .masthead .mark #markIcon svg { height: .95em; width: auto; vertical-align: -.1em; margin-left: .1em; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; }
+  .masthead .mark small { display: block; font-family: var(--body); font-style: normal; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--soft); margin-top: 3px; }
+  .icon svg { display: block; }
+  .icons { position: relative; }
+  .helpnudge { position: absolute; z-index: 20; top: calc(100% + 10px); right: 0; width: max-content; max-width: 70vw; padding: 7px 12px; border-radius: 12px; background: var(--lime); color: var(--on-lime); font-weight: 600; font-size: .85rem; box-shadow: 0 6px 18px rgba(0,0,0,.3); animation: nudgeBob 1.1s ease-in-out infinite; pointer-events: none; }
+  .helpnudge::before { content: ""; position: absolute; top: -6px; right: 14px; width: 12px; height: 12px; background: var(--lime); transform: rotate(45deg); border-radius: 2px; }
+  #helpbtn { position: relative; } #helpbtn.nudge { border-color: var(--lime); }
+  #helpbtn.nudge::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--lime); pointer-events: none; animation: nudgeRing 1.3s ease-out infinite; }   /* transform + opacity only: no repaint while the page scrolls */
+  @keyframes nudgeRing { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
+  @keyframes nudgeBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+  @media (prefers-reduced-motion: reduce) { .helpnudge, #helpbtn.nudge::after { animation: none; } }
+  .icons { display: flex; gap: 8px; justify-content: flex-end; }
+  .icon { display: grid; place-items: center; line-height: 1; width: 40px; height: 40px; padding: 0; border-radius: 50%; background: transparent; color: var(--text); border: 2px solid color-mix(in srgb, var(--ov) 35%, transparent); font-size: 1.1rem; }
+  .icon:hover { background: color-mix(in srgb, var(--ov) 12%, transparent); }
+  .modal { position: fixed; inset: 0; background: rgba(15,12,50,.72); display: grid; place-items: center; padding: 16px; z-index: 20; }
+  .modal .sheet { background: var(--field); color: var(--ink); border-radius: 18px; max-width: 460px; width: 100%; max-height: 88vh; overflow: auto; padding: 22px 22px 18px; position: relative; }
+  .modal h2 { color: var(--ink); font-size: 1.7rem; }
+  .modal h3 { color: var(--ink); font: 500 1.05rem var(--display); margin: 12px 0 0; }
+  .modal p, .modal li { font-size: .95rem; line-height: 1.4; } .modal ul { padding-left: 20px; margin: 4px 0 8px; } .modal li { margin-bottom: 3px; }
+  @media (max-width: 480px) { .modal .sheet { padding: 18px 18px 14px; max-height: 94vh; } .modal h2 { font-size: 1.45rem; } .modal p, .modal li { font-size: .9rem; } .modal .big { padding: 11px; font-size: 1.05rem; } }
+  .modal .x { position: absolute; top: 12px; right: 12px; background: transparent; color: var(--ink); font-size: 1.4rem; padding: 4px 10px; }
+  .pvbar { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 10px; margin-bottom: 10px; border-bottom: 1px dashed color-mix(in srgb, var(--ov) 30%, transparent); }
+  .pvbar button { white-space: nowrap; padding: 7px 12px; font-size: .82rem; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); }
+  .pvbar button.on { background: var(--lime); color: var(--on-lime); }
+  .playrow { display: flex; gap: 12px; align-items: stretch; }
+  .vbar { flex: 0 0 56px; display: flex; flex-direction: column; align-items: center; }
+  .vb-name { font-size: .7rem; font-weight: 500; letter-spacing: .04em; margin-bottom: 6px; white-space: nowrap; max-width: 60px; overflow: hidden; }
+  .vb-track { position: relative; flex: 1; min-height: 240px; width: 30px; border-radius: 15px; overflow: hidden;
+    background: var(--track); border: 2px solid color-mix(in srgb, var(--ov) 28%, transparent); box-shadow: inset 0 0 10px rgba(0,0,0,.3); }
+  .vbar.me .vb-track { border-color: var(--lime); }
+  .vb-track::after { content: ""; position: absolute; inset: 0; border-radius: 13px; pointer-events: none; background: linear-gradient(90deg, color-mix(in srgb, var(--ov) 22%, transparent) 0, color-mix(in srgb, var(--ov) 0%, transparent) 40%); }
+  .vb-score { position: absolute; left: 0; right: 0; bottom: 0; transition: height .6s ease; }
+  .vb-reward { position: absolute; left: 0; right: 0; transition: height .5s ease, bottom .6s ease; }
+  .vb-reward, .hb-reward { background: color-mix(in srgb, var(--lime) 78%, white); }   /* a shade between the bank and the long-word bonus */
+  .vb-long { position: absolute; left: 0; right: 0; transition: bottom .6s ease, height .5s ease; }
+  .vb-long, .hb-long { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--lime) 55%, white) 0 3px, color-mix(in srgb, var(--lime) 72%, white) 3px 6px); }   /* small, so it gets a pattern */
+  .vb-first, .vb-quick { position: absolute; left: 0; right: 0; transition: bottom .6s ease, height .25s linear; }
+  .vb-first { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--lime) 55%, white) 0 4px, color-mix(in srgb, var(--lime) 40%, white) 4px 8px); }
+  .vb-quick { background: color-mix(in srgb, var(--lime) 30%, white); }
+  .vb-sub b { color: var(--text); font-weight: 500; }
+  .vb-num.neg { color: var(--bad); }
+  .settings > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modebtn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 14px 16px; border-radius: 16px; background: transparent; color: var(--text); border: 3px solid color-mix(in srgb, var(--mc) 55%, transparent); }
+  .modebtn b { font: 500 1.5rem var(--display); letter-spacing: .03em; color: var(--mc); }
+  .modebtn span { font-size: .8rem; line-height: 1.25; color: var(--soft); }
+  .modebtn.on { background: var(--mc); border-color: var(--mc); } .modebtn.on b, .modebtn.on span { color: var(--ink); }
+  .modebtn:disabled { opacity: 1; cursor: default; } .modebtn:disabled:not(.on) { opacity: .6; }
+  .settings.main > div:last-child:nth-child(odd) { grid-column: auto; }   /* the full-width Mode box shifts the count by one */
+  .settings.main > div:last-child:nth-child(even) { grid-column: 1 / -1; }
+  .vb-shadow { position: absolute; left: 0; right: 0; top: 0; height: 0; transition: height .15s ease; border-bottom: 2px solid rgba(0,0,0,.55);
+    background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
+  .vb-num, .vb-sub, .vb-delta { font-variant-numeric: tabular-nums; }
+  .vb-num { margin-top: 8px; font-family: var(--display); font-weight: 500; font-size: 1.25rem; line-height: 1; }
+  .vb-sub { font-size: .66rem; text-align: center; color: var(--soft); min-height: .9em; margin-top: 2px; white-space: nowrap; }
+  .vb-delta { min-height: 1.1em; font-size: .75rem; color: var(--bad); white-space: nowrap; }
+  .vb-stat { font-size: .95rem; min-height: 1.2em; }
+  @media (max-width: 480px) { .vbar { flex-basis: 42px; } .vb-track { width: 22px; min-height: 220px; } .vb-num { font-size: 1.05rem; } }
+  .playmain { flex: 1; min-width: 0; }
+  .hbars { display: none; }
+  .hb { display: grid; grid-template-columns: 64px 1fr 36px 96px; align-items: center; gap: 6px; }
+  .hb + .hb { margin-top: 5px; }
+  .hb-name { font-size: .72rem; font-weight: 500; letter-spacing: .03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hb-track { position: relative; display: flex; height: 18px; border-radius: 9px; overflow: hidden; background: var(--track); border: 2px solid color-mix(in srgb, var(--ov) 24%, transparent); }
+  .hb.me .hb-track { border-color: var(--lime); }
+  .hb-track i { display: block; height: 100%; flex: none; transition: width .5s ease; }
+  .hb-score { position: relative; }
+  .hb-shadow { position: absolute; top: 0; bottom: 0; right: 0; width: 0; transition: width .15s ease; border-left: 2px solid rgba(0,0,0,.55);
+    background: repeating-linear-gradient(135deg, rgba(0,0,0,.5) 0 5px, rgba(0,0,0,.28) 5px 10px); }
+  .hb-first { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--lime) 55%, white) 0 4px, color-mix(in srgb, var(--lime) 40%, white) 4px 8px); }
+  .hb-quick { background: color-mix(in srgb, var(--lime) 30%, white); transition: width .25s linear !important; }
+  .hb-num { font-family: var(--display); font-weight: 500; font-size: 1rem; text-align: right; font-variant-numeric: tabular-nums; }
+  .hb-num.neg { color: var(--bad); }
+  .hb-sub, .hb-delta { font-size: .66rem; color: var(--soft); white-space: nowrap; font-variant-numeric: tabular-nums; grid-column: 4; grid-row: 1; }
+  .hb-sub b { color: var(--text); font-weight: 500; }
+  .hb-delta { color: var(--bad); font-weight: 500; visibility: hidden; }
+  .hb.hasdelta .hb-sub { visibility: hidden; } .hb.hasdelta .hb-delta { visibility: visible; }
+  .res { border-top: 4px solid var(--tc, transparent); }
+  .res h3 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .rstat { font-family: var(--body); font-size: .85rem; color: var(--soft); font-weight: 400; text-align: right; line-height: 1.1; }
+  .rstat small { display: block; font-size: .8rem; }
+  .netbig { display: block; font: 600 2.1rem var(--display); color: var(--accent-text); line-height: 1; margin-top: 2px; font-variant-numeric: tabular-nums; } .netbig.neg { color: var(--bad); }
+  .cluepair { display: flex; gap: 10px; margin: 10px 0 8px; }
+  .bigclue { flex: 1; min-width: 0; text-align: center; background: var(--navy); border-radius: 14px; padding: 16px 6px 10px; animation: popin .45s cubic-bezier(.2,1.4,.4,1) both; }
+  .bc-txt { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; font-size: clamp(1.7rem, 7vw, 2.8rem); letter-spacing: .12em; line-height: 1.1; word-break: break-all; }
+  .bigclue small { display: block; margin-top: 6px; font-size: .72rem; color: var(--soft); }
+  .breakdown { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; font-size: .85rem; color: var(--soft); }
+  .breakdown .tot { color: var(--accent-text); font-weight: 500; }
+  @keyframes popin { from { opacity: 0; transform: scale(.7) translateY(8px); } to { opacity: 1; transform: none; } }
+  .cats { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .catshead { width: 100%; color: var(--soft); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+  .catchip { padding: 7px 12px; font-size: .88rem; font-weight: 500; border-radius: 999px; background: transparent; color: var(--soft); border: 2px solid color-mix(in srgb, var(--ov) 25%, transparent); }
+  .catchip.on { background: var(--lime); color: var(--on-lime); border-color: var(--lime); }
+  .catchip:disabled { opacity: .8; cursor: default; }
+  .dd { position: relative; }
+  .dd-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; padding: 12px 14px; border-radius: 12px;
+    background: var(--field); color: var(--ink); font: 500 1.05rem var(--body); border: 2px solid transparent; }
+  .dd-btn:disabled { opacity: .75; cursor: default; }
+  .dd-btn i { width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); opacity: .6; flex: none; }
+  .dd.open .dd-btn { border-color: var(--lime); }
+  .dd-list { display: none; position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 30; background: var(--field); color: var(--ink);
+    border-radius: 12px; overflow: hidden; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  .dd.open .dd-list { display: block; }
+  .dd-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; padding: 11px 14px; border-radius: 0;
+    background: transparent; color: var(--ink); font: 400 1rem var(--body); }
+  .dd-item:hover { background: rgba(0,0,0,.06); filter: none; }
+  .dd-item.on { font-weight: 500; background: rgba(0,0,0,.05); }
+  .dd-item small { font-size: .78rem; color: #6b6b78; }
+  details#adv { margin-top: 12px; border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); padding-top: 10px; }
+  details#adv summary { cursor: pointer; color: var(--soft); font-size: .9rem; font-weight: 500; list-style: none; }
+  details#adv summary::-webkit-details-marker { display: none; }
+  details#adv summary::before { content: "▸"; display: inline-block; margin-right: 8px; transition: transform .15s; }
+  details#adv[open] summary::before { transform: rotate(90deg); }
+  .settingshead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0 8px; }
+  .settingshead h2 { margin: 0; font-size: 1.2rem; }
+  .dlabel { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: #6b6b78; margin: 14px 0 6px; }
+  .seg { display: flex; gap: 8px; }
+  .seg button { flex: 1; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; padding: 9px 6px; font-size: .95rem; }
+  .seg button.on { border-color: var(--ink); }
+  #seg-help { gap: 4px; } #seg-help button { font-size: .74rem; padding: 8px 0; }
+  .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 4px; }
+  .sw { display: block; width: 100%; text-align: left; padding: 10px; background: #f2f2f5; color: var(--ink); border: 3px solid transparent; font-size: .9rem; }
+  .sw.on { border-color: var(--ink); }
+  .sw i { display: flex; height: 26px; border-radius: 8px; overflow: hidden; margin-bottom: 6px; } .sw i b { flex: 1; }
+  details.costs { margin: 0 0 8px; } details.costs summary { cursor: pointer; font-weight: 500; font-size: .9rem; color: var(--ink); list-style: none; padding: 2px 0; }
+  details.costs summary::-webkit-details-marker { display: none; } details.costs summary::before { content: "▸"; display: inline-block; margin-right: 8px; transition: transform .15s; }
+  details.costs[open] summary::before { transform: rotate(90deg); }
+  .cd-title { font-size: .8rem; font-weight: 500; margin: 10px 0 4px; color: var(--ink); } .cd-title b { font-weight: 500; opacity: .6; }
+  .cd-row { display: flex; gap: 2px; align-items: flex-end; flex-wrap: wrap; }
+  .cd-gap { width: 8px; }
+  .cd-t { flex: 0 0 auto; width: 24.5px; text-align: center; background: #f2f2f5; border-radius: 8px; padding: 3px 0 2px; }
+  .cd-t.two { background: color-mix(in srgb, var(--lime) 40%, white); }
+  .cd-t b { display: block; font: 600 .85rem ui-monospace, Menlo, monospace; color: var(--ink); }
+  .cd-t i { display: block; font-style: normal; font-size: .56rem; color: #6b6b78; font-variant-numeric: tabular-nums; }
+  .cd-total { font-size: .82rem; margin-top: 4px; color: var(--ink); } .cd-total b { font-weight: 500; }
+  .cd-note { font-size: .8rem; margin-top: 10px; color: var(--ink); background: #f2f2f5; border-radius: 10px; padding: 8px 10px; }
+  .fs { display: flex; gap: 8px; margin-top: 8px; }
+  .fs-n { flex: 0 0 22px; height: 22px; margin-top: 6px; border-radius: 50%; background: var(--ink); color: var(--field); display: grid; place-items: center; font-size: .75rem; font-weight: 600; }
+  .fs-b { flex: 1; min-width: 0; background: #f2f2f5; border-radius: 12px; padding: 8px 10px; color: var(--ink); }
+  .fs-h { font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: #6b6b78; font-weight: 500; margin-bottom: 4px; }
+  .fs-kw { font: 400 1.5rem var(--brand); font-style: italic; letter-spacing: .06em; line-height: 1.1; }
+  .fs-ban { font-size: .78rem; margin-left: 6px; } .fs-ban s { display: inline-block; padding: 0 5px; margin-left: 3px; border-radius: 6px; background: var(--ink); color: var(--field); text-decoration: none; font-weight: 600; }
+  .fs-row { display: flex; gap: 2px; align-items: flex-end; flex-wrap: wrap; margin-top: 4px; } .fs-row .cd-t { background: #fff; }
+  .fs-clue { background: #fff; border-radius: 8px; padding: 4px 14px; font: 600 1.05rem ui-monospace, Menlo, monospace; letter-spacing: .15em; }
+  .th { display: flex; align-items: flex-end; gap: 12px; margin: 6px 0 4px; }
+  .av { flex: 0 0 38px; width: 38px; height: 38px; }
+  .bub { position: relative; flex: 1; background: #fff; border-radius: 14px; padding: 6px 10px; font-size: .82rem; font-style: italic; line-height: 1.3; }
+  .bub .em { font-size: 1.25rem; font-style: normal; vertical-align: -2px; } .bub b { font-style: normal; }
+  .bub::before { content: ""; position: absolute; left: -8px; bottom: 6px; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .bub::after { content: ""; position: absolute; left: -13px; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #fff; }
+  .fs-cost { align-self: center; margin-left: 8px; font-weight: 600; font-size: .85rem; color: #b5472b; }
+  .fs-skip { background: transparent; border: 2px dashed #b7b7c2; color: #6b6b78; font: 500 .85rem var(--body); letter-spacing: 0; padding: 2px 12px; }
+  .fs-tabs button { font-size: .85rem; padding: 9px 4px; }
+  .fs-say { font-size: .8rem; font-style: italic; margin-top: 5px; opacity: .85; }
+  .fs-used { font: 600 1rem ui-monospace, Menlo, monospace; letter-spacing: .3em; margin-top: 4px; } .fs-not { font: 400 .75rem var(--body); letter-spacing: 0; color: #6b6b78; margin-left: 8px; }
+  .fs-blank { display: inline-block; width: 18px; height: 22px; border-radius: 5px; background: #fff; border-bottom: 3px solid var(--lime); margin-right: 3px; }
+  .fs-ok { color: #2e8b57; font-weight: 600; }
+  .modal .ex { background: #f2f2f5; border-radius: 12px; padding: 10px 14px; margin: 8px 0 14px; font-size: .92rem; }
+  .stage { position: relative; border-radius: 22px; padding: 14px;
+    background:
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ov) 6%, transparent) 1px, transparent 1.5px) 0 0 / 7px 7px,
+      linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%);
+    box-shadow: 0 10px 34px rgba(0,0,0,.28); }
+  h1, h2, .display { font-family: var(--display); font-weight: 500; font-style: normal; margin: 0; letter-spacing: .02em; }
+  .logo { font-size: clamp(3rem, 14vw, 5.5rem); text-align: center; line-height: 1; margin: 18px 0 4px; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
+  /* landing page only: one set of ? marks, all the same size, drifting one way. It moves with transform (GPU-composited),
+     not background-position, so there is no per-frame repaint. The loop travels exactly one tile, so it never jumps. */
+  .stage.home { overflow: hidden; background: linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%); }
+  .stage.home > * { position: relative; z-index: 1; }
+  .stage.home::before { content: ""; position: absolute; inset: -80px; pointer-events: none; will-change: transform; }
+  .stage.home::before { background: color-mix(in srgb, var(--ov) 12%, transparent); animation: dots 4s linear infinite;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg transform='translate(20 22) rotate(-14) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3Cg transform='translate(60 62) rotate(12) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg transform='translate(20 22) rotate(-14) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3Cg transform='translate(60 62) rotate(12) scale(.3) translate(-50 -50)' stroke='%23000' stroke-width='3.3' stroke-linejoin='round'%3E%3Cpath d='M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z'/%3E%3Ccircle cx='41.28' cy='79.35' r='7.2'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 80px 80px; }
+  .intro { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: var(--navy); pointer-events: none; animation: introBg .7s ease-in 1.45s forwards; }
+  .introWord { display: flex; align-items: center; justify-content: center; gap: .08em; font-family: var(--brand); font-style: italic; text-transform: uppercase; font-size: clamp(2.8rem, 15vw, 5rem); line-height: 1; color: #f6f2ea; animation: introWordOut .35s ease-in 1.45s forwards; }
+  .introWord span { display: inline-block; padding: .05em .16em; margin: -.05em -.16em; opacity: 0; animation: introPop .38s cubic-bezier(.3,1.6,.5,1) forwards; animation-delay: calc(var(--i) * .15s); }
+  .introWord svg { height: 1.3em; width: auto; margin-left: .12em; overflow: visible; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; opacity: 0; animation: introPop .45s cubic-bezier(.3,1.7,.5,1) .85s forwards, introZoom .75s cubic-bezier(.6,0,.9,.4) 1.45s forwards; }
+  @keyframes introPop { 0% { opacity: 0; transform: translateY(.5em) scale(.3) rotate(-12deg); } 100% { opacity: 1; transform: none; } }
+  @keyframes introZoom { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: scale(30) rotate(8deg); } }
+  @keyframes introWordOut { to { opacity: 0; } }
+  @keyframes introBg { to { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .intro { display: none; } }
+  .ldr { display: flex; align-items: center; justify-content: center; gap: .06em; font-family: var(--brand); font-style: italic; text-transform: uppercase; color: #f6f2ea; font-size: 2.6rem; line-height: 1; overflow: visible; }
+  .ldr { clip-path: inset(-600% -60% 0 -60%); }   /* the invisible ground: nothing of the icon is ever drawn below the word's baseline box */
+  :root[data-mode="light"] .intro, :root[data-mode="light"] .loadOv { background: var(--text); }   /* the full-screen ones are always dark, so the white letters show */
+  :root[data-mode="light"] .intro svg, :root[data-mode="light"] .loadOv svg { fill: var(--navy); stroke: var(--navy); }
+  .ldr.small { color: var(--text); text-shadow: none; font-size: 1.7rem; margin: 6px 0 8px; }
+  .ldr.big { font-size: clamp(2.8rem, 15vw, 5rem); }
+  .ldr > span { display: inline-block; padding: .05em .16em; margin: -.05em -.16em; }
+  .ldrX { display: inline-block; margin-left: .12em; transform-origin: 50% 97.7%; animation: ldrJump 2.4s linear infinite; }
+  .ldrY { display: block; animation: ldrSpin 2.4s linear infinite; }
+  .ldrY svg { display: block; height: 1.2em; width: auto; overflow: visible; fill: var(--lime); stroke: var(--lime); stroke-width: 3.3; stroke-linejoin: round; }
+  @keyframes ldrJump { 0%, 12% { transform: none; animation-timing-function: ease-out; }
+    25% { transform: scale(1.16, .76); animation-timing-function: ease-out; }                    /* crouch */
+    38% { transform: translateY(-.7em) scale(.9, 1.14); animation-timing-function: ease-out; }  /* launch */
+    50% { transform: translateY(-1.05em); animation-timing-function: ease-in; }                  /* top of the jump */
+    68% { transform: translateY(-.2em) scale(.94, 1.08); animation-timing-function: ease-in; }
+    76% { transform: scale(1.2, .74); animation-timing-function: ease-out; }                    /* land */
+    86% { transform: scale(.96, 1.05); }
+    94%, 100% { transform: none; } }
+  @keyframes ldrSpin { 0%, 34% { transform: rotate(0); animation-timing-function: ease-in-out; } 62%, 100% { transform: rotate(-360deg); } }   /* only spins while clear of the ground */
+  @media (prefers-reduced-motion: reduce) { .ldrX, .ldrY { animation: none; } }
+  .loadOv { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: var(--navy); pointer-events: none; }
+  @keyframes dots { to { transform: translate3d(-80px, 80px, 0); } }
+  @media (prefers-reduced-motion: reduce) { .stage.home::before { animation: none; } }
+  @media (hover: none) and (pointer: coarse) { html.typing .stage.home::before { animation: none; will-change: auto; } }   /* hold still while the keyboard is up: redrawing the drifting layer made phones stutter */
+  .logo, .masthead .mark, .secret .w, .brand { font-family: var(--brand); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .05em; }
+  .logo { text-shadow: 3px 3px 0 var(--navy); }
+  .logo { position: relative; }
+  .logoBg { position: absolute; z-index: -1; left: 50%; top: 50%; height: 2.4em; width: auto; transform: translate(-50%, -34%); fill: var(--navy); stroke: var(--navy); stroke-width: 3.3; stroke-linejoin: round; opacity: .55; pointer-events: none; overflow: visible; }
+  .tag { text-align: center; color: var(--soft); margin: 0 0 22px; font-weight: 500; }
+  h2 { font-size: 1.5rem; margin-bottom: 10px; }
+  .sub { color: var(--soft); font-size: .92rem; font-weight: 500; margin: 0 0 12px; }
+
+  /* inputs & buttons */
+  label { display: block; color: var(--soft); font-size: .8rem; font-weight: 500; margin: 12px 0 5px; text-transform: uppercase; letter-spacing: .08em; }
+  input, select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 2px solid transparent; background: var(--field);
+    color: var(--ink); font: 500 1.05rem var(--body); }
+  input::placeholder { color: color-mix(in srgb, var(--ink) 48%, var(--field)); opacity: 1; font-weight: 500; }   /* a gray made from the palette's own text colour */
+  input:focus, select:focus { outline: none; border-color: var(--lime); }
+  input.caps { text-transform: uppercase; letter-spacing: .1em; }
+  button { cursor: pointer; border: 0; border-radius: 12px; padding: 12px 20px; font: 500 1rem var(--body);
+    background: var(--lime); color: var(--on-lime); transition: transform .08s, filter .15s; }
+  button:hover { filter: brightness(1.06); } button:active { transform: translateY(2px); }
+  button.ghost { background: color-mix(in srgb, var(--ov) 12%, transparent); color: var(--text); }
+  button.big { width: 100%; padding: 15px; font-size: 1.15rem; font-family: var(--display); letter-spacing: .02em; font-weight: 500; }
+  button:disabled { opacity: .4; cursor: default; filter: none; }
+  .bar { display: flex; border-radius: 12px; overflow: hidden; background: var(--field); }
+  .bar input { border-radius: 0; flex: 1; border: 0; }
+  .bar button { border-radius: 0; padding: 0 22px; font-size: 1.5rem; }
+  .row { display: flex; gap: 10px; } .row > * { flex: 1; }
+  .hide { display: none !important; }
+  .center { text-align: center; }
+  .well { background: var(--well); border-radius: 16px; padding: 14px; }
+  .well + .well { margin-top: 12px; }
+
+  /* top bar */
+  .top { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .pill { background: var(--navy); border-radius: 999px; padding: 8px 16px; font-weight: 500; white-space: nowrap; }
+  .lvname { font-size: .85rem; color: var(--soft); margin-left: 6px; }
+  .pill b { font-family: var(--display); font-weight: 500; color: var(--accent-text); font-size: 1.15rem; margin-left: 6px; }
+  .teams { flex: 1; display: grid; gap: 6px; }
+  .tb { background: var(--navy); border-radius: 999px; height: 26px; position: relative; overflow: hidden; }
+  .tb i { position: absolute; inset: 0 auto 0 0; border-radius: 999px; transition: width .5s; opacity: .95; }
+  .tb span { position: relative; z-index: 1; display: flex; justify-content: space-between; padding: 0 12px; line-height: 26px; font-size: .82rem; font-weight: 500; }
+  .tb span em { font-style: normal; }
+  .tb.me { box-shadow: 0 0 0 2px var(--lime); }
+  .stat { font-size: .72rem; color: var(--soft); font-weight: 500; margin: 2px 0 0 12px; }
+
+  /* timer + clue slots */
+  .timer { display: block; width: 9.5rem; text-align: center; font-variant-numeric: tabular-nums; margin: 0 auto -18px; position: relative; z-index: 2; background: var(--navy);
+    padding: 8px 30px 10px; border-radius: 26px 26px 0 0; font-family: var(--display); font-size: 2rem; letter-spacing: .04em; line-height: 1.1; }
+  .timer.hot { color: var(--bad); animation: blinknum .5s steps(2, jump-none) infinite; }   /* last chance: only the numbers blink */ .timer.bonus { color: var(--accent-text); }
+  .timer small { display: block; font-family: var(--body); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); text-align: center; }
+  .timer.warn { color: var(--bad); animation: blinkred .5s steps(2, jump-none) infinite; }   /* last 5 seconds of writing */
+  @keyframes blinknum { 50% { color: var(--text); } }
+  @keyframes blinkred { 50% { background: var(--bad); color: var(--navy); } }
+  .timenote { margin-top: 4px; min-height: 1.3em; text-align: center; font-size: .85rem; font-weight: 500; color: var(--bad); } .timenote.off { visibility: hidden; }   /* hidden, not removed, so showing it doesn't move the keyboard */
+  .slots { display: flex; gap: 10px; background: var(--well); border-radius: 18px; padding: 26px 10px 10px; margin-bottom: 12px; }
+  .slot { flex: 1; min-height: 70px; border-radius: 12px; background: color-mix(in srgb, var(--ov) 6%, transparent); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 8px 4px; overflow: hidden; }
+  .slot .ic { width: 38px; height: 38px; border-radius: 50%; background: var(--lime); color: var(--on-lime); display: grid; place-items: center; font-size: 1.3rem; }
+  .slot .ic.off { background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--soft); }
+  .slot .txt { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 500; font-size: 1.5rem; letter-spacing: .16em; word-break: break-all; }
+  .slot small { color: var(--soft); font-size: .7rem; font-weight: 500; margin-top: 4px; }
+  .slot.got { background: var(--lime); color: var(--on-lime); min-height: 84px; }   /* same as the keyword on the clue-giver's screen */
+  .slot.got .txt { font-size: 2.1rem; font-weight: 600; letter-spacing: .12em; line-height: 1.1; }
+  .slot.got small { color: var(--on-lime); opacity: .75; margin-top: 6px; }
+  .slot.live { box-shadow: inset 0 0 0 2px var(--lime); }
+
+  .themebar { display: flex; border-radius: 12px; overflow: hidden; background: var(--field); color: var(--ink); margin-bottom: 8px; }
+  .themebar div { flex: 1; text-align: center; padding: 8px; font-weight: 500; font-size: 1rem; }
+  .themebar div small { font-weight: 500; opacity: .6; margin-right: 4px; }
+  .blanks { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 2px 0 10px; }
+  .blanks span { width: 30px; height: 38px; border-radius: 9px; background: color-mix(in srgb, var(--ov) 14%, transparent); border-bottom: 4px solid var(--lime); }
+  .blanks.long { gap: 4px; } .blanks.long span { width: 19px; height: 28px; border-radius: 6px; }
+  .blanks span.gap { background: none; border: 0; width: 10px; }
+  .secret { text-align: center; background: var(--lime); color: var(--on-lime); border-radius: 14px; padding: 8px 12px 10px; margin-bottom: 10px; }
+  .secret .w { font-size: 2rem; line-height: 1.15; letter-spacing: .08em; }
+  .secret { text-align: center; position: relative; }
+  .passbtn { position: absolute; z-index: 2; top: 4px; right: 6px; padding: 5px 11px; font-size: .76rem; border-radius: 999px; background: rgba(0,0,0,.14); color: var(--ink); }
+  .passbtn.asked { background: transparent; border: 1px dashed rgba(0,0,0,.4); opacity: .85; }
+  .passask { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 15; max-width: 520px; margin: 0 auto; background: var(--field); color: var(--ink); border-radius: 16px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  .passask p { margin: 0 0 8px; font-size: .92rem; line-height: 1.35; }
+  .passask .row button { padding: 10px; }
+  .sec-theme { font-size: .85rem; font-weight: 500; opacity: .8; }
+  .sec-theme b { font-weight: 500; opacity: 1; }
+  .sec-key .kw { font-size: .85rem; font-weight: 500; opacity: .75; }
+  .sec-key .w { overflow-wrap: anywhere; }
+  .secret small { display: block; font-weight: 500; opacity: .75; font-size: .8rem; }
+  .giverhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .rolechip { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; background: var(--navy); border-radius: 999px; padding: 6px 14px; font-weight: 500; font-size: .95rem; }
+  .timer.inl { margin: 0; width: 6.2rem; border-radius: 999px; padding: 4px 8px; font-size: 1.4rem; }
+  .linkbtn { background: none; padding: 0; color: var(--soft); text-decoration: underline; font-size: .9rem; font-weight: 400; }
+  .used { text-align: center; background: var(--well); border-radius: 12px; padding: 6px 10px; margin-bottom: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 1.15rem; letter-spacing: .3em; font-weight: 500; }
+  .usym { color: var(--accent-text); letter-spacing: .25em; margin-left: .6em; }
+  .used-h { font: 500 .72rem var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+  .used small { display: block; font-family: var(--body); font-size: .72rem; letter-spacing: 0; color: var(--soft); font-weight: 500; }
+
+  .keys { display: grid; grid-template-columns: repeat(22, 1fr); gap: 5px; margin: 8px auto 0; max-width: 480px; }
+  .keys button { width: 100%; height: 40px; padding: 0; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); border-radius: 10px; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+  .keys button.fn { font-size: .8rem; }
+  .keys button.kbtoggle { justify-self: end; width: auto; height: 26px; padding: 0 12px; margin-bottom: 2px; font-size: .72rem; letter-spacing: .06em; border-radius: 999px; box-shadow: none; background: color-mix(in srgb, var(--ov) 10%, transparent); }
+  .symrow { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; margin-top: 2px; padding-top: 6px; border-top: 1px dashed color-mix(in srgb, var(--ov) 20%, transparent); }
+  .symrow button { background: color-mix(in srgb, var(--ov) 8%, transparent); height: 30px; font-size: .85rem; box-shadow: none; }
+  .symrow::before { content: "Symbols cost 5 each"; grid-column: 1 / -1; text-align: center; font-size: .72rem; color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
+  .keys button:hover { background: color-mix(in srgb, var(--ov) 24%, transparent); }
+  .keys button.seen { opacity: .4; }
+  .keys button.seen:hover { opacity: .7; }
+  .keyhint { text-align: center; font-size: .74rem; color: var(--soft); margin-top: 6px; }
+  .keyhint b { font-weight: 500; opacity: .8; }
+  .keys button:disabled { background: rgba(0,0,0,.2); color: var(--soft); opacity: .5; box-shadow: none; }
+  .msg { min-height: 1.3em; font-size: .9rem; margin-top: 8px; color: var(--bad); font-weight: 500; text-align: center; }
+  .preview.one { height: 1.6rem; }
+  .preview { height: 1.7rem; white-space: nowrap; overflow: hidden; text-align: center; font-variant-numeric: tabular-nums; color: var(--soft); font-size: .88rem; font-weight: 500; margin-top: 8px; }
+  .preview b { color: var(--accent-text); font-size: 1.1rem; } .preview b.red { color: var(--bad); }
+  .log { list-style: none; padding: 0; margin: 12px 0 0; }
+  .log li { display: flex; justify-content: space-between; background: color-mix(in srgb, var(--ov) 8%, transparent); border-radius: 10px; padding: 7px 12px; margin-bottom: 4px; font-weight: 500; letter-spacing: .08em; }
+  .log .cost { color: var(--bad); letter-spacing: 0; }
+
+  /* lobby */
+  .bar.shake { animation: shakeX .45s cubic-bezier(.36,.07,.19,.97) both; box-shadow: 0 0 0 3px var(--bad); }
+  @keyframes shakeX { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(5px); } 30%, 50%, 70% { transform: translateX(-9px); } 40%, 60% { transform: translateX(9px); } }
+  @media (prefers-reduced-motion: reduce) { .bar.shake { animation: none; } }
+  .newcode { margin: -4px 0 8px; }
+  .lobby .well { margin-top: 0; }
+  .code { font-family: var(--display); font-size: 3.2rem; letter-spacing: .25em; text-align: center; color: var(--accent-text); line-height: 1.1; }
+  .seatgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  :root { --g0: #f2766b; --g1: #f29a5b; --g2: #f5c84a; --g3: #9fd77a; --g4: #4fc08a; }   /* the grade scale, red (M) to green (YKWIM) */
+  :root { --gd0: #c2392b; --gd1: #c4651e; --gd2: #a87000; --gd3: #4c8f2a; --gd4: #1f8a5b; }   /* deeper grade colours: white letters sit on these (the How to play table) */
+  :root[data-mode="light"] { --g0: #c2392b; --g1: #c4651e; --g2: #9a6700; --g3: #4c8f2a; --g4: #1f8a5b; }
+  .gradehead { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 6px 0 0; text-align: left; }
+  .gradehead .logo { margin: 0; flex: none; } .gradehead .quote { margin: 0; font-size: 1.1rem; line-height: 1.2; min-width: 0; }
+  .finalscore { font: 500 1rem var(--display); color: var(--soft); margin: 4px 0 6px; } .finalscore b { font: 500 2.2rem var(--display); color: var(--text); margin-right: 4px; }
+  .quote { font: italic 500 1.35rem var(--display); margin-top: 8px; }
+  .climb { display: block; width: 100%; max-width: 460px; margin: 10px auto 0; overflow: visible; box-sizing: border-box; padding: 12px 8px 8px; background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.18); } .climb .cg { font: 500 7.5px var(--body); fill: #4d5a5e; } .climb .cg.miss { fill: #c2392b; } .climb .cn { font: 600 9px var(--body); fill: #1d2b2e; } .climb .cn.miss { fill: #c2392b; }
+  .seatgrid.solo { grid-template-columns: 1fr !important; }
+  .seatcol h3 { margin: 0 0 8px; font-family: var(--display); font-style: normal; font-weight: 500; font-size: 1.15rem;  }
+  .seat { display: block; width: 100%; margin-bottom: 6px; text-align: left; background: color-mix(in srgb, var(--ov) 10%, transparent); color: var(--text); padding: 11px 14px; }
+  .seat.empty { background: transparent; border: 2px dashed color-mix(in srgb, var(--ov) 30%, transparent); color: var(--soft); }
+  .seat.mine { background: var(--lime); color: var(--on-lime); }
+  #app[data-team="0"] { --lime: var(--t0); --accent-text: var(--t0t); } #app[data-team="1"] { --lime: var(--t1); --accent-text: var(--t1t); }
+  .teamhead { display: flex; align-items: center; gap: 8px; }
+  .tdot { flex: none; width: 20px; height: 20px; border-radius: 50%; box-shadow: 0 0 0 2px color-mix(in srgb, var(--ov) 35%, transparent); }
+  .editfield { position: relative; display: block; } .editfield input { padding-right: 34px; }
+  .editfield .pen { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: var(--ink); opacity: .55; pointer-events: none; }
+  .editfield.seatname { margin-bottom: 6px; } .editfield.seatname input { background: var(--lime); color: var(--on-lime); font-weight: 500; }
+  .teamhead .editfield { flex: 1; min-width: 0; }
+  .teamhead .editfield input { padding: 6px 30px 6px 10px; font-size: 1rem; }
+  .seatcol .ghost { width: 100%; font-size: .85rem; padding: 8px; }
+  .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .chip { background: color-mix(in srgb, var(--ov) 12%, transparent); border-radius: 999px; padding: 4px 12px; font-size: .85rem; font-weight: 500; }
+  .res { border-radius: 14px; padding: 12px 14px; background: var(--well); margin-bottom: 10px; }
+  .res h3 { margin: 0; font-family: var(--display); font-style: normal; font-weight: 500;  font-size: 1.2rem; }
+  .res .line { display: flex; justify-content: space-between; font-size: .95rem; color: var(--soft); font-weight: 500; }
+  .res .line.tot { color: var(--accent-text); font-weight: 500; font-size: 1.1rem; border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); margin-top: 4px; padding-top: 4px; }
+  .ticks { position: absolute; inset: 0; pointer-events: none; --tk: color-mix(in srgb, var(--ov) 60%, transparent);
+    background: repeating-linear-gradient(to top, var(--tk) 0 2px, transparent 2px var(--M)) right top / 60% 100% no-repeat; }
+  .hb-track .ticks { background: repeating-linear-gradient(to right, var(--tk) 0 2px, transparent 2px var(--M)) left bottom / 100% 60% no-repeat; }
+  details.review { margin: 12px 0; background: var(--well); border-radius: 14px; padding: 10px 14px; }
+  details.gamereview { text-align: left; } details.rvword { border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); margin-top: 8px; padding-top: 8px; }
+  details.rvword summary { display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none; font-size: .95rem; } details.rvword summary::-webkit-details-marker { display: none; }
+  details.rvword summary::before { content: "▸"; color: var(--soft); transition: transform .15s; } details.rvword[open] summary::before { transform: rotate(90deg); }
+  details.rvword summary b { font-family: var(--brand); font-style: italic; letter-spacing: .06em; text-transform: uppercase; flex: 1; font-weight: 400; } .tdot.sm { display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; box-shadow: none; } .rvnet { font-weight: 500; font-variant-numeric: tabular-nums; }
+  details.review summary { cursor: pointer; font-weight: 500; color: var(--soft); list-style: none; }
+  details.review summary::-webkit-details-marker { display: none; } details.review summary::before { content: "▸"; display: inline-block; margin-right: 8px; transition: transform .15s; }
+  details.review[open] summary::before { transform: rotate(90deg); }
+  .rv-head { margin: 8px 0 6px; font-size: .85rem; color: var(--soft); } .rv-head b { color: var(--text); letter-spacing: .06em; }
+  .rv-team { border-left: 4px solid; padding: 2px 0 2px 10px; margin-top: 10px; }
+  .rv-team h4 { margin: 0 0 4px; font: 500 1.05rem var(--display); display: flex; justify-content: space-between; gap: 8px; } .rv-team h4 span { font: 400 .8rem var(--body); color: var(--soft); }
+  .rv-team .line { display: flex; justify-content: space-between; gap: 10px; font-size: .88rem; padding: 3px 0; color: var(--soft); } .rv-team .line > span:last-child { text-align: right; color: var(--text); }
+  .rv-team .mono { font-family: ui-monospace, Menlo, monospace; letter-spacing: .1em; } .rv-team small { color: var(--bad); } .rv-team .ok { color: var(--good); } .rv-team .no { color: var(--bad); }
+  .rv-sum { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: .82rem; color: var(--soft); margin-top: 4px; border-top: 1px solid color-mix(in srgb, var(--ov) 15%, transparent); padding-top: 4px; } .rv-sum b { color: var(--text); font-weight: 500; } .rv-sum .tot { margin-left: auto; color: var(--accent-text); }
+  .feedback { padding: 36px 16px 28px; } .fb-emoji { font-size: 4rem; line-height: 1; animation: popin .5s cubic-bezier(.2,1.4,.4,1) both; }
+  .gr { display: flex; align-items: center; gap: 10px; padding: 5px 0; } .gchip { flex: none; min-width: 58px; text-align: center; padding: 3px 8px; border-radius: 8px; color: #fff; font: 600 .85rem var(--body); }
+  @media (max-width: 340px) { table.gt { font-size: .8rem; } table.gt td { padding-left: 4px; } .modal .sheet { padding-left: 12px; padding-right: 12px; } }
+  table.gt .gor { display: block; font-size: .7rem; opacity: .7; }
+  table.gt tr.gr2 td.gq { text-align: left; white-space: nowrap; max-width: 0; overflow: visible; font: italic 400 .76rem var(--body); color: var(--ink); padding: 0 4px 8px; border-top: 0; }   /* the quote gets the whole row, so it never splits */
+  table.gt tr.gr2 + tr.gr1 th, table.gt tr.gr2 + tr.gr1 td { border-top: 1px solid rgba(0,0,0,.08); }
+  table.gt tr.gr1 th, table.gt tr.gr1 td { padding-top: 8px; padding-bottom: 2px; vertical-align: middle; }
+  table.gt th:first-child { width: 1%; white-space: nowrap; } table.gt td { white-space: nowrap; } table.gt .gq { display: block; margin-top: 3px; font: italic 400 .72rem var(--body); color: var(--ink); line-height: 1.25; }
+  table.gt tr + tr th, table.gt tr + tr td { padding-top: 6px; padding-bottom: 6px; } table.gt td { vertical-align: top; padding-top: 9px; }
+  table.gt { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; } table.gt caption { text-align: left; font-weight: 500; font-size: .85rem; padding-bottom: 4px; }
+  table.gt th { font-weight: 500; color: #6b6b78; text-align: right; padding: 3px 4px; } table.gt th:first-child { text-align: left; } table.gt td { text-align: right; padding: 3px 4px; font-variant-numeric: tabular-nums; } table.gt tr + tr th, table.gt tr + tr td { border-top: 1px solid rgba(0,0,0,.08); }
+  .vsgrades { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 8px; }
+  .vsg { background: var(--well); border-radius: 16px; padding: 12px 8px; border: 2px solid transparent; } .vsg.won { border-color: var(--lime); }
+  .vsg .n { font: 500 1rem var(--display); } .vsg .s { font-size: .8rem; color: var(--soft); margin-bottom: 4px; }
+  .vsg .g { font: 400 2.4rem var(--brand); font-style: italic; letter-spacing: .04em; line-height: 1.1; text-shadow: 2px 2px 0 var(--navy); } .vsg .q { font: italic 500 .85rem var(--display); margin-top: 4px; }
+  #help .big { margin-top: 16px; }   /* breathing room above Got it on every page */
+  .tip { position: fixed; z-index: 40; max-width: 230px; pointer-events: none; background: var(--field); color: var(--ink); border-radius: 10px; padding: 7px 10px; font-size: .8rem; line-height: 1.3; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+  [data-tip] { cursor: help; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--navy); border: 2px solid var(--bad); color: var(--text);
+    padding: 10px 18px; border-radius: 999px; font-weight: 500; z-index: 9; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+  .foot { position: fixed; left: 0; right: 0; bottom: 8px; z-index: 2; text-align: center; font-size: .72rem; letter-spacing: .04em; color: var(--soft); opacity: .75; pointer-events: none; }
+  #wrap:not(.landing) ~ .foot { display: none; }   /* landing page only */
+  #wrap.landing .stage.home { padding-bottom: 30px; }
+  .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
+  /* landing page: the colour is the whole screen's background, edge to edge, with nothing to scroll */
+  html.landing, html.landing body { height: 100vh; height: 100dvh; overflow: hidden; padding: 0; }
+  #wrap.landing { height: 100vh; height: 100dvh; max-width: none; position: relative; }
+  #wrap.landing #app, #wrap.landing .stage.home { height: 100%; }
+  #wrap.landing .masthead { position: absolute; top: 0; left: 0; right: 0; z-index: 5; border-bottom: 0; margin: 0; padding: 10px 12px 0; }
+  #wrap.landing .stage.home { display: flex; flex-direction: column; border-radius: 0; box-shadow: none; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+  #wrap.landing .stage.home::before { position: fixed; }
+  #wrap.landing .stage.home > :first-child { margin-top: auto; } #wrap.landing .stage.home > :last-child { margin-bottom: auto; }   /* centred when there's room, top-aligned (and reachable) when there isn't */
+  #wrap.landing .masthead { padding: 12px 24px 10px; background: var(--navy); box-shadow: 0 1px 0 color-mix(in srgb, var(--ov) 14%, transparent); }   /* a solid bar: the colour starts under it */
+  #wrap.landing .stage.home { padding-top: 76px; }
+  #wrap.landing .stage.home > * { width: 100%; max-width: 460px; margin-left: auto !important; margin-right: auto !important; }   /* the form stays a phone-width column on wide screens */
+  @media (max-width: 480px) { #wrap.landing .masthead { padding: 10px 12px 8px; } #wrap.landing .masthead .mark small { display: none; } #wrap.landing .masthead { grid-template-columns: 84px 1fr 84px; } #wrap.landing .stage.home { padding-top: 66px; } #wrap.landing .stage.home > * { max-width: none; } }
+  @media (max-width: 480px) {
+    /* the card scrolls only when it has to (the keyboard takes half the screen, so the name box must be able to scroll into view); the drifting ? layer is fixed, so it never makes the card scrollable */
+    body { padding: 8px; } .stage { padding: 10px; border-radius: 18px; }
+    .masthead { grid-template-columns: 84px 1fr 84px; margin-bottom: 8px; } .icon { width: 36px; height: 36px; }
+    .top { margin-bottom: 8px; gap: 8px; } .pill { padding: 5px 12px; } .pill b { font-size: 1rem; } .lvname { font-size: .78rem; }
+    .hbars { display: block; margin-bottom: 8px; } .playrow .vbar { display: none; } .playrow { display: block; }
+    .playrow { gap: 8px; } .vbar { flex-basis: 40px; } .vb-track { min-height: 120px; width: 20px; } .vb-name { font-size: .64rem; margin-bottom: 3px; }
+    .vb-stat { display: none; } .masthead .mark { font-size: 1.35rem; } .icon { width: 32px; height: 32px; } .preview { font-size: .82rem; height: 1.6rem; } .preview.one { height: 1.5rem; }
+    .vb-num { margin-top: 5px; font-size: 1rem; } .vb-sub { font-size: .6rem; } .vb-delta { font-size: .66rem; min-height: 1em; } .vb-stat { font-size: .85rem; min-height: 1em; }
+    .slots { padding: 22px 8px 8px; margin-bottom: 8px; gap: 8px; } .slot { min-height: 52px; padding: 5px 4px; } .slot .txt { font-size: 1.15rem; } .slot.got { min-height: 70px; } .slot.got .txt { font-size: 1.7rem; }
+    .timer { padding: 5px 20px 7px; font-size: 1.6rem; margin-bottom: -16px; }
+    .themebar div { padding: 5px; font-size: .92rem; } .blanks { margin: 0 0 8px; gap: 5px; } .blanks span { width: 26px; height: 30px; }
+    .secret { padding: 5px 10px 7px; margin-bottom: 8px; } .secret .w { font-size: 1.7rem; }
+    .giverhead { margin-bottom: 8px; } .rolechip { padding: 2px 10px; font-size: .76rem; } .timer.inl { width: 5.4rem; font-size: 1.2rem; padding: 2px 6px; }
+    #clue, #guess { font-size: .95rem; letter-spacing: .06em; } #clue::placeholder, #guess::placeholder { font-size: .8rem; letter-spacing: .04em; } .used { padding: 4px 8px; margin-bottom: 8px; font-size: 1rem; }
+    input { padding: 10px 12px; } .bar button { padding: 0 16px; }
+    .settings, .seatgrid { gap: 0 8px; } .seatgrid { gap: 8px; } .seat { padding: 9px 10px; font-size: .92rem; } .dd-btn { padding: 10px 11px; font-size: .95rem; }
+    /* scrolling long screens on iOS flickers if the page has to repaint a huge dotted gradient and a wide blurred shadow every frame */
+    .stage { background: linear-gradient(115deg, var(--deep) 0%, var(--indigo) 38%, var(--indigo) 62%, var(--deep) 100%); box-shadow: none; }
+    /* lobby on a phone: room code with its link buttons beside it, and Start above the settings so you needn't scroll for it */
+    .stage.lobby { display: flex; flex-direction: column; }
+    .stage.lobby .lobbystart { order: 1; margin: 4px 0 6px !important; } .stage.lobby .settingshead { order: 2; } .stage.lobby .well { order: 3; }
+    .coderow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .codebox .sub { text-align: left; } .codebox .code { text-align: left; font-size: 2.3rem; }
+    .codeside { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; } .codeside p, .newcode { margin: 0 !important; }
+    .linktxt { display: none; }
+    .stage.lobby .dev { display: none; }   /* "on this device" is clear from the button's place */
+    .stage.lobby { padding: 12px; } .coderow { margin-bottom: 4px; }
+    .stage.lobby .seatgrid { margin: 8px 0 4px; gap: 5px 10px; } .stage.lobby .seatcol h3 { margin: 0 0 6px; }
+    .stage.lobby .seat { padding: 7px 12px; margin-bottom: 5px; font-size: .92rem; } .stage.lobby .seatcol .ghost { padding: 7px; font-size: .78rem; }
+    .stage.lobby > .sub { margin: 4px 0; font-size: .8rem; line-height: 1.3; }
+    .stage.lobby .lobbystart { margin: 4px 0 6px !important; } .stage.lobby .lobbystart button.big { padding: 12px; font-size: 1.1rem; }
+    .stage.lobby .lobbystart .ghost { padding: 8px; font-size: .82rem; margin-top: 6px !important; }
+    .stage.lobby .settingshead { margin: 2px 0 6px; } .stage.lobby .settingshead h2 { font-size: 1.1rem; }
+    .stage.lobby .well { padding: 10px 12px; } .stage.lobby .modes { gap: 10px; }
+    .stage.lobby .modebtn { padding: 10px 12px; border-radius: 14px; border-width: 3px; gap: 3px; } .stage.lobby .modebtn b { font-size: 1.25rem; } .stage.lobby .modebtn span { font-size: .74rem; }
+    .stage.lobby .settings label { font-size: .7rem; margin: 8px 0 3px; }
+    .code { font-size: 2.6rem; } .res { padding: 10px 12px; } .bc-txt { font-size: clamp(1.4rem, 6.5vw, 2.2rem); } .bigclue { padding: 12px 4px 8px; }
+  }
+  /* last chance: the timer sits above the clue boxes instead of tucking into them */
+  .timer.hot { margin: 0 auto 10px; border-radius: 999px; } .timer.hot.inl { margin: 0; } .timer.hot + .slots { padding-top: 10px; }
+  .giverhead + .slots { padding-top: 10px; }
+  .timer.inl small { display: none; }
+</style>
+<style>
+  /* ---- 中文版 additions ---- */
+  :root { --cjk: "Noto Sans TC", "PingFang TC", "Hiragino Sans CNS", "Microsoft JhengHei", system-ui, sans-serif;
+    --display: "Fredoka", var(--cjk); --body: "Fredoka", var(--cjk); --brand: "Lilita One", var(--cjk); }
+  .secret .w, .brand.zhword, details.rvword summary b { font-family: var(--cjk); font-style: normal; font-weight: 700; text-transform: none; letter-spacing: .1em; }
+  .secret .w { font-size: 2.4rem; }
+  details.rvword summary b { font-size: 1.05rem; }
+  .py { font-weight: 600; letter-spacing: .02em; } .zy { font-family: var(--cjk); font-weight: 500; }
+  .py + .zy { margin-left: .45em; }
+  .sec-read { display: flex; gap: .2em .9em; justify-content: center; flex-wrap: wrap; font-weight: 500; font-size: .9rem; opacity: .85; margin-top: 2px; }
+  .sec-ban { font-size: .8rem; font-weight: 500; margin-top: 6px; }
+  .bn { display: inline-block; background: rgba(0,0,0,.18); border-radius: 6px; padding: 0 7px; margin: 2px 2px; font-weight: 600; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .ctile { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 56px; padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--on-lime) 14%, transparent); line-height: 1.15; }
+  .ctile .han { font: 700 2.1rem var(--cjk); line-height: 1.1; }
+  .ctile .ph { display: flex; flex-direction: column; align-items: center; font-size: 1.25rem; }
+  .ctile .ph .py + .zy { margin-left: 0; }
+  .ctile .zy { font-size: 1rem; opacity: .9; }
+  .ctile.hz .ph { font-size: .85rem; opacity: .85; }
+  .ctile.hz .zy { font-size: .8rem; }
+  .skipped { font-size: .9rem; opacity: .7; font-weight: 500; }
+  .slot { min-width: 0; }
+  .slot.got { padding: 10px 6px 8px; }
+  .bigclue { padding: 14px 6px 10px; }
+  .bigclue .ctile { background: color-mix(in srgb, var(--ov) 10%, transparent); }
+  .ctile.fsw { background: #fff; color: var(--ink); }
+  .used { font-family: var(--body); letter-spacing: 0; font-size: 1.05rem; }
+  .snd { display: inline-flex; gap: .45em; margin: 0 10px; font-size: 1.3rem; font-weight: 600; }
+  .blanks.zh span { width: 46px; height: 54px; }
+  .crows { display: grid; gap: 10px; margin: 6px 0 4px; }
+  .crow { display: grid; grid-template-columns: 18px minmax(0, 1fr) 98px 26px; gap: 6px; align-items: center; }
+  .crow .cn { font-weight: 600; color: var(--soft); text-align: center; }
+  .crow input { padding: 10px; font-size: 1rem; }
+  .crow input.han { font-family: var(--cjk); text-align: center; font-size: 1.15rem; }
+  .crow .rc { font-size: .8rem; color: var(--soft); text-align: right; white-space: nowrap; font-weight: 500; }
+  .crow .rm { padding: 0; width: 26px; height: 26px; border-radius: 50%; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); font-size: .75rem; }
+  .rline { grid-column: 2 / -1; display: flex; justify-content: space-between; gap: 8px; margin-top: -3px; min-height: 1.15em; }
+  .rparse { font-size: .8rem; color: var(--soft); word-break: break-word; }
+  .crow input.han::placeholder { font-size: .82rem; }
+  .rparse.bad { color: var(--bad); font-weight: 500; }
+  .rpick { grid-column: 2 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+  .rpick button { padding: 3px 10px; font-size: .85rem; border-radius: 999px; }
+  .crowtools { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0 2px; }
+  .addchar { background: transparent; color: var(--accent-text); border: 2px dashed color-mix(in srgb, var(--accent-text) 55%, transparent); padding: 7px 12px; font-size: .88rem; }
+  .tonepad { display: inline-flex; gap: 4px; }
+  .tonepad button { width: 34px; height: 34px; padding: 0; border-radius: 10px; background: color-mix(in srgb, var(--ov) 14%, transparent); color: var(--text); font-weight: 600; }
+  .phontog { padding: 6px 12px; font-size: .8rem; border-radius: 999px; background: color-mix(in srgb, var(--ov) 12%, transparent); color: var(--text); }
+  .passask .hint { font-size: .8rem; color: #6b6b78; }
+  .fs-ban s { padding: 0 5px; }
+  .fs-row .ctile { background: #fff; color: var(--ink); }
+  .fs-row .ctile .han { font-size: 1.7rem; }
+  .fs-used { font: 600 1.1rem var(--body); letter-spacing: .1em; }
+  .secret .sec-theme { font-size: .85rem; }
+  .bub, .fs-say, .quote, .vsg .q, table.gt tr.gr2 td.gq, table.gt .gq { font-style: normal; }
+  .fs-kw { font: 700 1.6rem var(--cjk); font-style: normal; letter-spacing: .06em; }
+  .masthead .mark small { letter-spacing: .3em; text-transform: none; }
+  @media (max-width: 480px) {
+    .crow { grid-template-columns: 16px minmax(0, 1fr) 90px 24px; gap: 5px; }
+    .crow input { padding: 9px 8px; font-size: .95rem; }
+    .tonepad button { width: 30px; height: 32px; }
+    .secret .w { font-size: 2rem; }
+    .blanks.zh span { width: 40px; height: 46px; }
+    .ctile { min-width: 50px; padding: 5px 8px; } .ctile .han { font-size: 1.8rem; }
+    #py0, .py { letter-spacing: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="previewbar" class="pvbar hide"></div>
+  <header class="masthead">
+    <button id="roomchip" class="roomchip" style="visibility:hidden" data-act="copyCode" title="房間代碼：用它可以重新加入。點一下複製。"></button>
+    <div class="mark"><span class="markT">YKWIM</span><span id="markIcon"></span><small>你懂我的意思嗎</small></div>
+    <div class="icons">
+      <button class="icon" data-act="themes" aria-label="顯示設定"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+      <button class="icon" id="helpbtn" data-act="help" aria-label="玩法說明">?</button>
+      <div id="helpnudge" class="helpnudge" hidden>第一次玩？先看規則</div>
+    </div>
+  </header>
+  <div id="app"></div>
+</div>
+<footer class="foot">© 2026 YKWIM</footer>
+<div id="themes" class="modal hide">
+  <div class="sheet">
+    <button class="x" data-act="closeThemes" aria-label="關閉">✕</button>
+    <h2>顯示設定</h2>
+    <div class="dlabel">明暗</div><div class="seg" id="seg-mode"></div>
+    <div class="dlabel">文字大小</div><div class="seg" id="seg-size"></div>
+    <div class="dlabel">讀音顯示</div><div class="seg" id="seg-phon"></div>
+    <div class="dlabel">配色</div><div class="swatches" id="swatches"></div>
+  </div>
+</div>
+<div id="help" class="modal hide">
+  <div class="sheet">
+    <button class="x" data-act="closeHelp" aria-label="關閉">✕</button>
+    <h2>玩法說明</h2>
+    <div class="seg" id="seg-help" style="margin:8px 0 12px"><button class="on" data-act="helpTab" data-tab="rules">規則</button><button data-act="helpTab" data-tab="cost">定價</button><button data-act="helpTab" data-tab="flow">範例</button><button data-act="helpTab" data-tab="bar">分數條</button><button data-act="helpTab" data-tab="result">評級</button></div>
+    <div id="help-rules">
+    <p>兩隊同時猜<b>同一個關鍵詞</b>。線索不是字母，而是漢字的<b>讀音</b>和<b>字形</b>：讀音免費，要看到漢字就得付點數，猜者負責把意思拼起來。</p>
+    <h3>線索</h3>
+    <ul>
+      <li>一隊 = 1 位猜者 + 1–3 位線索者，線索者依序給線索，每個線索由一到四個「字」組成。</li>
+      <li>每個字先寫<b>讀音</b>：拼音加聲調數字（<b>zhu2</b>），或注音（<b>ㄓㄨˊ</b>）。輕聲寫 5。</li>
+      <li>想讓猜者直接看到漢字（例如「竹」），再加 10 點。猜者看到漢字時也會看到讀音，所以不怕多音字。</li>
+      <li>關鍵詞<b>每個字的同音字都不能用</b>（聲母加韻母一樣就算，不管聲調，關鍵詞本身也算）。熊貓 ➜ 熊、雄、胸、兇、貓、毛、矛…都不行。</li>
+      <li>線索者 2 看得到線索者 1 的讀音，但<b>沒有聲調、也不知道順序</b>，要靠關鍵詞推理（zhu ＋ 熊貓 ➜ 竹）。可以補字，也可以不補。補錯字會誤導猜者。</li>
+      <li>猜者只看得到自己隊的線索。</li>
+    </ul>
+    <h3>跳過</h3>
+    <ul>
+      <li>不認識這個詞？在<b>兩隊的線索者 1 都還沒送出線索</b>以前，線索者 1 可以按「跳過？」，對方線索者 1 同意就雙方換新詞，10 秒內沒回應算拒絕。</li>
+      <li>只要有一方送出線索，就不能再跳過。線索者 2 不能提議跳過。</li>
+      <li>冷門詞、專有名詞、方言詞：對方說不懂，通常該同意。常識詞（像熊貓）說不懂，對方可以拒絕。拒絕不犯規，只是可能被說勝之不武。</li>
+    </ul>
+    <h3>點數</h3>
+    <ul>
+      <li>每隊有銀行（200 點）。線索的花費先暫記，<b>猜中才真正扣掉；猜不中全數退還</b>。</li>
+      <li>猜中得到獎勵加速度獎金。兩隊都猜中時，先猜中的再得一份搶先獎金。</li>
+      <li>猜錯一次扣幾點，放棄免費。一隊猜中或放棄後，另一隊有最後機會計時。</li>
+      <li>人不夠兩隊？選合作模式：一隊玩固定個數的詞，最後得到評級。對戰模式兩隊也各有評級。</li>
+    </ul>
+    </div>
+    <div id="help-cost" class="hide">
+      <h3>線索定價</h3>
+      <div id="costdiag"></div></div>
+    <div id="help-flow" class="hide"><div id="flowdiag"></div></div>
+    <div id="help-result" class="hide">
+      <h3>輸贏</h3>
+      <ul>
+        <li><b>對戰：</b>打到目標分數或固定個數的詞，分數高的贏，平手加賽一個詞。</li>
+        <li><b>合作：</b>一隊玩固定個數的詞，依得分拿評級。</li>
+      </ul>
+    <h3>評級</h3>
+    <p>結束時每隊都有評級，從 M 到 YKWIM。比起始點數多賺越多，評級越高。對戰還是看誰的分數高。</p>
+    <div id="gradediag"></div>
+    </div>
+    <div id="help-bar" class="hide"><p>遊戲旁邊的長條顯示你們隊的點數，以及這個詞還可以賺多少。</p><div id="bardiag" style="--lime:var(--t0)"></div><p style="font-size:.85rem">滑鼠移到（或點一下）真正的長條，就會顯示每一段的名稱。</p></div>
+    <button class="big" data-act="closeHelp">知道了</button>
+  </div>
+</div>
+<div id="toast" class="toast hide"></div>
+<div id="tip" class="tip hide" role="tooltip"></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
+<script src="game.js?v=20261022b"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const safeGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
+const safeSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+const helpSeen = () => safeGet('ykwimzh-help') === '1';   // has this device opened the rules?
+const token = safeGet('ykwimzh-token') || (() => { const t = Math.random().toString(36).slice(2) + Date.now().toString(36); safeSet('ykwimzh-token', t); return t; })();
+const READ = window.pinyinPro ? YKWIM.makeReadings(window.pinyinPro) : null;   // null if the library didn't load: written characters then go unchecked
+
+let V = null, net = null;
+const S = { name: safeGet('ykwimzh-name') || '', code: (new URLSearchParams(location.search).get('room') || '').toUpperCase(), busy: false, err: '',
+  draft: { rows: [{ py: '', han: '' }], guess: '' }, stageKey: '', shownRole: '', dl: [null, null], speedDl: null, sentKey: '', lastPy: 0 };
+const resetDraft = () => { S.draft = { rows: [{ py: '', han: '' }], guess: '' }; S.lastPy = 0; };
+// The screen-preview tool is a development aid: only offered when running from this machine or the local network.
+const IS_LOCAL = ['localhost', '127.0.0.1', ''].includes(location.hostname) || location.hostname.endsWith('.local') || /^(192\.168|10)\./.test(location.hostname) || /^172\.(1[6-9]|2\d|3[01])\./.test(location.hostname);
+const TEAM_COLORS = ['var(--t0)', 'var(--t1)'];          // fills
+const TEAM_BANK = TEAM_COLORS.map(c => `color-mix(in srgb, ${c} 88%, black)`);   // the bank in the score bars: a deeper shade, so the bonus segments above it stand out
+const TEAM_TEXT = ['var(--t0t)', 'var(--t1t)'];          // the same colours, readable as text in light mode
+const STAGE_TEXT = { waiting: '等待輪到', giver1: '線索者 1 寫線索中…', giver2: '線索者 2 寫線索中…', giver3: '線索者 3 寫線索中…', guess: '思考中…' };
+const isWriting = stage => /^giver\d$/.test(stage);                 // a clue-giver is typing
+const stageRoleOf = stage => stage === 'guess' ? 'guesser' : isWriting(stage) ? stage : null;
+const SOLO = () => !!V && V.settings.teams === 'one';                  // no opponent: one team plays for a score
+
+// ---------- networking: host-authoritative over PeerJS (WebRTC), no server of our own ----------
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const randomCode = () => Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+
+let room = null;   // the host's live room: { peer, conns, game }
+function broadcast() {
+  if (!room) return;
+  onView(room.game.view('host'));
+  for (const id in room.conns) if (room.conns[id].open) room.conns[id].send({ type: 'view', view: room.game.view(id) });
+}
+// renew = the host asked for a fresh room code: same game and seat, new address. Everyone else has to join again.
+function hostRoom(name, attempt = 0, renew = false) {
+  const code = randomCode();
+  const peer = new Peer('ykwimzh-' + code);
+  peer.on('error', e => {
+    if (e.type === 'unavailable-id' && attempt < 5) return hostRoom(name, attempt + 1, renew);
+    if (renew) return toast('沒辦法產生新代碼，再試一次。');
+    fail(`沒辦法建立房間（${e.type}），請檢查網路。`);
+  });
+  peer.on('open', () => {
+    const conns = {}, old = renew ? room : null;
+    const game = old ? old.game : YKWIM.createGame({ hostId: 'host', onChange: broadcast, readings: READ });
+    room = { peer, conns, game };   // switch first, so nothing more is broadcast to the old room while its players are dropped
+    if (old) { old.peer.destroy(); Object.keys(old.conns).forEach(id => game.disconnect(id)); }
+    peer.on('connection', conn => {
+      conns[conn.peer] = conn;
+      conn.on('data', m => {
+        if (m.type === 'hello') return game.addPlayer(conn.peer, m.name, m.token);
+        const r = game.handle(conn.peer, m);
+        if (r && r.error) conn.send({ type: 'error', msg: r.error });
+      });
+      conn.on('close', () => { delete conns[conn.peer]; game.disconnect(conn.peer); });
+    });
+    net = { code, isHost: true, send: m => { const r = game.handle('host', m); if (r && r.error) toast(r.error); } };
+    S.code = code; S.busy = false;
+    if (old) { broadcast(); toast('新的房間代碼：' + code); } else game.addPlayer('host', name, token);
+  });
+}
+
+// A guest who drops (phone locked, wifi blip, page reloaded) keeps retrying the same room; their device token gives them their old seat back.
+const SESSION_KEY = 'ykwimzh-room', SESSION_MS = 12 * 3600e3;
+const saveSession = code => safeSet(SESSION_KEY, JSON.stringify({ code, t: Date.now() }));
+const clearSession = () => { try { localStorage.removeItem(SESSION_KEY); } catch {} };
+const loadSession = () => { try { const s = JSON.parse(safeGet(SESSION_KEY)); return s && s.code && Date.now() - s.t < SESSION_MS ? s : null; } catch { return null; } };
+let guestPeer = null, guestConn = null, retryTimer = null;
+function showReconnect(code) {
+  hideReconnect();
+  const o = document.createElement('div');
+  o.className = 'loadOv'; o.style.pointerEvents = 'auto';
+  o.innerHTML = loaderHtml('big') + `<p class="sub">正在重新連到房間 <b>${esc(code)}</b>…</p><button class="ghost" data-act="leaveRoom">離開房間</button>`;
+  document.body.appendChild(o);
+}
+const hideReconnect = () => document.querySelectorAll('.loadOv').forEach(o => o.remove());
+function leaveRoom() {
+  clearTimeout(retryTimer); S.rejoin = null; clearSession();
+  if (guestPeer) try { guestPeer.destroy(); } catch {}
+  guestPeer = guestConn = net = null; V = null; hideReconnect(); render();
+}
+function startRejoin(code, maxTries = 25) {
+  S.rejoin = { code, tries: 0, max: maxTries };
+  showReconnect(code);
+  connectGuest(S.name || '玩家', code);
+}
+function retryRejoin() {
+  const r = S.rejoin; if (!r) return;
+  if (++r.tries > r.max) { clearTimeout(retryTimer); S.rejoin = null; hideReconnect(); V = null; net = null; S.code = r.code; return fail(`回不到房間 ${r.code}。請確認代碼，或問房主房間還開著嗎。`); }
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(() => S.rejoin && connectGuest(S.name || '玩家', r.code), 2000);
+}
+function joinRoom(name, code) { S.rejoin = null; connectGuest(name, code); }
+function connectGuest(name, code) {
+  if (guestPeer) try { guestPeer.destroy(); } catch {}
+  const peer = guestPeer = new Peer();
+  const lost = msg => { if (peer !== guestPeer) return; if (S.rejoin) retryRejoin(); else { clearSession(); fail(msg); } };
+  peer.on('error', e => lost(e.type === 'peer-unavailable' ? `找不到房間「${code}」，請確認代碼。` : `連線有問題（${e.type}）。`));
+  peer.on('open', () => {
+    const conn = guestConn = peer.connect('ykwimzh-' + code, { reliable: true });
+    conn.on('open', () => {
+      if (peer !== guestPeer) return;
+      net = { code, isHost: false, send: m => conn.open && conn.send(m) };
+      conn.send({ type: 'hello', name, token });
+      saveSession(code); S.busy = false;
+    });
+    conn.on('data', m => { if (peer !== guestPeer) return; if (m.type === 'view') { if (S.rejoin) { S.rejoin = null; hideReconnect(); } onView(m.view); } else if (m.type === 'error') toast(m.msg); });
+    conn.on('close', () => { if (peer !== guestPeer) return; net = null; if (S.rejoin) return retryRejoin(); if (V) startRejoin(code); else fail('和房間斷線了。'); });
+  });
+}
+// coming back to a phone that went to sleep: the connection is usually dead even if the page doesn't know yet
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && guestConn && !guestConn.open && !S.rejoin && V && net === null && !S.preview) startRejoin(guestConn.peer.replace('ykwimzh-', ''));
+});
+
+function fail(msg) { S.busy = false; S.err = msg; V = null; render(); }
+let toastTimer;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.remove('hide'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add('hide'), 2800); }
+
+const FEEDBACK_MS = 3500;   // pass-and-play: how long the guesser's result screen stays up before the "pass the device" screen
+const ICON_SVG = '<svg viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>';
+$('markIcon').innerHTML = ICON_SVG;
+// the YKWIM word with the icon hopping along it, for any waiting screen
+const loaderHtml = (cls = '') => `<div class="ldr ${cls}" role="status" aria-label="載入中">${[...'YKWIM'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
+function playIntro() {
+  const el = document.createElement('div');
+  el.className = 'intro';
+  el.innerHTML = '<div class="introWord">' + [...'YKWIM'].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2300);
+}
+function onView(v) {
+  const prev = V;
+  V = v;
+  if (prev && prev.round && v.round && prev.round.n === v.round.n && v.myTeam !== null && prev.myTeam === v.myTeam) {   // a wrong guess just landed: shake the guess box
+    const was = (prev.round.teams[v.myTeam].log || []), now = (v.round.teams[v.myTeam].log || []);
+    if (now.length > was.length && now[now.length - 1].ok === false) S.shake = true;
+  }
+  if (prev && prev.phase === 'lobby' && v.phase === 'round') playIntro();
+  if (v.phase === 'round') safeSet('ykwimzh-help', '1');   // they're playing: they'll have worked it out
+  // Pass-and-play: the moment a guesser's turn ends, the device already belongs to the next team, so remember to show them how it went first
+  if (prev && prev.round && v.round && prev.round.n === v.round.n && v.settings.sequential && prev.myTeam !== null && (prev.myRoles || []).includes('guesser')) {
+    const t = prev.myTeam, was = prev.round.teams[t], now = v.round.teams[t];
+    if (was.stage === 'guess' && now.stage === 'done') {
+      S.feedback = { team: t, result: now.result, earned: now.earned, until: Date.now() + FEEDBACK_MS };
+      setTimeout(render, FEEDBACK_MS + 50);
+    }
+  }
+  if (v.round) {
+    const now = Date.now();
+    S.dl = v.round.teams.map(t => t.remaining === null ? null : now + t.remaining);
+    const mt = v.myTeam;
+    S.speedDl = mt !== null && v.round.teams[mt].speedLeft ? now + v.round.teams[mt].speedLeft : null;
+    const key = v.round.n + ':' + (mt !== null ? v.round.teams[mt].stage : '');
+    if (key !== S.stageKey) { S.stageKey = key; resetDraft(); }
+    const pn = v.round.passNote;
+    if (S.passNoteId === undefined) S.passNoteId = pn ? pn.id : 0;   // joining or reconnecting: don't replay old news
+    else if (pn && pn.id !== S.passNoteId) {
+      S.passNoteId = pn.id;
+      if (pn.type === 'accepted') { resetDraft(); S.sentKey = ''; S.shownRole = ''; setTimeout(() => toast('跳過了！換一個新的關鍵詞。'), 0); }
+      else if (mt === pn.from) setTimeout(() => toast(pn.type === 'expired' ? '對方沒回應，繼續吧。' : `${v.names[1 - mt]}不同意，加油！`), 0);
+    }
+  }
+  render();
+}
+
+// ---------- colour themes ----------
+const THEMES = {
+  citrus:    { name: 'Lagoon',   colors: ['#123f43', '#1f8083', '#f5b942', '#f28b6e', '#f2d96b'] },
+  bubblegum: { name: 'Rose',     colors: ['#38142c', '#b83a68', '#f5d27a', '#9ee3b4', '#7ed0ea'] },
+  mint:      { name: 'Midnight', colors: ['#0c1424', '#1f4274', '#6fe0be', '#f291ab', '#f0c978'] },
+  charcoal:  { name: 'Terracotta', colors: ['#1f1c1a', '#5b4c42', '#e8c99b', '#c07f52', '#d6c8ba'] }
+};
+// light / dark / follow-the-device, text size, how readings are shown, and palette: remembered per device
+const DISPLAY = { mode: safeGet('ykwimzh-mode') || 'dark', size: safeGet('ykwimzh-size') || 'm', phon: safeGet('ykwimzh-phon') || (window.innerWidth <= 480 ? 'py' : 'both'), theme: safeGet('ykwimzh-theme') || 'citrus' };
+if (!THEMES[DISPLAY.theme]) DISPLAY.theme = 'citrus';
+if (!['py', 'zy', 'both'].includes(DISPLAY.phon)) DISPLAY.phon = 'py';
+const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function applyDisplay() {
+  const D = DISPLAY, el = document.documentElement;
+  if (!THEMES[D.theme]) D.theme = 'citrus';
+  el.dataset.theme = D.theme; el.dataset.size = D.size;
+  el.dataset.mode = D.mode === 'auto' ? (darkQuery && !darkQuery.matches ? 'light' : 'dark') : D.mode;
+  const seg = (name, opts) => opts.map(([v, label]) => `<button class="${D[name] === v ? 'on' : ''}" data-act="${name}" data-v="${v}">${label}</button>`).join('');
+  $('seg-mode').innerHTML = seg('mode', [['light', '☀ 亮'], ['dark', '☾ 暗'], ['auto', '自動']]);
+  $('seg-size').innerHTML = seg('size', [['s', '小'], ['m', '中'], ['l', '大']]);
+  $('seg-phon').innerHTML = seg('phon', [['py', '拼音'], ['zy', '注音'], ['both', '兩個都有']]);
+  $('swatches').innerHTML = Object.entries(THEMES).map(([k, t]) =>
+    `<button class="sw ${k === D.theme ? 'on' : ''}" data-act="theme" data-theme="${k}"><i>${t.colors.map(c => `<b style="background:${c}"></b>`).join('')}</i>${t.name}</button>`).join('');
+}
+function setDisplay(change) {
+  Object.assign(DISPLAY, change);
+  for (const k of Object.keys(change)) safeSet('ykwimzh-' + k, DISPLAY[k]);
+  applyDisplay();
+}
+if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener('change', () => { if (DISPLAY.mode === 'auto') applyDisplay(); });
+applyDisplay();
+
+// ---------- helpers ----------
+// A reading shown the way this device likes it: pinyin, zhuyin or both. r = { py, zy }.
+const ph = r => DISPLAY.phon === 'py' ? `<span class="py">${esc(r.py)}</span>` : DISPLAY.phon === 'zy' ? `<span class="zy">${esc(r.zy)}</span>` : `<span class="py">${esc(r.py)}</span><span class="zy">${esc(r.zy)}</span>`;
+const phText = r => DISPLAY.phon === 'py' ? r.py : DISPLAY.phon === 'zy' ? r.zy : r.py + ' ' + r.zy;
+// one character of a clue: the written character if it was bought, and its reading
+const tile = it => `<div class="ctile${it.han ? ' hz' : ''}">${it.han ? `<b class="han">${esc(it.han)}</b>` : ''}<span class="ph">${ph(it)}</span></div>`;
+const clueText = items => (items || []).map(it => (it.han ? it.han + ' ' : '') + phText(it)).join('、') || '沒補字';
+const price = i => V.costs.prices[Math.min(i, V.costs.prices.length - 1)];
+
+// The "what a clue costs" picture in How to play, built from the real prices so it can't drift from the game.
+// "See an example round": a = Clue-giver 2 gets what Clue-giver 1 meant, b = they stay quiet, c = a team with one clue-giver.
+function renderFlow(which) {
+  const box = (n, head, body) => `<div class="fs"><div class="fs-n">${n}</div><div class="fs-b"><div class="fs-h">${head}</div>${body}</div></div>`;
+  // a little player with a thought bubble: colour = role, mouth = mood
+  const MOUTH = { hope: 'M14 20q6 4 12 0', puzzled: 'M15 21.5q5-2 10 0', happy: 'M13 19q7 7 14 0' };
+  const think = (color, mood, text) => `<div class="th"><svg class="av" viewBox="0 0 40 40" aria-hidden="true"><path d="M5 40c0-9 6-13 15-13s15 4 15 13z" fill="${color}"/><circle cx="20" cy="15" r="10" fill="#f6dcc0" stroke="#123f43" stroke-width="1.5"/><circle cx="16" cy="14" r="1.5" fill="#123f43"/><circle cx="24" cy="14" r="1.5" fill="#123f43"/><path d="${MOUTH[mood]}" fill="none" stroke="#123f43" stroke-width="1.5" stroke-linecap="round"/></svg><div class="bub">${text}</div></div>`;
+  const cost = n => `<span class="fs-cost">${n ? '−' + n : '免費'}</span>`;
+  const EM = e => `<span class="em">${e}</span>`;
+  const ct = (han, py, zy) => `<div class="ctile fsw${han ? ' hz' : ''}">${han ? `<b class="han">${han}</b>` : ''}<span class="ph"><span class="py">${py}</span><span class="zy">${zy}</span></span></div>`;
+  const ban = `<span class="fs-ban">不能用 <s>xiong</s><s>mao</s></span>`;
+  const step1 = which === 'c'
+    ? `${EM('🎋')} 熊貓吃竹子！我只有一個人，先給 <b>zhu2</b>，第二個字要 20 點，所以再加 <b>chuan1</b>（四川）。`
+    : `${EM('🎋')} 熊貓吃竹子！我給 <b>zhu2</b>（第一個字免費），希望線索者 2 懂我的意思。`;
+  const step2 = { a: think('#6fc7bd', 'happy', `只看到 <b>zhu</b>，沒有聲調…配上熊貓，一定是 ${EM('🎋')} 竹！熊貓還會想到 ${EM('🏔️')} 四川，我補 <b>川</b>（讀音免費，漢字 +10）。`),
+    b: think('#6fc7bd', 'happy', `<b>zhu</b> ＋ 熊貓…${EM('🎋')} 竹，已經夠明顯了。我<b>不補字</b>，省點數。`),
+    c: '' }[which];
+  const step3 = { a: `<b>zhu2</b>…竹…還有「川」…${EM('🎋')} 竹子加四川…${EM('🐼')} 熊貓！`,
+    b: `<b>zhu2</b>…竹…${EM('🎋')} 吃竹子的…${EM('🐼')} 熊貓！`,
+    c: `<b>zhu2</b>、<b>chuan1</b>…竹和四川…${EM('🐼')} 熊貓！` }[which];
+  const first = ct('', 'zhu2', 'ㄓㄨˊ'), second = { a: ct('川', 'chuan1', 'ㄔㄨㄢ'), b: '', c: ct('', 'chuan1', 'ㄔㄨㄢ') }[which];
+  const spent = { a: 10, b: 0, c: 20 }[which];
+  const tab = (v, label) => `<button type="button" class="${which === v ? 'on' : ''}" data-act="flow" data-v="${v}">${label}</button>`;
+  $('flowdiag').innerHTML = `<div class="seg fs-tabs" style="margin:6px 0 2px">${tab('a', '補字')}${tab('b', '不補字')}${tab('c', '只有一位')}</div>` +
+    box(1, '線索者 1 看得到關鍵詞', `<span class="fs-kw">熊貓</span>${ban}
+      ${think('#f5b942', 'hope', step1)}
+      <div class="fs-row">${first}${which === 'c' ? second : ''}${cost(which === 'c' ? 20 : 0)}</div>`) +
+    (which === 'c' ? '' : box(2, '線索者 2 看得到關鍵詞，和線索者 1 讀音的聲母韻母', `<span class="fs-kw">熊貓</span>${ban}
+      <div class="fs-h" style="margin:2px 0 0">線索者 1 給了</div><div class="fs-used">zhu</div><div class="fs-say" style="margin-top:2px">1 個字。沒有聲調，多個字的話也不知道順序。</div>
+      ${step2}
+      ${second ? `<div class="fs-row">${second}${cost(10)}</div><div class="fs-say">線索者 2 重新從免費開始算，這裡多買了漢字，所以 +10。</div>` : `<div class="fs-row"><div class="fs-clue fs-skip">沒補字</div><span class="fs-cost">免費</span></div>`}`)) +
+    box(which === 'c' ? 2 : 3, '猜者只看得到線索', `<div class="fs-row" style="margin:0 0 6px">${first}${which === 'c' ? second : which === 'a' ? second : ''}</div>
+      <div>${'<span class="fs-blank"></span>'.repeat(2)}</div>
+      ${think('#f2907a', 'happy', step3)}`) +
+    box(which === 'c' ? 3 : 4, '結果', `<span class="fs-ok">熊貓 ✓</span> 猜中才真正扣款：這一輪${spent ? `花了 ${spent} 點` : '沒花點數'}，獎勵和速度獎金進帳。<br>猜不中的話，線索花的點數<b>全數退還</b>。`);
+}
+renderFlow('a');
+(function costDiagram() {
+  const P = YKWIM.PRICES, H = YKWIM.HAN_EXTRA;
+  $('costdiag').innerHTML = `
+    <p>每位線索者的字<b>各自計價</b>：第 1 個字讀音免費，第 2 個 ${P[1]} 點，第 3 個 ${P[2]} 點，之後每個再多 ${P[3] - P[2]} 點。想讓猜者看到實際的漢字，在該字的價錢上再加 <b>${H}</b> 點。</p>
+    <table class="gt" style="text-align:center"><tr><th style="text-align:left">第幾個字</th>${P.map((_, i) => `<th style="text-align:center">${i + 1}</th>`).join('')}</tr>
+      <tr><th style="text-align:left">只給讀音</th>${P.map(p => `<td style="text-align:center">${p || '免費'}</td>`).join('')}</tr>
+      <tr><th style="text-align:left">加漢字</th>${P.map(p => `<td style="text-align:center">${p + H}</td>`).join('')}</tr></table>
+    <div class="cd-note">線索者 2 從頭重新計價，所以補一個字的讀音是免費的，只有加漢字要花 ${H} 點。一個線索最多 ${YKWIM.MAX_CHARS} 個字。</div>
+    <div class="cd-note">這些花費只是「暫記」：你們隊猜中這個詞才會真的扣掉，猜不中全額退還。所以點數壓力只來自猜中的詞。</div>`;
+})();
+
+const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+// Settings dropdown. Closed, it shows just the short value; the open list can carry a faint hint (easy / hard).
+const sel = (key, opts, cur, fmtFn = x => x, hintFn = () => '') => {
+  const rows = opts.map(o => { const val = Array.isArray(o) ? o[0] : o, lab = Array.isArray(o) ? o[1] : o; return { val, label: fmtFn(lab), hint: hintFn(val) }; });
+  const now = rows.find(r => String(r.val) === String(cur)) || rows[0];
+  const open = V.isHost && S.ddOpen === key;
+  return `<div class="dd${open ? ' open' : ''}" data-key="${key}" data-value="${now.val}">
+    <button type="button" class="dd-btn" data-act="ddopen" data-key="${key}"${V.isHost ? '' : ' disabled'}><span>${now.label}</span><i></i></button>
+    <div class="dd-list">${rows.map(r => `<button type="button" class="dd-item${String(r.val) === String(cur) ? ' on' : ''}" data-act="ddpick" data-key="${key}" data-v="${r.val}"><span>${r.label}</span>${r.hint ? `<small>${r.hint}</small>` : ''}</button>`).join('')}</div>
+  </div>`;
+};
+const EASY_HARD = (easy, hard) => v => v === easy ? '簡單' : v === hard ? '困難' : '';
+
+// ---------- screens ----------
+function render() {
+  const active = document.activeElement, focus = active && active.id;
+  const start = active && active.selectionStart;
+  const nudge = !helpSeen() && !!V && V.phase === 'lobby' && !S.preview;   // first visit, in the lobby: point at the rules until they've been opened
+  $('helpbtn').classList.toggle('nudge', nudge); $('helpnudge').hidden = !nudge;
+  const chip = $('roomchip'); chip.style.visibility = V && net && net.code ? '' : 'hidden'; if (V && net && net.code) chip.innerHTML = `<small>房間</small>${esc(net.code)}`;
+  $('wrap').classList.toggle('ingame', !!V && V.phase !== 'lobby');
+  $('wrap').classList.toggle('landing', !V);
+  document.documentElement.classList.toggle('landing', !V);
+  const fb = !!V && V.phase !== 'lobby' && S.feedback && S.feedback.until > Date.now() ? S.feedback : null;
+  // while a word is being played, the accent colour (keyword, buttons, outlines) is the colour of the team on this screen
+  const teamColour = fb ? fb.team : V && V.phase === 'round' ? V.myTeam : null;
+  if (teamColour !== null) $('app').dataset.team = teamColour; else delete $('app').dataset.team;
+  $('app').innerHTML = !V ? homeScreen() : fb ? feedbackScreen(fb) : { lobby: lobbyScreen, round: roundScreen, roundEnd: roundScreen, over: overScreen }[V.phase]();
+  const f = focus && $(focus);
+  if (f) { f.focus(); try { f.setSelectionRange(start, start); } catch {} }
+  const pv = $('previewbar');
+  pv.classList.toggle('hide', !S.preview);
+  if (S.preview) pv.innerHTML = PREVIEWS.map(([k, label]) => `<button class="${k === S.preview ? 'on' : ''}" data-act="preview" data-kind="${k}">${label}</button>`).join('')
+    + `<button data-act="previewExit">✕ 離開</button>`;
+  updatePreview(); tick();
+  if (S.shake) {
+    S.shake = false;
+    const bar = $('guess') && $('guess').closest('.bar');
+    if (bar) { bar.classList.add('shake'); setTimeout(() => bar.classList.remove('shake'), 500); }
+    if (navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch {}
+  }
+}
+
+function homeScreen() {
+  return `<div class="stage home">
+    <div class="logo display"><svg class="logoBg" viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>YKWIM</div>
+    <p class="tag" style="margin-bottom:6px">中文版：你懂我的意思嗎？</p>
+    <p class="tag" style="font-size:.85rem;opacity:.8;margin-bottom:22px">用讀音和漢字玩的猜詞遊戲，3–8 位玩家</p>
+    <label>你的名字</label>
+    <input id="name" maxlength="14" placeholder="名字" value="${esc(S.name)}">
+    <div style="margin-top:18px"><button class="big" data-act="create" ${S.busy ? 'disabled' : ''}>建立房間</button></div>
+    <p class="sub center" style="margin:16px 0 8px">或加入朋友的房間</p>
+    <div class="bar"><input id="code" class="caps" maxlength="4" placeholder="房間代碼" value="${esc(S.code)}"><button data-act="join" style="font-size:1.05rem" ${S.busy ? 'disabled' : ''}>加入</button></div>
+    <div class="msg">${esc(S.err)}${S.busy ? '連線中…' : ''}</div>
+    <p class="sub center" style="font-size:.8rem"><a href="../" style="color:inherit">English version</a></p>
+    ${IS_LOCAL ? `<button class="ghost" style="width:100%;font-size:.85rem" data-act="preview" data-kind="giver1">👀 預覽各個畫面（不用開局）</button>` : ''}
+  </div>`;
+}
+
+function lobbyScreen() {
+  const link = location.origin + location.pathname + '?room=' + (net ? net.code : '');
+  const seatBtn = (t, i) => {
+    const s = V.seats[t][i];
+    if (!s) return `<button class="seat empty" data-act="sit" data-team="${t}" data-seat="${i}">坐這裡</button>`;
+    if (s.id === V.me && V.seats[t].filter(x => x && x.id === V.me).length > 1)   // one device holding several seats: each player gets a name box
+      return `<span class="editfield seatname">${PEN}<input data-seatname="${t}:${i}" value="${esc(s.name)}" maxlength="14" aria-label="玩家名字"></span>`;
+    return `<button class="seat ${s.id === V.me ? 'mine' : ''}" ${s.id === V.me ? 'data-act="stand"' : 'disabled'}>${esc(s.name)}${s.id === V.me ? '（你）' : ''}</button>`;
+  };
+  const full = (V.settings.teams === 'one' ? [V.seats[0]] : V.seats).every(t => t.every(Boolean));
+  const unseated = V.players.filter(p => !V.seats.flat().some(s => s && s.id === p.id));
+  const st = V.settings;
+  return `<div class="stage lobby">
+    <div class="coderow">
+      <div class="codebox"><div class="sub center" style="margin:0">房間代碼</div><div class="code">${esc(net ? net.code : '')}</div></div>
+      <div class="codeside">
+        <p class="sub center linkline"><span class="linktxt">分享連結：<b style="color:var(--text)">${esc(link)}</b></span> <button class="ghost" style="padding:4px 10px;font-size:.8rem" data-act="copy" data-link="${esc(link)}">複製連結</button></p>
+        ${V.isHost ? `<div class="center newcode"><button class="linkbtn" data-act="newCode">↻ 換新代碼</button></div>` : ''}
+      </div>
+    </div>
+    <div class="seatgrid${st.teams === 'one' ? ' solo' : ''}">${(st.teams === 'one' ? [0] : [0, 1]).map(t => `<div class="seatcol">
+      <h3 class="teamhead" style="color:${TEAM_TEXT[t]}"><i class="tdot" style="background:${TEAM_COLORS[t]}"></i>${V.isHost || V.seats[t].every(x => x && x.id === V.me) ? `<span class="editfield">${PEN}<input data-teamname="${t}" value="${esc(V.names[t])}" maxlength="16"></span>` : esc(V.names[t])}</h3>
+      ${V.seats[t].map((_, i) => seatBtn(t, i)).join('')}
+      ${V.seats[t].every(x => x && x.id === V.me) ? `<button class="ghost" data-act="stand">離開：不再用這台裝置玩這一隊</button>` : `<button class="ghost" data-act="sitAll" data-team="${t}">${st.teams === 'one' ? '共用裝置<span class="dev">（這台）</span>' : '這一隊共用這台裝置'}</button>`}
+    </div>`).join('')}</div>
+    ${unseated.length ? `<p class="sub">等著入座：${unseated.map(p => `<span class="chip">${esc(p.name)}</span>`).join(' ')}</p>` : ''}
+    <p class="sub">${{ 2: '一人寫線索，一人猜，每個詞輪流換。', 3: '角色（線索者 1、線索者 2、猜者）在 3 個座位間輪流，每個詞換一次。', 4: '角色（三位線索者和一位猜者）在 4 個座位間輪流，每個詞換一次。' }[st.teamSize]}</p>
+    <div class="settingshead"><h2>遊戲設定</h2>${V.isHost ? `<button class="ghost" style="padding:6px 12px;font-size:.85rem" data-act="resetSettings">恢復預設</button>` : ''}</div>
+    <div class="well"><div class="settings main">
+      <div style="grid-column:1 / -1" class="modepick"><label>遊戲模式</label><div class="modes">${[['two', '對戰', '兩隊搶著猜同一個詞。', 't0'], ['one', '合作', '一隊玩固定個數的詞，拿評級。', 't1']].map(([v, name, desc, c]) => `<button type="button" class="modebtn${st.teams === v ? ' on' : ''}" style="--mc:var(--${c})" data-act="ddpick" data-key="teams" data-v="${v}"${V.isHost ? '' : ' disabled'}><b>${name}</b><span>${desc}</span></button>`).join('')}</div></div>
+      <div><label>每隊人數</label>${sel('teamSize', st.teams === 'one' ? [[3, '1 + 2'], [4, '1 + 3']] : [[2, '1 + 1'], [3, '1 + 2'], [4, '1 + 3']], st.teamSize, x => x, v => ({ 2: '1 位猜者，1 位線索者', 3: '1 位猜者，2 位線索者', 4: '1 位猜者，3 位線索者' })[v])}</div>
+      ${st.teams === 'one' ? `<div><label>詞的個數</label>${sel('words', [5, 8, 10], st.words, x => x + ' 個')}</div>` : `<div><label>結束條件</label>${sel('mode', [['score', '先到目標分數'], ['words', '固定個數']], st.mode)}</div>
+      <div>${st.mode === 'words'
+        ? `<label>詞的個數</label>${sel('words', [5, 8, 10], st.words, x => x + ' 個')}`
+        : `<label>目標分數</label>${sel('target', [500, 800, 1200], st.target)}`}</div>`}
+      <div><label>起始點數</label>${sel('bank', [100, 200, 300], st.bank)}</div>
+      <div><label>猜中的獎勵</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
+      <div><label>寫每個線索的時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
+    </div>
+    <details id="adv" ${S.advOpen ? 'open' : ''}>
+      <summary>進階設定</summary>
+      <div class="cats" style="margin:12px 0"><div class="catshead">類別</div>
+      ${YKWIM.CATEGORIES.map(c => `<button type="button" class="catchip${st.categories.includes(c) ? ' on' : ''}" data-act="cat" data-c="${c}"${V.isHost ? '' : ' disabled'}>${c}</button>`).join('')}</div>
+      <div class="settings">
+        <div><label>猜錯扣點</label>${sel('penalty', [0, 5, 10], st.penalty, x => x, EASY_HARD(0, 10))}</div>
+        ${st.teams === 'one' ? '' : `<div><label>搶先猜中獎金</label>${sel('firstBonus', [0, 10, 20, 30], st.firstBonus)}</div>`}
+        <div><label>速度獎金（每秒少 1）</label>${sel('speedSecs', [0, 10, 20, 30], st.speedSecs, x => x ? '最多 +' + x : '關閉')}</div>
+        ${st.teams === 'one' ? '' : `<div><label>最後機會計時</label>${sel('lastChance', [10, 15, 20], st.lastChance, x => x + ' 秒', EASY_HARD(20, 10))}</div>`}
+      </div>
+    </details></div>
+    <div class="lobbystart" style="margin-top:14px">${V.isHost
+      ? `<button class="big" data-act="start" ${full ? '' : 'disabled'}>${full ? '開始遊戲' : '先把每個座位坐滿'}</button>
+         ${st.teams === 'one' ? '' : `<button class="ghost" style="width:100%;margin-top:8px" data-act="passPlay">${st.sequential ? '✓ 兩隊共用這台裝置輪流玩' : '或：兩隊共用這台裝置輪流玩'}</button>`}
+         ${st.sequential ? `<p class="sub center" style="margin-top:8px">大家共用這個畫面，兩隊輪流玩。猜得比較快的隊拿搶先獎金，沒有最後機會計時。</p>` : ''}`
+      : `${loaderHtml('small')}<p class="sub center">等房主開始遊戲…</p>`}</div>
+  </div>`;
+}
+
+const netText = T => { const n = T.earned - (T.spent || 0); return (n < 0 ? '−' : '+') + Math.abs(n); };
+const statusLabel = t => { const T = V.round.teams[t]; return { correct: '✓ 猜中了！', out: '點數用完', gaveup: '放棄了', timeout: '時間到', skipped: '跳過', none: '' }[T.result] || ''; };
+// net = the whole word's result (reward and bonuses minus the clue costs), as the round-end breakdown shows it
+function statusLine(t, net) {
+  const T = V.round.teams[t], gain = net ? (() => { const n = T.earned - (T.spent || 0); return (n < 0 ? '−' : '+') + Math.abs(n); })() : '+' + T.earned;
+  if (T.stage === 'done') return { correct: `✓ 猜中了！${gain}`, out: '點數用完', gaveup: '放棄了', timeout: '時間到', skipped: '跳過' }[T.result];
+  return T.stage === 'giver1' && V.settings.teamSize === 2 ? '寫線索中…' : STAGE_TEXT[T.stage];
+}
+
+function topBar() {
+  const r = V.round, st = V.settings;
+  return `<div class="top">
+    <div class="pill">第 <b>${r.n + 1}${st.mode === 'words' ? ' / ' + st.words : ''}</b> 個詞</div>
+    <button class="phontog" data-act="phon" title="切換讀音顯示：拼音、注音、兩個都有">${{ py: '拼音', zy: '注音', both: '拼音＋注音' }[DISPLAY.phon]}</button>
+    ${V.isHost && V.phase === 'round' ? `<button class="icon" style="width:34px;height:34px;font-size:.9rem;margin-left:auto" data-act="skip" title="跳過這個詞（有人卡住時）">⏭</button>` : ''}
+  </div>`;
+}
+
+const giverName = (stage, n) => V.settings.teamSize === 2 ? '線索者' : '線索者 ' + n;
+function slots(t, role) {
+  const T = V.round.teams[t], st = T.stage, clues = T.clues, n = V.settings.teamSize - 1;   // n clue-givers
+  // name the clue-giver where we know who it is (our own team); the other team's clues stay "線索 1", "線索 2"
+  const nm = i => t === V.myTeam && V.round.roleNames && V.round.roleNames['giver' + i];
+  const lbl = i => nm(i) ? (nm(i) === '你' ? '你的線索' : `${esc(nm(i))}的線索`) : n === 1 ? '線索' : `線索 ${i}`;
+  const hidden = i => `<div class="slot"><div class="ic off">🔒</div><small>${lbl(i)}</small></div>`;
+  const shown = (i, items) => `<div class="slot got"><div class="tiles">${items.length ? items.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${lbl(i)}${items.length ? ` · ${items.length} 個字` : ''}</small></div>`;
+  const sent = i => `<div class="slot"><div class="ic">✓</div><small>${lbl(i)}已送出</small></div>`;
+  const live = i => `<div class="slot live"><div class="ic">✎</div><small>${lbl(i)}</small></div>`;
+  const wait = i => `<div class="slot"><div class="ic">🔍</div><small>${lbl(i)}</small></div>`;
+  return Array.from({ length: n }, (_, k) => {
+    const i = k + 1;
+    if (clues) return shown(i, clues[k] || []);
+    if (isWriting(st)) { const cur = +st.slice(5); return i < cur ? sent(i) : i === cur ? (role === st ? live(i) : wait(i)) : hidden(i); }
+    return wait(i);
+  }).join('');
+}
+
+function timerPill(inline) {
+  const mt = V.myTeam, T = mt === null ? null : V.round.teams[mt];
+  if (!T || T.stage === 'done' || T.stage === 'waiting') return '';
+  if (isWriting(T.stage)) return `<span class="timer${inline ? ' inl' : ''}" data-timer="dl${mt}">00:00${inline ? '' : '<small>寫線索的時間</small>'}</span>`;
+  if (T.remaining !== null) return `<span class="timer hot${inline ? ' inl' : ''}" data-timer="dl${mt}">00:10<small>最後機會！</small></span>`;
+  return `<span class="timer${inline ? ' inl' : ''}" data-timer="speed">∞<small>沒有時間限制</small></span>`;
+}
+
+// Pass-and-play: shown to the guesser for a few seconds when their turn ends, before the device is passed on
+function feedbackScreen(fb) {
+  const won = fb.result === 'correct';
+  return `<div class="stage center feedback">
+    <div class="fb-emoji">${won ? '🎉' : fb.result === 'gaveup' ? '🤝' : '⏰'}</div>
+    <h2 style="font-size:2rem">${won ? '太好了，猜中了！' : fb.result === 'gaveup' ? '這個詞放棄了' : '時間到'}</h2>
+    ${won ? `<div class="netbig" style="margin:6px 0">+${fb.earned}</div><p class="sub">這個詞的獎勵</p>` : `<p class="sub">線索花的點數退還給你們。</p>`}
+    <p class="sub" style="margin-top:18px">準備把裝置傳下去…</p>
+    <button class="ghost" data-act="skipFeedback">馬上繼續</button>
+  </div>`;
+}
+
+function roundScreen() {
+  if (V.phase === 'roundEnd') return roundEndScreen();
+  const r = V.round, mt = V.myTeam;
+  const blanks = `<div class="blanks zh">${r.blanks.map(() => '<span></span>').join('')}</div>`;
+  const theme = `<div class="themebar"><div><small>主題：</small>${esc(r.cat)} <small>· ${r.blanks.length} 個字</small></div></div>`;
+  let body, role = null, handoff = false;
+
+  if (mt === null) {
+    body = `<p class="sub center">這個詞你在旁邊觀戰。</p>${theme}${blanks}`;
+  } else {
+    const T = r.teams[mt], stageRole = stageRoleOf(T.stage);
+    const holds = V.myRoles.includes(stageRole);
+    if (T.stage === 'waiting') {
+      body = `${theme}${blanks}<div class="well center"><h2>${esc(V.names[1 - mt])}正在玩</h2><p class="sub">下一個輪到你們。</p></div>`;
+    } else if (T.stage === 'done') {
+      body = `${theme}${blanks}<div class="well center"><h2>${T.result === 'correct' ? '🎉 太好了，猜中了！' : esc(statusLine(mt))}</h2>${loaderHtml('small')}<p class="sub">等${esc(V.names[1 - mt])}…${T.result === 'correct' && r.firstTeam === mt && !V.settings.sequential && V.settings.firstBonus ? ` 如果他們也猜中但比你們慢，你們多拿 +${V.settings.firstBonus} 搶先獎金。` : ''}</p></div>${logHtml(T)}`;
+    } else if (holds) {
+      const multi = V.sharedDevice;   // one device, several people: hide the screen between them
+      const key = r.n + ':' + mt + ':' + r.roleNames[stageRole];
+      const guesserWaiting = stageRole === 'guesser' && T.awaitReady;   // the quick-guess clock hasn't started: wait for the tap
+      if (guesserWaiting && !multi) {
+        handoff = true;
+        body = `<div class="well center"><h2 style="color:${TEAM_TEXT[mt]}">線索都到了！</h2>
+          <p class="sub">準備好再按，才看得到線索。按下去的同時，速度獎金開始倒數。</p>
+          <button class="big" data-act="ready" data-key="${key}" data-guess="1">我準備好了</button></div>`;
+      } else if (guesserWaiting || (multi && S.shownRole !== key)) {
+        handoff = true;
+        body = `<div class="well center">          <h2 style="color:${TEAM_TEXT[mt]}">${esc(V.names[mt])}</h2><h2>把裝置傳給${esc(r.roleNames[stageRole])}</h2>
+          <p class="sub">${stageRole === 'guesser' ? '線索者請轉開視線！對方按下去後速度獎金開始倒數。' : stageRole !== 'giver1' ? '猜者請轉開視線！' : '其他人請轉開視線！'}</p>
+          <button class="big" data-act="ready" data-key="${key}"${stageRole === 'guesser' ? ' data-guess="1"' : ''}>我準備好了</button></div>`;
+      } else {
+        role = stageRole;
+        body = stageRole === 'guesser' ? guesserPanel(T, theme, blanks) : giverPanel(T, theme, blanks);
+      }
+    } else {
+      const who = r.roleNames[stageRole];
+      body = `${theme}${blanks}<div class="well center"><h2>${esc(who)}${stageRole === 'guesser' ? '準備要猜了' : '正在寫…'}</h2>
+        <p class="sub">${stageRole === 'guesser' ? '一起想想這些線索！' : '稍等一下。'}</p></div>${T.stage === 'guess' ? logHtml(T) : ''}`;
+    }
+  }
+  const pa = r.pass && r.pass.toAnswer;
+  const askBar = pa ? `<div class="passask"><p><b>${esc(pa.by)}</b>（${esc(V.names[pa.team])}）不認識這個詞。兩隊一起跳過嗎？雙方都會換新詞，也還沒有人花點數。</p><p class="hint">冷門詞、專有名詞通常該同意；常識詞可以拒絕。</p><div class="row"><button data-act="answerPass" data-yes="1">好，跳過</button><button class="ghost" style="background:#e6e6ec;color:var(--ink)" data-act="answerPass" data-yes="0">不要</button></div></div>` : '';
+  const mine = mt === null ? null : r.teams[mt];
+  // clue-givers get a compact layout (their panel carries its own role label and timer); everyone else sees the clue slots
+  const [bodyTop, bodyBottom] = Array.isArray(body) ? body : [body, ''];
+  const compact = (role && role.startsWith('giver')) || handoff;
+  // everyone else gets the same header row as the clue-givers (role on the left, timer on the right), then the clue slots
+  const rowT = mt === null ? null : r.teams[mt], rowRole = rowT && stageRoleOf(rowT.stage);
+  const headRow = !rowRole ? '' : `<div class="giverhead"><span class="rolechip">${rowRole === 'guesser' ? '猜者' : giverName(rowRole, rowRole.slice(5))}：${esc(r.roleNames[rowRole])}${rowRole === 'guesser' && rowT.remaining !== null ? ' · 最後機會！' : ''}</span>${timerPill(true)}</div>`;
+  const head = compact ? '' : `${headRow}<div class="slots">${mt === null ? '' : slots(mt, role)}</div>`;
+  return `<div class="stage">${topBar()}${hbars(mt === null ? 0 : mt)}${head}<div class="playrow">${vbar(mt === null ? 0 : mt)}<div class="playmain">${bodyTop}${bodyBottom}</div>${SOLO() ? '' : vbar(mt === null ? 1 : 1 - mt)}</div></div>${askBar}`;
+}
+
+// One tall bar per team: my team on the left, the opponents on the right.
+// Solid fill = the team's bank. Clue costs are paid from it right away (and paid back if the word isn't guessed), so for my own team the striped shadow
+// inside it is what the clue being typed would cost. The segments stacked above are what a correct guess
+// could still win: the reward, the first-to-guess bonus, and the quick-guess bonus (shrinks every second, see tick()).
+const PEN = '<svg class="pen" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';   // marks a box as editable
+const TIP = { score: '銀行：隊伍現在的點數', shadow: '你正在寫的線索會花多少（從銀行扣）', reward: '猜中的獎勵',
+  long: '長詞獎金：三個字以上的詞多給', first: '搶先猜中獎金：只有對方也猜中、但比你慢時才會給', quick: '速度獎金：線索出現後每秒少 1' };
+// little marks along a bar, one every 100 points (the bar is `scale` points tall)
+const ticks = scale => `<b class="ticks" style="--M:${100 / scale * 100}%"></b>`;
+function vbar(t) {
+  const st = V.settings, byWords = st.mode === 'words', own = V.round && V.myTeam === t;
+  const T = V.round && V.round.teams[t], other = V.round && V.round.teams[1 - t];
+  const active = own && V.phase === 'round' && T && (isWriting(T.stage) || T.stage === 'guess') && T.spent !== undefined;
+  const firstLeft = active && st.teams !== 'one' && !(!st.sequential && other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
+  const roundReward = V.round ? V.round.reward : st.reward, longBonus = V.round ? V.round.longBonus : 0;
+  const reward = active ? roundReward : 0, longWord = active ? longBonus : 0;
+  const scale = Math.max(byWords ? 0 : st.target, Math.max(...V.scores, 0) + roundReward + longBonus + st.firstBonus + st.speedSecs, 1);   // one scale for both bars
+  const pct = v => v / scale * 100, score = pct(Math.max(0, V.scores[t]));
+  const quick = active ? (T.stage === 'guess' ? Math.ceil((T.speedLeft || 0) / 1000) : st.speedSecs) : 0;
+  const hush = V.settings.sequential && V.phase === 'round' && T.stage === 'done';   // pass-and-play: the team still to play must not learn how the other did
+  const icon = V.phase !== 'round' ? '' : T.stage === 'done' ? (hush ? '■' : T.result === 'correct' ? '✓' : '✕') : { giver1: '✎', giver2: '✎', giver3: '✎', guess: '💭', waiting: '⏳' }[T.stage];
+  const dataAttrs = active ? ` data-stage="${T.stage}" data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + longWord + firstLeft}" data-await="${T.awaitReady ? 1 : 0}"` : '';
+  return `<div class="vbar${own ? ' me' : ''}"${dataAttrs} title="${esc(V.names[t])}${V.phase === 'round' && !hush ? '：' + esc(statusLine(t)) : ''}">
+    <div class="vb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t].slice(0, 8))}</div>
+    <div class="vb-track">
+      <i class="vb-score" data-tip="${TIP.score}" style="height:${score}%;background:${TEAM_BANK[t]}">${active ? `<b class="vb-shadow" id="tubeShadow" data-tip="${TIP.shadow}"></b>` : ''}</i>
+      ${active ? `<i class="vb-reward" data-tip="${TIP.reward}" style="bottom:${score}%;height:${pct(reward)}%"></i>
+        ${longWord ? `<i class="vb-long" data-tip="${TIP.long}" style="bottom:${score + pct(reward)}%;height:${pct(longWord)}%"></i>` : ''}
+        ${firstLeft ? `<i class="vb-first" data-tip="${TIP.first}" style="bottom:${score + pct(reward + longWord)}%;height:${pct(firstLeft)}%"></i>` : ''}
+        <i class="vb-quick" data-qb data-tip="${TIP.quick}" style="bottom:${score + pct(reward + longWord + firstLeft)}%;height:${pct(quick)}%"></i>` : ''}
+      ${ticks(scale)}
+    </div>
+    <div class="vb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</div>
+    <div class="vb-sub">${active ? `最多再賺 +<b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</div>
+    <div class="vb-delta"${active ? ' id="tubeDelta"' : ''}></div>
+    <div class="vb-stat">${icon}</div></div>`;
+}
+
+// Phones: the same two bars, lying across the top (my team first) so the play area gets the whole width.
+function hbar(t) {
+  const st = V.settings, byWords = st.mode === 'words', own = V.round && V.myTeam === t;
+  const T = V.round && V.round.teams[t], other = V.round && V.round.teams[1 - t];
+  const active = own && V.phase === 'round' && T && (isWriting(T.stage) || T.stage === 'guess') && T.spent !== undefined;
+  const firstLeft = active && st.teams !== 'one' && !(!st.sequential && other.stage === 'done' && other.result === 'correct') ? st.firstBonus : 0;
+  const roundReward = V.round ? V.round.reward : st.reward, longBonus = V.round ? V.round.longBonus : 0;
+  const reward = active ? roundReward : 0, longWord = active ? longBonus : 0;
+  const scale = Math.max(byWords ? 0 : st.target, Math.max(...V.scores, 0) + roundReward + longBonus + st.firstBonus + st.speedSecs, 1);
+  const pct = v => v / scale * 100;
+  const quick = active ? (T.stage === 'guess' ? Math.ceil((T.speedLeft || 0) / 1000) : st.speedSecs) : 0;
+  const dataAttrs = active ? ` data-scale="${scale}" data-qmax="${st.speedSecs}" data-base="${reward + longWord + firstLeft}" data-stage="${T.stage}" data-await="${T.awaitReady ? 1 : 0}"` : '';
+  return `<div class="hb${own ? ' me' : ''}"${dataAttrs}>
+    <span class="hb-name" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</span>
+    <div class="hb-track">
+      <i class="hb-score" data-tip="${TIP.score}" style="width:${pct(Math.max(0, V.scores[t]))}%;background:${TEAM_BANK[t]}">${active ? `<b class="hb-shadow" id="tubeShadowH" data-tip="${TIP.shadow}"></b>` : ''}</i>
+      ${active ? `<i class="hb-reward" data-tip="${TIP.reward}" style="width:${pct(reward)}%"></i>${longWord ? `<i class="hb-long" data-tip="${TIP.long}" style="width:${pct(longWord)}%"></i>` : ''}${firstLeft ? `<i class="hb-first" data-tip="${TIP.first}" style="width:${pct(firstLeft)}%"></i>` : ''}<i class="hb-quick" data-qbh data-tip="${TIP.quick}" style="width:${pct(quick)}%"></i>` : ''}
+      ${ticks(scale)}
+    </div>
+    <b class="hb-num${V.scores[t] < 0 ? ' neg' : ''}">${V.scores[t]}</b>
+    <span class="hb-sub">${active ? `最多再賺 +<b data-gain>${reward + longWord + firstLeft + quick}</b>` : (byWords ? '' : '/ ' + st.target)}</span>
+    <span class="hb-delta"${active ? ' id="tubeDeltaH"' : ''}></span>
+  </div>`;
+}
+const hbars = mine => `<div class="hbars">${hbar(mine)}${SOLO() ? '' : hbar(1 - mine)}</div>`;
+
+function logHtml(T) {
+  return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
+}
+
+// The clue-giver's screen: the keyword, then one row per character (reading, and optionally the written character).
+function crowHtml(row, i) {
+  const rs = row.han ? readingsOf(row.han) : null;
+  return `<div class="crow">
+    <span class="cn">${i + 1}</span>
+    <input class="py" id="py${i}" data-row="${i}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="讀音：zhu2 或 ㄓㄨˊ" value="${esc(row.py)}" aria-label="第 ${i + 1} 個字的讀音">
+    <input class="han" id="han${i}" data-row="${i}" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="漢字 +${V.costs.han}" value="${esc(row.han)}" aria-label="第 ${i + 1} 個字的漢字（選填）">
+    ${i > 0 ? `<button class="rm" data-act="rmChar" data-row="${i}" aria-label="刪掉這個字">✕</button>` : '<span></span>'}
+    <div class="rline"><span class="rparse" id="rp${i}"></span><span class="rc" id="rc${i}"></span></div>
+    ${rs && rs.length > 1 ? `<div class="rpick">${rs.map(x => `<button type="button" data-act="pickReading" data-row="${i}" data-r="${esc(YKWIM.pinyinOf(x))}">${esc(YKWIM.pinyinOf(x))}</button>`).join('')}</div>` : ''}
+  </div>`;
+}
+// every way a written character can be read (pinyin-pro), or null when the library isn't there
+const readingsOf = han => READ && READ(han);
+function giverPanel(T, theme, blanks) {
+  const r = V.round, ban = r.banned || [], n = +T.stage.slice(5);
+  const used = (r.prev || []).map(p => `<div class="used"><div class="used-h">${V.settings.teamSize === 2 ? '' : `線索者 ${p.n} 給了 `}${p.count ? `${p.count} 個字，讀音（沒有聲調、不分順序）` : '沒給字'}</div>${p.sounds.length ? p.sounds.map(s => `<span class="snd">${ph(s)}</span>`).join('') : ''}</div>`).join('');
+  const banHtml = ban.map(s => `<span class="bn">${DISPLAY.phon === 'zy' ? esc(s.zy) : esc(s.py) + (DISPLAY.phon === 'both' ? ' ' + esc(s.zy) : '')}</span>`).join('');
+  const top = `<div class="giverhead"><span class="rolechip">${giverName(T.stage, n)}${r.roleNames ? `：${esc(r.roleNames['giver' + n])}` : ''}</span>${timerPill(true)}</div>
+    <div class="secret">
+      ${r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? '換一個新詞' : '不認識這個詞？請對方一起跳過'}">跳過？</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">問${esc(V.names[1 - V.myTeam])}…</span>` : ''}
+      <div class="sec-theme">主題：<b>${esc(r.cat)}</b></div>
+      <div class="sec-key"><span class="kw">關鍵詞：</span><span class="w">${esc(r.word)}</span></div>
+      <div class="sec-read">${(r.syl || []).map(s => `<span>${ph(s)}</span>`).join('')}</div>
+      <div class="sec-ban">禁用的讀音（不管聲調）：${banHtml || '無'}</div>
+    </div>
+    ${used}
+    <div class="crows" id="crows">${S.draft.rows.map(crowHtml).join('')}</div>
+    <div class="crowtools">
+      ${S.draft.rows.length < V.costs.max ? `<button class="addchar" data-act="addChar">＋ 再加一個字（${price(S.draft.rows.length)} 點）</button>` : '<span></span>'}
+      <span class="tonepad" aria-label="聲調">${[['1', '一聲'], ['2', '二聲'], ['3', '三聲'], ['4', '四聲'], ['5', '輕聲']].map(([k, l]) => `<button type="button" data-act="tone" data-v="${k}" title="${l}">${k}</button>`).join('')}</span>
+    </div>
+    <div class="preview" id="preview"></div>
+    <button class="big" id="sendbtn" data-act="sendClue">送出線索</button>
+    <div class="timenote off" id="timenote">快沒時間了！已經填好的會直接送出。</div>`;
+  return [top, ''];
+}
+
+function guesserPanel(T, theme, blanks) {
+  const top = `${theme}${blanks}
+    <div class="bar"><input id="guess" lang="zh-Hant" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="輸入你的答案（漢字）" value="${esc(S.draft.guess)}"><button data-act="sendGuess">➜</button></div>
+    <div class="preview one">猜錯 −${V.settings.penalty} · <button class="linkbtn" data-act="giveup">放棄</button>（${T.clueSpent ? `拿回 ${T.clueSpent} 點` : '花的點數退還'}）</div>`;
+  return [top, `${logHtml(T)}`];
+}
+
+// A collapsed look back at a word: who wrote which clue, what each cost, the guesses, and how the points added up.
+const RESULT_TEXT = { correct: '✓ 猜中了！', out: '點數用完', gaveup: '放棄了', timeout: '時間到', skipped: '跳過', none: '' };
+function reviewTeam(t, T) {   // T: one team's record of a word (the round view or an entry of the game record)
+  const sign = n => (n < 0 ? '−' : '+') + Math.abs(n), b = T.breakdown, people = T.people || [], clues = T.clues || [], costs = T.clueCosts || T.costs || [];
+  const who = role => (people.find(x => x.role === role) || {}).name || '';
+  const spentClues = costs.reduce((a, c) => a + c, 0);
+  const wrong = (T.log || []).filter(g => !g.ok).reduce((a, g) => a + (g.cost || 0), 0), got = T.result === 'correct';
+  const rows = [];
+  if (b) rows.push(['獎勵', b.base], ...(b.longWord ? [['長詞', b.longWord]] : []), ...(b.first ? [['搶先', b.first]] : []), ...(b.speed ? [['速度', b.speed]] : []));
+  if (spentClues && got) rows.push(['線索', -spentClues]);
+  if (wrong) rows.push(['猜錯', -wrong]);
+  const net = rows.reduce((a, x) => a + x[1], 0);
+  return `<div class="rv-team" style="border-color:${TEAM_COLORS[t]}">
+    <h4 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span>${esc(RESULT_TEXT[T.result]) || '沒有答案'}</span></h4>
+    ${clues.map((c, i) => `<div class="line"><span>${V.settings.teamSize === 2 ? '線索' : '線索 ' + (i + 1)} · ${esc(who('giver' + (i + 1)))}</span><span><b>${esc(clueText(c))}</b> <small>${got ? '−' + (costs[i] || 0) : costs[i] ? '（退還）' : ''}</small></span></div>`).join('')}
+    <div class="line"><span>猜者 · ${esc(who('guesser'))}</span><span>${(T.log || []).length ? T.log.map(g => `<span class="${g.ok ? 'ok' : 'no'}">${esc(g.text)}${g.ok ? ' ✓' : ''}</span>`).join('、') : '<small>沒猜</small>'}</span></div>
+    <div class="rv-sum">${rows.map(([k, v]) => `<span>${k} <b>${sign(v)}</b></span>`).join('')}<span class="tot">淨得 <b>${sign(net)}</b></span></div>
+  </div>`;
+}
+const reviewHead = r => `<div class="rv-head">第 ${r.n + 1} 個詞 · <b>${esc(r.word)}</b> · ${esc(r.cat)} · ${esc(r.levelName)}</div>`;
+function gameReviewHtml(shown) {   // every word of the game, each one collapsed
+  if (!V.record || !V.record.length) return '';
+  return `<details class="review gamereview"><summary>遊戲回顧</summary>${V.record.map(r => `<details class="rvword"><summary><b>${esc(r.word)}</b>${shown.map(t => { const T = r.teams[t], n = T.earned - T.spent; return `<span class="rvnet" style="color:${TEAM_TEXT[t]}">${shown.length > 1 ? `<i class="tdot sm" style="background:${TEAM_COLORS[t]}"></i>` : ''}${n < 0 ? '−' : '+'}${Math.abs(n)}</span>`; }).join('')}</summary>${reviewHead(r)}${shown.map(t => reviewTeam(t, r.teams[t])).join('')}</details>`).join('')}</details>`;
+}
+
+function roundEndScreen() {
+  const r = V.round, n = V.settings.teamSize - 1;
+  const left = V.myTeam === null ? 0 : V.myTeam, shown = SOLO() ? [left] : [left, 1 - left];
+  // The clues are the fun part: each team's clues get big tiles that pop in one after the other.
+  return `<div class="stage">${topBar()}${hbars(left)}<div class="playrow">${vbar(left)}<div class="playmain">
+    <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">關鍵詞是</div><div class="brand zhword" style="font-size:2.4rem;color:var(--accent-text)">${esc(r.word)}</div><div class="sec-read" style="justify-content:center">${(r.syl || []).map(s => `<span>${ph(s)}</span>`).join('')}</div></div>
+    ${shown.map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || Array(n).fill([]); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
+      <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat"><small>${esc(statusLabel(t))}</small><b class="netbig${(T.earned - (T.spent || 0)) < 0 ? ' neg' : ''}">${netText(T)}</b></span></h3>
+      <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * n + i) * .3}s"><div class="tiles">${c.length ? c.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${n === 1 ? '線索' : '線索 ' + (i + 1)}${c.length ? ` · ${c.length} 個字` : ''}</small></div>`).join('')}</div>
+      ${(() => { const spent = T.spent || 0, net = T.earned - spent;
+        const parts = (b ? `<span>獎勵 +${b.base}</span>${b.longWord ? `<span>長詞 +${b.longWord}</span>` : ''}${b.first ? `<span>搶先 +${b.first}</span>` : ''}${b.speed ? `<span>速度 +${b.speed}</span>` : ''}` : '') + (spent ? `<span>花費 −${spent}</span>` : '');
+        return parts ? `<div class="breakdown">${parts}<span class="tot">= ${net < 0 ? '−' : '+'}${Math.abs(net)}</span></div>` : ''; })()}
+    </div>`; }).join('')}
+    ${!SOLO() && V.settings.mode === 'words' && r.n + 1 >= V.settings.words && V.scores[0] === V.scores[1] ? `<p class="sub center" style="color:var(--accent-text)">平手！再來一個詞決勝負。</p>` : ''}
+    ${V.isHost ? `<button class="big" data-act="next">${SOLO() && r.n + 2 === V.settings.words ? '最後一個詞' : '下一個詞'}</button>` : `${loaderHtml('small')}<p class="sub center">等房主…</p>`}
+  </div>${SOLO() ? '' : vbar(1 - left)}</div></div>`;
+}
+
+// The co-op result as a graph: the total after each word, over coloured bands for the five grades. The grades are by points
+// gained per 5 words (see RATING_CUTS in game.js), so they hold for any number of words and any starting bank.
+function climb(history) {
+  const bank = V.settings.bank, words = V.settings.words, cut = i => bank + YKWIM.gradeNeed(YKWIM.RATING_CUTS[i - 1], words);   // where each grade starts
+  const COL = ['#f2766b', '#f29a5b', '#f5c84a', '#9fd77a', '#4fc08a'], GRADE = ['M', 'IM', 'WIM', 'KWIM', 'YKWIM'];
+  const pts = [{ total: bank, word: 'start' }].concat(history);
+  const lo = Math.min(0, ...pts.map(p => p.total)), hi = Math.max(cut(4) + 100 * words / 5, ...pts.map(p => p.total));
+  const longest = Math.max(2, ...history.map(p => [...String(p.word)].length)), PH = 120, W = 320, L = 36, R = 74, T = 24, B = Math.round(18 + longest * 6.5), H = T + PH + B, X = i => L + (W - L - R) * i / (pts.length - 1), Y = v => T + PH * (1 - (v - lo) / (hi - lo));
+  const edges = [lo, cut(1), cut(2), cut(3), cut(4), hi];
+  const bands = COL.map((c, i) => `<rect x="${L}" width="${W - L - R}" y="${Y(Math.min(edges[i + 1], hi)).toFixed(1)}" height="${Math.max(0, Y(Math.max(edges[i], lo)) - Y(Math.min(edges[i + 1], hi))).toFixed(1)}" fill="${c}" opacity=".3"/>
+    <text x="${W - R + 14}" y="${((Y(Math.min(edges[i + 1], hi)) + Y(Math.max(edges[i], lo))) / 2 + 3).toFixed(1)}" class="cg">${GRADE[i]}</text>`).join('');
+  const ticks = [1, 2, 3, 4].map(i => `<line x1="${L}" x2="${W - R}" y1="${Y(cut(i)).toFixed(1)}" y2="${Y(cut(i)).toFixed(1)}" stroke="#000" stroke-opacity=".2" stroke-dasharray="3 3"/><text x="${L - 4}" y="${(Y(cut(i)) + 3).toFixed(1)}" class="cg" text-anchor="end">${Math.round(cut(i))}</text>`).join('');
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.total).toFixed(1)}`).join(' ');
+  const dots = pts.map((p, i) => { const x = X(i).toFixed(1), y = Y(p.total).toFixed(1), miss = i && p.result !== 'correct';
+    const label = i === 0 ? '起始' : String(p.word);
+    return `<circle cx="${x}" cy="${y}" r="4.5" fill="${i === 0 ? '#1d2b2e' : miss ? '#c2392b' : '#2e8b57'}" stroke="#fff" stroke-width="1.5"/>
+      ${i ? `<text x="${x}" y="${(+y - 8).toFixed(1)}" class="cn${miss ? ' miss' : ''}" text-anchor="middle">${p.net >= 0 ? '+' : '−'}${Math.abs(p.net)}</text>` : ''}
+      ${i === 0 ? `<text x="${x}" y="${T + PH + 12}" class="cg" text-anchor="middle">起始</text>`
+        : `<text x="${(+x - 2).toFixed(1)}" y="${T + PH + 11}" class="cg${miss ? ' miss' : ''}" transform="rotate(45 ${(+x - 2).toFixed(1)} ${T + PH + 11})">${esc(label)}</text>`}`; }).join('');
+  return `<svg class="climb" viewBox="0 0 ${W} ${H}" role="img" aria-label="每個詞之後的分數">${bands}${ticks}
+    <path d="${line}" fill="none" stroke="#1d2b2e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
+}
+
+function overScreen() {
+  const back = V.isHost ? `<button class="big" data-act="toLobby" style="margin-top:14px">回到大廳</button>` : `${loaderHtml('small')}<p class="sub">等房主…</p>`;
+  if (SOLO()) {
+    const R = V.rating;
+    return `<div class="stage center"><div class="sub" style="margin-top:14px">${esc(V.names[0])} · ${V.settings.words} 個詞</div>
+      <div class="gradehead"><div class="logo display" style="font-size:clamp(2.2rem,11vw,3.8rem);color:var(--g${R.rank})">${esc(R.label)}</div><div class="quote">「${esc(R.quote)}」</div></div>
+      <div class="finalscore"><b>${R.score}</b> 點</div>
+      ${V.history && V.history.length ? climb(V.history) : ''}
+      ${gameReviewHtml([0])}${back}</div>`;
+  }
+  return `<div class="stage center">
+    <div class="sub" style="margin-top:14px">遊戲結束</div>
+    <div class="logo display" style="font-size:clamp(2rem,9vw,3.4rem);color:${TEAM_TEXT[V.winner]};font-style:normal">${esc(V.names[V.winner])}獲勝！</div>
+    ${V.ratings ? `<div class="vsgrades">${[0, 1].map(t => { const R = V.ratings[t]; return `<div class="vsg${t === V.winner ? ' won' : ''}"><div class="n" style="color:${TEAM_TEXT[t]}">${esc(V.names[t])}</div><div class="s">${V.scores[t]} 點</div><div class="g" style="color:var(--g${R.rank})">${esc(R.label)}</div><div class="q">「${esc(R.quote)}」</div></div>`; }).join('')}</div>` : `<div class="sub">${esc(V.names[0])} ${V.scores[0]} – ${V.scores[1]} ${esc(V.names[1])}</div>`}
+    ${gameReviewHtml([0, 1])}${back}
+  </div>`;
+}
+
+// ---------- live timers / auto-submit ----------
+function tick() {
+  const now = Date.now();
+  if (S.preview) { // fake timers never run out while previewing
+    S.dl = S.dl.map(d => d && d - now < 2000 ? now + 25000 : d);
+    if (S.speedDl && S.speedDl - now < 1500) S.speedDl = now + 9000;
+  }
+  document.querySelectorAll('[data-timer]').forEach(el => {
+    const k = el.dataset.timer, dl = k === 'speed' ? S.speedDl : S.dl[+k.slice(2)];
+    if (k === 'speed') {
+      if (dl && dl > now) { el.firstChild.textContent = (el.classList.contains('inl') ? '⚡+' : '+') + Math.ceil((dl - now) / 1000);   // the small label is hidden in the header row, so the bolt says what it is
+      el.className = 'timer bonus' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = '⚡ 速度獎金'; }
+      else { el.firstChild.textContent = '∞'; el.className = 'timer' + (el.classList.contains('inl') ? ' inl' : ''); el.querySelector('small').textContent = '沒有時間限制'; }
+    } else if (dl) {
+      el.firstChild.textContent = fmt(dl - now);
+      if (!el.classList.contains('hot')) el.classList.toggle('warn', dl - now <= 5000);   // the writing clock: blink red for the last 5 seconds
+    }
+  });
+  const note = $('timenote'); if (note) { const dl = S.dl[V.myTeam]; note.classList.toggle('off', !(dl && dl - now <= 10000)); }
+  document.querySelectorAll('[data-qb]').forEach(el => {
+    const bar = el.closest('.vbar'), d = bar.dataset;
+    const q = d.stage === 'guess' && d.await !== '1' ? (S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0) : +d.qmax;
+    el.style.height = q / +d.scale * 100 + '%';
+    bar.querySelector('[data-gain]').textContent = +d.base + q;
+  });
+  document.querySelectorAll('[data-qbh]').forEach(el => {
+    const bar = el.closest('.hb'), d = bar.dataset;
+    const q = d.stage === 'guess' && d.await !== '1' ? (S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0) : +d.qmax;
+    el.style.width = q / +d.scale * 100 + '%';
+    bar.querySelector('[data-gain]').textContent = +d.base + q;
+  });
+  document.querySelectorAll('[data-bonus]').forEach(el => { el.textContent = S.speedDl && S.speedDl > now ? Math.ceil((S.speedDl - now) / 1000) : 0; });
+  // Auto-submit whatever's filled in when the writing time runs out (the host falls back to an empty clue shortly after).
+  if (V && !S.preview && V.phase === 'round' && V.myTeam !== null && $('crows')) {
+    const T = V.round.teams[V.myTeam], dl = S.dl[V.myTeam], key = V.round.n + ':' + T.stage;
+    if (dl && now >= dl && S.sentKey !== key) { S.sentKey = key; net.send({ type: 'clue', rows: S.draft.rows, auto: true }); }
+  }
+}
+setInterval(tick, 250);
+
+// What each row of the clue box means, as it is typed: the reading it parses to, what it costs, and what is wrong with it.
+// The game checks all of it again when the clue is sent; this is just so people see problems before they press the button.
+function checkRows() {
+  const r = V.round, ban = (r.banned || []).map(s => s.py), kw = new Set([...(r.word || '')]);
+  let pos = 0, total = 0, bad = false;
+  const out = S.draft.rows.map(row => {
+    const py = (row.py || '').trim(), han = [...(row.han || '').trim()][0] || '';
+    if (!py && !han) return { empty: true };
+    let p = py ? YKWIM.parseReading(py) : null, msg = '';
+    if (!p && han) { const rs = readingsOf(han); p = rs && rs.length ? rs[0] : { err: rs ? `查不到「${han}」的讀音` : '請輸入讀音' }; }
+    if (p.err) msg = p.err;
+    else if (ban.includes(YKWIM.soundOf(p).py)) msg = `「${YKWIM.soundOf(p).py}」和關鍵詞同音，不能用`;
+    else if (han) {
+      const rs = readingsOf(han);
+      if (!YKWIM.isHan(han)) msg = `「${han}」不是漢字`;
+      else if (kw.has(han)) msg = `「${han}」是關鍵詞裡的字`;
+      else if (rs && (!rs.length || !rs.some(x => x.i === p.i && x.f === p.f && (x.t === p.t || x.t === 5 || p.t === 5 || '一不'.includes(han))))) msg = rs.length ? `「${han}」不讀 ${YKWIM.pinyinOf(p)}` : `查不到「${han}」的讀音`;
+    }
+    const c = price(pos) + (han ? V.costs.han : 0); pos++; total += c;
+    if (msg) bad = true;
+    return { p, han, msg, cost: c };
+  });
+  return { rows: out, total, bad, count: pos };
+}
+function updatePreview() {
+  const el = $('preview'); if (!el || !V || !V.round) return;
+  const c = checkRows(), bank = V.scores[V.myTeam], over = c.total > bank;
+  c.rows.forEach((x, i) => {
+    const rc = $('rc' + i), rp = $('rp' + i); if (!rc || !rp) return;
+    rc.textContent = x.empty ? '' : x.cost ? '−' + x.cost : '免費';
+    rp.className = 'rparse' + (x.msg ? ' bad' : '');
+    rp.textContent = x.empty ? '' : x.msg || (x.p.err ? '' : `${YKWIM.pinyinOf(x.p)} · ${YKWIM.zhuyinOf(x.p)}${x.han ? ' · ' + x.han : ''}`);
+  });
+  el.innerHTML = over ? `<b class="red">要花 ${c.total}，你們只有 ${bank}</b>` : c.count ? `共 <b>${c.total}</b> 點（猜中才會扣）` : '還沒填字：直接送出就是不給字';
+  const send = $('sendbtn'); if (send) { send.disabled = over || c.bad; send.textContent = c.count ? '送出線索' : (+V.round.teams[V.myTeam].stage.slice(5) > 1 ? '不補字，直接送出' : '不給字，直接送出'); }
+  // shade the part of the bank this clue would drain
+  const sh = $('tubeShadow'), dl = $('tubeDelta'), cost = over ? bank : c.total;
+  if (sh) sh.style.height = (bank > 0 ? Math.min(cost, bank) / bank * 100 : 0) + '%';
+  if (dl) dl.textContent = cost ? `−${cost}` : '';
+  const shH = $('tubeShadowH'), dlH = $('tubeDeltaH');
+  if (shH) shH.style.width = (bank > 0 ? Math.min(cost, bank) / bank * 100 : 0) + '%';
+  if (dlH) { dlH.textContent = cost ? `−${cost}` : ''; dlH.closest('.hb').classList.toggle('hasdelta', !!cost); }
+}
+
+// ---------- screen preview: fake views fed through the real renderer, so you can look at every role ----------
+const PREVIEWS = [['lobby', '大廳'], ['giver1', '線索者 1'], ['passask', '跳過請求'], ['giver2', '線索者 2'], ['guesser', '猜者'], ['ready', '猜者：準備畫面'], ['lastchance', '猜者：最後機會'],
+  ['waiting', '等待'], ['intro', '開場動畫'], ['loading', '載入／重新連線'], ['roundEnd', '一個詞結束'], ['over', '遊戲結束'], ['coopEnd', '合作：一個詞結束'], ['grade4', '合作：YKWIM'], ['grade3', '合作：KWIM'], ['grade2', '合作：WIM'], ['grade1', '合作：IM'], ['grade0', '合作：M']];
+const MOCK = (han, py, zy) => ({ han, py, zy });
+function mockRecord() {   // two fake words for the game review in the preview tool
+  const people = [{ role: 'giver1', name: '小明' }, { role: 'giver2', name: '小華' }, { role: 'guesser', name: '阿凱' }];
+  const syl = [{ py: 'xiong2', zy: 'ㄒㄩㄥˊ' }, { py: 'mao1', zy: 'ㄇㄠ' }];
+  return [{ n: 0, word: '熊貓', syl, cat: '動物', levelName: '二字詞', teams: [
+      { result: 'correct', earned: 117, spent: 10, breakdown: { base: 100, longWord: 0, first: 5, speed: 12 }, clues: [[MOCK(null, 'zhu2', 'ㄓㄨˊ')], [MOCK('川', 'chuan1', 'ㄔㄨㄢ')]], costs: [0, 10], log: [{ text: '老虎', ok: false, cost: 5 }, { text: '熊貓', ok: true }], people },
+      { result: 'gaveup', earned: 0, spent: 5, breakdown: null, clues: [[MOCK(null, 'hei1', 'ㄏㄟ'), MOCK(null, 'bai2', 'ㄅㄞˊ')], []], costs: [20, 0], log: [{ text: '斑馬', ok: false, cost: 5 }], people } ] },
+    { n: 1, word: '檸檬', syl: [{ py: 'ning2', zy: 'ㄋㄧㄥˊ' }, { py: 'meng2', zy: 'ㄇㄥˊ' }], cat: '食物', levelName: '二字詞', teams: [
+      { result: 'correct', earned: 112, spent: 20, breakdown: { base: 100, longWord: 0, first: 0, speed: 12 }, clues: [[MOCK('酸', 'suan1', 'ㄙㄨㄢ')], [MOCK(null, 'huang2', 'ㄏㄨㄤˊ')]], costs: [10, 0], log: [{ text: '檸檬', ok: true }], people },
+      { result: 'correct', earned: 125, spent: 30, breakdown: { base: 100, longWord: 0, first: 20, speed: 5 }, clues: [[MOCK(null, 'suan1', 'ㄙㄨㄢ'), MOCK('水', 'shui3', 'ㄕㄨㄟˇ')], []], costs: [30, 0], log: [{ text: '檸檬', ok: true }], people } ] }];
+}
+function mockView(kind) {
+  const team = (stage, o = {}) => ({ stage, result: null, earned: 0, breakdown: null, remaining: null, clues: null, log: [], ...o });
+  const names = ['第一隊', '第二隊'];
+  const v = {
+    phase: 'round', me: 'host', isHost: true, hostId: 'host', names, scores: [130, 95], winner: null, costs: { prices: YKWIM.PRICES, han: YKWIM.HAN_EXTRA, max: YKWIM.MAX_CHARS }, myTeam: 0, myRoles: [],
+    settings: { teams: 'two', teamSize: 3, mode: 'score', target: 800, words: 8, bank: 200, categories: YKWIM.CATEGORIES, reward: 100, writeSecs: 45, penalty: 5, firstBonus: 20, speedSecs: 20, lastChance: 15, sequential: false },
+    players: [{ id: 'host', name: '你', connected: true }, { id: 'f', name: '阿里', connected: true }],
+    seats: [[{ id: 'host', name: '你' }, { id: 'a', name: '小華' }, { id: 'b', name: '阿凱' }], [{ id: 'c', name: '小美' }, { id: 'd', name: '大雄' }, null]]
+  };
+  const round = { n: 2, level: 1, levelName: '二字詞', reward: 100, longBonus: 0, cat: '動物', blanks: [1, 1], roleNames: { giver1: '你', giver2: '小華', guesser: '阿凱' } };
+  const other = team('giver2', { remaining: 12000 });
+  const secret = { word: '熊貓', syl: [{ py: 'xiong2', zy: 'ㄒㄩㄥˊ' }, { py: 'mao1', zy: 'ㄇㄠ' }], banned: [{ py: 'xiong', zy: 'ㄒㄩㄥ' }, { py: 'mao', zy: 'ㄇㄠ' }] };
+  const clues = [[MOCK(null, 'zhu2', 'ㄓㄨˊ')], [MOCK('川', 'chuan1', 'ㄔㄨㄢ')]];
+  switch (kind) {
+    case 'lobby': v.phase = 'lobby'; v.myTeam = 0; return v;
+    case 'giver1': v.myRoles = ['giver1']; v.round = { ...round, ...secret, pass: { can: true }, teams: [team('giver1', { remaining: 38000, spent: 0 }), other] }; return v;
+    case 'passask': v.myRoles = ['giver1']; v.round = { ...round, ...secret, pass: { can: false, asking: false, toAnswer: { by: '小美', team: 1 } }, teams: [team('giver1', { remaining: 38000, spent: 0 }), other] }; return v;
+    case 'giver2': v.myRoles = ['giver2']; v.round = { ...round, ...secret, prev: [{ n: 1, count: 1, sounds: [{ py: 'zhu', zy: 'ㄓㄨ' }] }], teams: [team('giver2', { remaining: 31000, spent: 0 }), other] }; return v;
+    case 'guesser': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues, spent: 10, clueSpent: 10, speedLeft: 9000, log: [{ text: '老虎', ok: false, cost: 5 }] }), other] }; return v;
+    case 'ready': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('guess', { clues, spent: 10, clueSpent: 10, speedLeft: 15000, awaitReady: true, log: [] }), other] }; return v;
+    case 'lastchance': v.myRoles = ['guesser']; v.scores = [130, 95]; v.round = { ...round, teams: [team('guess', { clues, spent: 10, clueSpent: 10, remaining: 7000, log: [] }), team('done', { result: 'correct', earned: 131 })] }; return v;
+    case 'waiting': v.myRoles = ['guesser']; v.round = { ...round, teams: [team('giver1', { remaining: 18000, spent: 0 }), other] }; return v;
+    case 'roundEnd': v.phase = 'roundEnd'; v.round = { ...round, ...secret, longBonus: 25, teams: [
+      team('done', { result: 'correct', earned: 160, spent: 10, clues, clueCosts: [0, 10], breakdown: { base: 100, longWord: 25, first: 20, speed: 15, spent: 10 } }),
+      team('done', { result: 'timeout', spent: 30, clues: [[MOCK(null, 'hei1', 'ㄏㄟ'), MOCK('白', 'bai2', 'ㄅㄞˊ')], []], clueCosts: [30, 0] })] }; return v;
+    case 'coopEnd': v.phase = 'roundEnd'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [372, 200]; v.round = { ...round, ...secret, n: 2, teams: [
+      team('done', { result: 'correct', earned: 140, spent: 30, clues, clueCosts: [0, 10], breakdown: { base: 100, longWord: 25, first: 0, speed: 15, spent: 30 } }),
+      team('done', { result: 'none' })] }; return v;
+    case 'grade4': case 'grade3': case 'grade2': case 'grade1': case 'grade0': {   // the co-op game over screen, one example per grade
+      const nets = { grade4: [105, 100, 125, 120, 140], grade3: [95, 95, 115, 105, 0], grade2: [95, 90, 0, 110, 90], grade1: [90, 0, 95, 0, 100], grade0: [90, 0, -5, 0, 80] }[kind];
+      const words = ['熊貓', '檸檬', '長頸鹿', '蚵仔煎', '守株待兔']; let total = 200;
+      const history = nets.map((net, i) => ({ n: i, word: words[i], result: net <= 0 ? 'gaveup' : 'correct', net, total: total += net }));
+      v.phase = 'over'; v.settings = { ...v.settings, teams: 'one', mode: 'words', words: 5 }; v.scores = [total, 200]; v.winner = 0; v.history = history;
+      v.record = mockRecord(); v.rating = YKWIM.rating(total, 200, 5); v.round = { ...round, teams: [team('done'), team('done')] }; return v; }
+    case 'over': v.phase = 'over'; v.winner = 0; v.scores = [512, 431]; v.round = { ...round, teams: [team('done'), team('done')] }; v.record = mockRecord(); v.ratings = [YKWIM.rating(512, 200, 5), YKWIM.rating(431, 200, 5)]; return v;
+  }
+}
+function showPreview(kind) {
+  if (!IS_LOCAL) return;
+  S.preview = kind; S.shownRole = ''; resetDraft();
+  net = { code: 'ABCD', isHost: true, send: () => toast('這裡只是預覽，按鈕沒有作用') };
+  document.querySelectorAll('.loadOv').forEach(o => o.remove());
+  onView(mockView(kind === 'intro' || kind === 'loading' ? 'lobby' : kind));
+  if (kind === 'intro') playIntro();
+  if (kind === 'loading') {   // what a dropped connection looks like: the hopping loader over everything
+    const o = document.createElement('div');
+    o.className = 'loadOv';
+    o.innerHTML = loaderHtml('big') + '<p class="sub">重新連線中…</p>';
+    document.body.appendChild(o);
+  }
+}
+
+// ---------- events ----------
+document.addEventListener('mousedown', e => { if (e.target.closest && e.target.closest('.tonepad')) e.preventDefault(); });   // keep the keyboard up while a tone is tapped
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (S.ddOpen && !(b && ['ddopen', 'ddpick'].includes(b.dataset.act))) { S.ddOpen = null; render(); }   // clicking elsewhere closes an open dropdown
+  if (!b) return;
+  const d = b.dataset, send = m => net && net.send(m);
+  switch (d.act) {
+    case 'create': case 'join': {
+      S.name = ($('name').value || '').trim(); S.code = ($('code').value || '').trim().toUpperCase();
+      if (!S.name) return fail('先輸入你的名字。');
+      safeSet('ykwimzh-name', S.name);
+      if (d.act === 'join' && S.code.length !== 4) return fail('房間代碼是 4 個字母。');
+      S.err = ''; S.busy = true; render();
+      return d.act === 'create' ? hostRoom(S.name) : joinRoom(S.name, S.code);
+    }
+    case 'leaveRoom': return leaveRoom();
+    case 'copyCode': if (navigator.clipboard && net) navigator.clipboard.writeText(net.code).then(() => toast('已複製房間代碼'), () => {}); return;
+    case 'preview': return showPreview(d.kind);
+    case 'previewExit': document.querySelectorAll('.loadOv').forEach(o => o.remove()); S.preview = null; net = null; V = null; return render();
+    case 'themes': $('themes').classList.remove('hide'); return;
+    case 'closeThemes': $('themes').classList.add('hide'); return;
+    case 'theme': return setDisplay({ theme: d.theme });
+    case 'mode': return setDisplay({ mode: d.v });
+    case 'skipFeedback': S.feedback = null; return render();
+    case 'size': return setDisplay({ size: d.v });
+    case 'phon': setDisplay({ phon: d.v || { py: 'zy', zy: 'both', both: 'py' }[DISPLAY.phon] }); if (V) render(); return;
+    case 'passPlay': return send({ type: 'passAndPlay' });
+    case 'help': $('help').classList.remove('hide'); safeSet('ykwimzh-help', '1'); render(); return;
+    case 'helpTab': ['rules', 'cost', 'flow', 'bar', 'result'].forEach(t => $('help-' + t).classList.toggle('hide', d.tab !== t)); document.querySelectorAll('#seg-help button').forEach(b => b.classList.toggle('on', b.dataset.tab === d.tab)); if (d.tab === 'bar') $('bardiag').innerHTML = barDiagram(); if (d.tab === 'result') $('gradediag').innerHTML = gradeTable(); return;
+    case 'closeHelp': $('help').classList.add('hide'); return;
+    case 'cat': return send({ type: 'settings', key: 'toggleCategory', value: d.c });
+    case 'ddopen': S.ddOpen = S.ddOpen === d.key ? null : d.key; return render();
+    case 'ddpick': S.ddOpen = null; render(); return send({ type: 'settings', key: d.key, value: d.v });
+    case 'sit': return send({ type: 'sit', team: +d.team, seat: +d.seat });
+    case 'sitAll': return send({ type: 'sitAll', team: +d.team });
+    case 'stand': return send({ type: 'stand' });
+    case 'resetSettings': return send({ type: 'resetSettings' });
+    case 'proposePass': return send({ type: 'proposePass' });
+    case 'answerPass': return send({ type: 'answerPass', yes: d.yes === '1' });
+    case 'giveup': if (!confirm("這個詞要放棄嗎？放棄就不能再猜了。" + (V.settings.sequential || SOLO() ? '' : '另一隊會開始最後機會計時。'))) return; return send({ type: 'giveup' });
+    case 'start': case 'next': case 'toLobby': case 'skip': return send({ type: d.act });
+    case 'newCode': if (V && V.phase === 'lobby' && room && confirm('要換新的房間代碼嗎？已經加入的人要用新代碼重新加入。')) hostRoom(S.name, 0, true); return;
+    case 'flow': return renderFlow(d.v);
+    case 'copy': navigator.clipboard && navigator.clipboard.writeText(d.link).then(() => toast('已複製連結！')); return;
+    case 'ready': S.shownRole = d.key; if (d.guess) send({ type: 'guessReady' }); return render();
+    case 'addChar': if (S.draft.rows.length < V.costs.max) { S.draft.rows.push({ py: '', han: '' }); S.lastPy = S.draft.rows.length - 1; render(); const i = $('py' + S.lastPy); if (i) i.focus(); } return;
+    case 'rmChar': S.draft.rows.splice(+d.row, 1); S.lastPy = 0; return render();
+    case 'pickReading': S.draft.rows[+d.row].py = d.r; return render();
+    case 'tone': {   // set the tone of the reading being typed
+      const row = S.draft.rows[S.lastPy], t = +d.v; if (!row) return;
+      if (/[ㄅ-ㄯ]/.test(row.py)) row.py = row.py.replace(/[ˉˊˇˋ˙]/g, '') + ['', 'ˊ', 'ˇ', 'ˋ', '˙'][t - 1];
+      else row.py = row.py.replace(/[0-5]$/, '') + t;
+      const inp = $('py' + S.lastPy); if (inp) { inp.value = row.py; inp.focus(); } return updatePreview();
+    }
+    case 'sendClue': return send({ type: 'clue', rows: S.draft.rows });
+    case 'sendGuess': { const g = $('guess').value; S.draft.guess = ''; $('guess').value = ''; return send({ type: 'guess', text: g }); }
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset && t.dataset.row !== undefined && (t.classList.contains('py') || t.classList.contains('han'))) {
+    const i = +t.dataset.row, row = S.draft.rows[i]; if (!row) return;
+    if (t.classList.contains('py')) { row.py = t.value; S.lastPy = i; }
+    else {
+      if (e.isComposing) return;   // still choosing the character in an input method
+      t.value = [...t.value][0] || '';   // one written character per row
+      row.han = t.value;
+      const rs = row.han ? readingsOf(row.han) : null;
+      if (rs && rs.length) {   // fill in how the character is read, unless the reading already typed is one of its readings
+        const cur = row.py ? YKWIM.parseReading(row.py) : null;
+        const fits = cur && !cur.err && rs.some(x => x.i === cur.i && x.f === cur.f && (x.t === cur.t || x.t === 5 || cur.t === 5));
+        if (!fits) row.py = YKWIM.pinyinOf(rs[0]);
+        if (!fits || rs.length > 1) { S.lastPy = i; render(); return; }   // redraw to show the other readings to pick from
+      }
+    }
+    return updatePreview();
+  }
+  if (t.id === 'guess') S.draft.guess = t.value;
+  if (t.id === 'name') S.name = t.value;
+  if (t.id === 'code') { t.value = t.value.toUpperCase(); S.code = t.value; }
+});
+document.addEventListener('compositionend', e => {   // the character typed with an input method is complete: treat it like a normal input
+  if (e.target.classList && e.target.classList.contains('han')) e.target.dispatchEvent(new Event('input', { bubbles: true }));
+});
+document.addEventListener('focusin', e => { if (e.target.classList && e.target.classList.contains('py')) S.lastPy = +e.target.dataset.row; });
+// iOS can leave the landing page shifted up after the keyboard closes: ease it back, once, after typing there.
+// (never anywhere else, and never just because the viewport resized: that fires while you scroll, as the browser bar collapses)
+let unshiftTimer, typedOnLanding = false;
+const unshift = () => {
+  clearTimeout(unshiftTimer);
+  unshiftTimer = setTimeout(() => {
+    const a = document.activeElement;
+    if (!typedOnLanding || (a && a.matches && a.matches('input, textarea'))) return;
+    typedOnLanding = false;
+    const s = document.querySelector('.stage.home');
+    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (s && s.scrollTop > 0) s.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 160);
+};
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea') && document.documentElement.classList.contains('landing')) typedOnLanding = true; });
+document.addEventListener('focusout', () => { if (typedOnLanding) unshift(); });
+if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (typedOnLanding) unshift(); });
+// landing page: freeze the drifting background while a text box has focus (the phone keyboard is up)
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input, textarea')) document.documentElement.classList.add('typing'); });
+document.addEventListener('focusout', () => document.documentElement.classList.remove('typing'));
+document.addEventListener('toggle', e => { if (e.target.id === 'adv') S.advOpen = e.target.open; }, true);
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.seatname !== undefined && net) { const [tm, sd] = t.dataset.seatname.split(':'); net.send({ type: 'seatName', team: +tm, seat: +sd, name: t.value }); }
+  if (t.dataset.teamname !== undefined && net) net.send({ type: 'teamName', team: +t.dataset.teamname, name: t.value });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.ddOpen) { S.ddOpen = null; render(); return; }
+  if (e.key !== 'Enter' || e.isComposing) return;   // Enter while choosing a character in an input method is not "send"
+  if (e.target.classList && (e.target.classList.contains('py') || e.target.classList.contains('han'))) { const b = $('sendbtn'); if (b && !b.disabled) b.click(); }
+  else if (e.target.id === 'guess') document.querySelector('[data-act="sendGuess"]').click();
+  else if (e.target.id === 'name' || e.target.id === 'code') document.querySelector(($('code') && $('code').value) ? '[data-act="join"]' : '[data-act="create"]').click();
+});
+
+// A picture of the score bar for the How to play page: an example bar with every part labelled.
+function barDiagram() {
+  const y = p => 280 - p * 0.65, X0 = 40, W = 30, TOP = y(400);   // the bar is a tall pill, 400 points high, like the real one
+  const seg = (from, to, fill) => `<rect x="${X0}" y="${y(to)}" width="${W}" height="${y(from) - y(to)}" style="fill:${fill}"/>`;
+  const parts = [   // [from, to, fill, label, description], top of the bar first
+    [345, 360, 'color-mix(in srgb, var(--lime) 30%, white)', '速度獎金', '每秒少 1'],
+    [325, 345, 'url(#lgFirst)', '搶先猜中獎金', '對方也猜中、但比你慢才給'],
+    [300, 325, 'url(#lgLong)', '長詞獎金', '三個字以上的詞多給'],
+    [200, 300, 'color-mix(in srgb, var(--lime) 78%, white)', '獎勵', '猜中就拿'],
+    [190, 200, 'url(#lgShadow)', '線索花費', '你正在寫的線索會花多少'],
+    [0, 190, 'color-mix(in srgb, var(--t0) 88%, black)', '銀行', '你們隊的點數']];
+  const labelY = [34, 70, 106, 142, 186, 236];
+  let svg = `<svg viewBox="0 0 340 300" width="100%" role="img" aria-label="分數條的各個部分" style="max-width:380px;display:block;margin:6px auto">
+    <defs><pattern id="lgShadow" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" style="fill:color-mix(in srgb, var(--t0) 88%, black)"/><rect width="5" height="10" fill="rgba(0,0,0,.45)"/></pattern>
+    <clipPath id="lgPill"><rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}"/></clipPath>
+    <linearGradient id="lgShine" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <pattern id="lgLong" width="8.5" height="8.5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8.5" height="8.5" style="fill:color-mix(in srgb, var(--lime) 72%, white)"/><rect width="4.2" height="8.5" style="fill:color-mix(in srgb, var(--lime) 55%, white)"/></pattern>
+    <pattern id="lgFirst" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" style="fill:color-mix(in srgb, var(--lime) 40%, white)"/><rect width="4" height="8" style="fill:color-mix(in srgb, var(--lime) 55%, white)"/></pattern></defs>
+    <rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}" style="fill:var(--track)"/><g clip-path="url(#lgPill)">`;
+  // the bank is drawn as one block, the shadow sits on top of its upper end
+  svg += parts.map(([f, t, fill]) => seg(f, t, fill)).join('');
+  [100, 200, 300].forEach(p => svg += `<line x1="${X0 + W - 18}" x2="${X0 + W}" y1="${y(p)}" y2="${y(p)}" style="stroke:color-mix(in srgb, var(--ov) 60%, transparent)" stroke-width="2"/>`);
+  svg += `<rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" fill="url(#lgShine)"/></g>
+    <rect x="${X0}" y="${TOP}" width="${W}" height="${y(0) - TOP}" rx="${W / 2}" fill="none" style="stroke:color-mix(in srgb, var(--ov) 28%, transparent)" stroke-width="2"/>`;
+  [100, 200, 300].forEach(p => svg += `<text x="${X0 - 6}" y="${y(p) + 4}" text-anchor="end" font-size="10" fill="currentColor" opacity=".7">${p}</text>`);
+  parts.forEach(([f, t, , name, desc], i) => {
+    const my = y((f + t) / 2), ly = labelY[i], x1 = X0 + W + 4;
+    svg += `<polyline points="${x1},${my} ${x1 + 22},${ly} ${x1 + 30},${ly}" fill="none" stroke="currentColor" stroke-opacity=".5"/>
+      <text x="${x1 + 36}" y="${ly - 1}" font-size="13" font-weight="600" fill="currentColor">${name}</text><text x="${x1 + 36}" y="${ly + 13}" font-size="11" fill="currentColor" opacity=".75">${desc}</text>`;
+  });
+  return svg + '</svg>';
+}
+
+// tooltips for the score bars: instant on hover, and on tap for touch screens (native title="" tooltips are slow and vanish when the page redraws)
+(() => {
+  const tip = $('tip'); let hideT;
+  const show = (el, x, y) => {
+    tip.textContent = el.dataset.tip; tip.classList.remove('hide');
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, x + 14)) + 'px'; tip.style.top = Math.max(8, Math.min(innerHeight - h - 8, y + 14)) + 'px';
+  };
+  const hide = () => tip.classList.add('hide');
+  document.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) show(el, e.clientX, e.clientY); else hide(); });
+  document.addEventListener('mousemove', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) show(el, e.clientX, e.clientY); });
+  document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (!el) return; show(el, e.clientX, e.clientY); clearTimeout(hideT); hideT = setTimeout(hide, 2500); });
+})();
+
+// The co-op grades for the How to play page, straight from the game's own table so the numbers never drift
+function gradeTable() {   // built when the Results tab opens, so nothing here can stop the page from loading
+  return `<table class="gt"><caption>需要賺到的點數</caption><tr><th>評級</th>${GRADE_WORDS.map(w => `<th>${w} 個詞</th>`).join('')}</tr>`
+  + YKWIM.RATINGS.map(([cut, label, quote], i) => `<tr class="gr1"><th><b class="gchip" style="background:var(--gd${YKWIM.RATINGS.length - 1 - i})">${label}</b></th>${GRADE_WORDS.map(w => `<td>${cut === -Infinity ? YKWIM.gradeNeed(YKWIM.RATING_CUTS[0], w) + '<small class="gor">以下</small>' : '超過 ' + YKWIM.gradeNeed(cut, w)}</td>`).join('')}</tr><tr class="gr2"><td colspan="${GRADE_WORDS.length + 1}" class="gq">「${quote}」</td></tr>`).join('')
+  + '</table><p style="font-size:.8rem;margin:4px 0 0">賺到的點數 = 最後點數減起始點數。玩的詞越多，每個評級需要的點數也越多。</p>';
+}
+const GRADE_WORDS = [5, 8, 10];   // the word counts the lobby offers for Co-op
+render();
+{   // reloaded or reopened while in a room: go straight back (a few tries, then fall back to the join form)
+  const s = loadSession();
+  if (s && S.name && !S.code && !new URLSearchParams(location.search).has('preview')) { S.code = s.code; startRejoin(s.code, 4); }
+}
+if (IS_LOCAL && new URLSearchParams(location.search).has('preview')) showPreview('giver1');
+</script>
+</body>
+</html>
