@@ -8,7 +8,7 @@
 <title>字字珠璣 · YKWIM Chinese Version</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&family=Mochiy+Pop+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lilita+One&family=Mochiy+Pop+One&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     /* "Lagoon" (default). --lime is the accent colour whatever the theme. */
@@ -582,6 +582,7 @@
   /* the landing header keeps its small "YKWIM Chinese Version" line, on phones too (it is the only place the line is shown there) */
   @media (max-width: 480px) { #wrap.landing .masthead .mark small { display: block; font-size: .5rem; letter-spacing: .1em; margin-top: 1px; white-space: nowrap; } }
   @media (max-width: 340px) { #wrap.landing .masthead .mark small { display: none; } }
+  :root[data-script="sc"] { --cjk: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif; }
 </style>
 </head>
 <body>
@@ -607,6 +608,7 @@
     <div class="dlabel">明暗</div><div class="seg" id="seg-mode"></div>
     <div class="dlabel">文字大小</div><div class="seg" id="seg-size"></div>
     <div class="dlabel">讀音顯示</div><div class="seg" id="seg-phon"></div>
+    <div class="dlabel">介面字體（謎底的字體由房主決定）</div><div class="seg" id="seg-script"></div>
     <div class="dlabel">配色</div><div class="swatches" id="swatches"></div>
   </div>
 </div>
@@ -668,7 +670,7 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.27.0/dist/index.js"></script>   <!-- looks up how a written character is read, so a bought character can be checked against the reading given -->
-<script src="game.js?v=20261022r"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
+<script src="game.js?v=20261022u"></script>   <!-- bump the ?v= whenever game.js changes, so phones never mix a new page with an old game.js -->
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -792,11 +794,11 @@ const FEEDBACK_MS = 3500;   // pass-and-play: how long the guesser's result scre
 const ICON_SVG = '<svg viewBox="14 10 72 80" aria-hidden="true"><path d="M23.44,19.24l16.7-3.55,2.43,6.64c1.37,3.73,6.1,4.85,9,2.14,7.06-6.59,11.39-10.32,18.08-9.73,12.01,1.07,12.29,10.8,6.29,25.8-4.05,10.2-11.67,19.83-22.17,25.83l-12.85-2.82,7.91-5.53c4.95-3.9,6.25-7.17,3.46-10.57-3.67-2.54-5.96.64-9.49,3.11-1.81,1.27-4.1,1.65-6.23,1.08h-.04c-2.08-.57-3.72-2.14-4.36-4.19l-8.73-28.21Z"/><circle cx="41.28" cy="79.35" r="7.2"/></svg>';
 $('markIcon').innerHTML = ICON_SVG;
 // the YKWIM word with the icon hopping along it, for any waiting screen
-const loaderHtml = (cls = '') => `<div class="ldr ${cls}" role="status" aria-label="載入中">${[...'字字珠璣'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
+const loaderHtml = (cls = '') => `<div class="ldr ${cls}" data-keep role="status" aria-label="載入中">${[...'字字珠璣'].map(c => `<span>${c}</span>`).join('')}<i class="ldrX"><i class="ldrY">${ICON_SVG}</i></i></div>`;
 function playIntro() {
   const el = document.createElement('div');
   el.className = 'intro';
-  el.innerHTML = '<div class="introWord">' + [...'字字珠璣'].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
+  el.innerHTML = '<div class="introWord" data-keep>' + [...'字字珠璣'].map((c, i) => `<span style="--i:${i}">${c}</span>`).join('') + ICON_SVG + '</div>';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2300);
 }
@@ -837,16 +839,74 @@ function onView(v) {
 
 // ---------- colour themes ----------
 const THEMES = {
-  citrus:    { name: 'Lagoon',   colors: ['#123f43', '#1f8083', '#f5b942', '#f28b6e', '#f2d96b'] },
-  bubblegum: { name: 'Rose',     colors: ['#38142c', '#b83a68', '#f5d27a', '#9ee3b4', '#7ed0ea'] },
-  mint:      { name: 'Midnight', colors: ['#0c1424', '#1f4274', '#6fe0be', '#f291ab', '#f0c978'] },
-  charcoal:  { name: 'Terracotta', colors: ['#1f1c1a', '#5b4c42', '#e8c99b', '#c07f52', '#d6c8ba'] }
+  citrus:    { name: '夏日',   colors: ['#123f43', '#1f8083', '#f5b942', '#f28b6e', '#f2d96b'] },
+  bubblegum: { name: '花香',     colors: ['#38142c', '#b83a68', '#f5d27a', '#9ee3b4', '#7ed0ea'] },
+  mint:      { name: '午夜', colors: ['#0c1424', '#1f4274', '#6fe0be', '#f291ab', '#f0c978'] },
+  charcoal:  { name: '落葉', colors: ['#1f1c1a', '#5b4c42', '#e8c99b', '#c07f52', '#d6c8ba'] }
 };
 // light / dark / follow-the-device, text size, how readings are shown, and palette: remembered per device
-const DISPLAY = { mode: safeGet('ykwimzh-mode') || 'dark', size: safeGet('ykwimzh-size') || 'm', phon: safeGet('ykwimzh-phon') || (window.innerWidth <= 480 ? 'py' : 'both'), theme: safeGet('ykwimzh-theme') || 'citrus' };
+const DISPLAY = { mode: safeGet('ykwimzh-mode') || 'dark', size: safeGet('ykwimzh-size') || 'm', phon: safeGet('ykwimzh-phon') || (window.innerWidth <= 480 ? 'py' : 'both'), theme: safeGet('ykwimzh-theme') || 'citrus',
+  script: safeGet('ykwimzh-script') || (/zh[-_](cn|sg)|hans/i.test(navigator.language || '') ? 'sc' : 'tc') };   // tc: 繁體, sc: 简体
 if (!THEMES[DISPLAY.theme]) DISPLAY.theme = 'citrus';
 if (!['py', 'zy', 'both'].includes(DISPLAY.phon)) DISPLAY.phon = 'py';
 const darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+// ---------- 繁體 / 简体 ----------
+// The text of the interface can be read in either script, per person. Anything inside [data-keep] is left alone: the keyword (it is in the script the
+// host chose, the same for everybody), the name of the game, and the guesses as they were typed. opencc-js (traditional -> simplified, 70 KB) is
+// only downloaded when someone picks 简体; until it arrives, and if it can't load, the page just stays in traditional.
+let toSimp = null, scriptApplying = false, scriptObs = null;
+const TXT = new WeakMap(), ATT = new WeakMap(), ATTRS = ['placeholder', 'title', 'aria-label'];   // what each node said before it was converted
+const keepEl = n => { const el = n.nodeType === 1 ? n : n.parentElement; return !el || !!el.closest('[data-keep], script, style, textarea'); };
+function convText(n) {
+  if (keepEl(n)) return;
+  let rec = TXT.get(n);
+  if (!rec || rec.conv !== n.nodeValue) rec = { orig: n.nodeValue, conv: null };   // a value the page wrote itself: that is the new original
+  rec.conv = toSimp(rec.orig); TXT.set(n, rec);
+  if (n.nodeValue !== rec.conv) n.nodeValue = rec.conv;
+}
+function convAttrs(el) {
+  if (keepEl(el)) return;
+  const recs = ATT.get(el) || {};
+  for (const a of ATTRS) {
+    if (!el.hasAttribute(a)) continue;
+    const cur = el.getAttribute(a); let r = recs[a];
+    if (!r || r.conv !== cur) r = { orig: cur, conv: null };
+    r.conv = toSimp(r.orig); recs[a] = r; if (cur !== r.conv) el.setAttribute(a, r.conv);
+  }
+  ATT.set(el, recs);
+}
+function convTree(root) {
+  if (!toSimp || !root) return;
+  if (root.nodeType === 3) return convText(root);
+  if (root.nodeType !== 1) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) convText(n);
+  convAttrs(root); root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(convAttrs);
+}
+function revertScript() {
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let n;
+  while ((n = w.nextNode())) { const r = TXT.get(n); if (r && r.conv === n.nodeValue) n.nodeValue = r.orig; }
+  document.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el => { const recs = ATT.get(el); if (recs) for (const a of ATTRS) { const r = recs[a]; if (r && el.getAttribute(a) === r.conv) el.setAttribute(a, r.orig); } });
+}
+function watchScript(on) {
+  if (scriptObs) { scriptObs.disconnect(); scriptObs = null; }
+  if (!on) return;
+  scriptObs = new MutationObserver(muts => {
+    if (scriptApplying) return;
+    scriptApplying = true; scriptObs.disconnect();
+    try { for (const m of muts) { if (m.type === 'characterData') convText(m.target); else if (m.type === 'attributes') convAttrs(m.target); else m.addedNodes.forEach(convTree); } } finally { scriptApplying = false; scriptObs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS }); }
+  });
+  scriptObs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+}
+function syncScript() {
+  const sc = DISPLAY.script === 'sc', el = document.documentElement;
+  el.lang = sc ? 'zh-Hans' : 'zh-Hant'; el.dataset.script = sc ? 'sc' : 'tc';
+  if (!sc) { if (toSimp) { watchScript(false); scriptApplying = true; revertScript(); scriptApplying = false; } return; }
+  const go = () => { if (DISPLAY.script !== 'sc' || !window.OpenCC) return; toSimp = toSimp || window.OpenCC.Converter({ from: 'tw', to: 'cn' }); scriptApplying = true; convTree(document.body); scriptApplying = false; watchScript(true); };
+  if (window.OpenCC) go();
+  else if (!document.getElementById('opencc')) { const s = document.createElement('script'); s.id = 'opencc'; s.src = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/t2cn.js'; s.onload = go; document.head.appendChild(s); }
+  else document.getElementById('opencc').addEventListener('load', go, { once: true });
+}
+
 function applyDisplay() {
   const D = DISPLAY, el = document.documentElement;
   if (!THEMES[D.theme]) D.theme = 'citrus';
@@ -856,6 +916,8 @@ function applyDisplay() {
   $('seg-mode').innerHTML = seg('mode', [['light', '☀ 亮'], ['dark', '☾ 暗'], ['auto', '自動']]);
   $('seg-size').innerHTML = seg('size', [['s', '小'], ['m', '中'], ['l', '大']]);
   $('seg-phon').innerHTML = seg('phon', [['py', '拼音'], ['zy', '注音'], ['both', '兩個都有']]);
+  $('seg-script').innerHTML = seg('script', [['tc', '繁體'], ['sc', '简体']]);
+  syncScript();
   $('swatches').innerHTML = Object.entries(THEMES).map(([k, t]) =>
     `<button class="sw ${k === D.theme ? 'on' : ''}" data-act="theme" data-theme="${k}"><i>${t.colors.map(c => `<b style="background:${c}"></b>`).join('')}</i>${t.name}</button>`).join('');
 }
@@ -1024,6 +1086,7 @@ function lobbyScreen() {
       <div><label>起始點數</label>${sel('bank', [100, 200, 300], st.bank)}</div>
       <div><label>猜中的獎勵</label>${sel('reward', [75, 100, 150, 200], st.reward)}</div>
       <div><label>寫每個提示字的時間</label>${sel('writeSecs', [30, 45, 60, 90], st.writeSecs, x => x + ' 秒')}</div>
+      <div><label>謎底的字體</label>${sel('script', [['trad', '繁體'], ['simp', '簡體']], st.script || 'trad', x => x, () => '')}</div>
     </div>
     <details id="adv" ${S.advOpen ? 'open' : ''}>
       <summary>進階設定</summary>
@@ -1219,7 +1282,7 @@ function hbar(t) {
 const hbars = mine => `<div class="hbars">${hbar(mine)}${SOLO() ? '' : hbar(1 - mine)}</div>`;
 
 function logHtml(T) {
-  return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
+  return T.log && T.log.length ? `<ul class="log">${[...T.log].reverse().map(e => `<li><span data-keep>${esc(e.text)}${e.ok ? ' ✓' : ''}</span><span class="cost">${e.cost ? '−' + e.cost : ''}</span></li>`).join('')}</ul>` : '';
 }
 
 // every way a written character can be read (pinyin-pro), or null when the library isn't there
@@ -1232,7 +1295,7 @@ function giverPanel(T, theme, blanks) {
     <div class="secret">
       ${r.pass && r.pass.can ? `<button class="passbtn" data-act="proposePass" title="${SOLO() ? '換一個新詞' : '不認識這個詞？請對方一起跳過'}">跳過？</button>` : r.pass && r.pass.asking ? `<span class="passbtn asked">問${esc(V.names[1 - V.myTeam])}…</span>` : ''}
       <div class="sec-theme">主題：<b>${esc(r.cat)}</b></div>
-      <div class="sec-key"><span class="kw">謎底：</span><span class="w">${esc(r.word)}</span></div>
+      <div class="sec-key"><span class="kw">謎底：</span><span class="w" data-keep>${esc(r.word)}</span></div>
       <div class="sec-ban">禁用的讀音（不管聲調）：${banHtml || '無'}</div>
     </div>
     ${used}
@@ -1270,10 +1333,10 @@ function reviewTeam(t, T) {   // T: one team's record of a word (the round view 
     <div class="rv-sum">${rows.map(([k, v]) => `<span>${k} <b>${sign(v)}</b></span>`).join('')}<span class="tot">淨得 <b>${sign(net)}</b></span></div>
   </div>`;
 }
-const reviewHead = r => `<div class="rv-head">第 ${r.n + 1} 個詞 · <b>${esc(r.word)}</b> · ${esc(r.cat)} · ${esc(r.levelName)}</div>`;
+const reviewHead = r => `<div class="rv-head">第 ${r.n + 1} 個詞 · <b data-keep>${esc(r.word)}</b> · ${esc(r.cat)} · ${esc(r.levelName)}</div>`;
 function gameReviewHtml(shown) {   // every word of the game, each one collapsed
   if (!V.record || !V.record.length) return '';
-  return `<details class="review gamereview"><summary>遊戲回顧</summary>${V.record.map(r => `<details class="rvword"><summary><b>${esc(r.word)}</b>${shown.map(t => { const T = r.teams[t], n = T.earned - T.spent; return `<span class="rvnet" style="color:${TEAM_TEXT[t]}">${shown.length > 1 ? `<i class="tdot sm" style="background:${TEAM_COLORS[t]}"></i>` : ''}${n < 0 ? '−' : '+'}${Math.abs(n)}</span>`; }).join('')}</summary>${reviewHead(r)}${shown.map(t => reviewTeam(t, r.teams[t])).join('')}</details>`).join('')}</details>`;
+  return `<details class="review gamereview"><summary>遊戲回顧</summary>${V.record.map(r => `<details class="rvword"><summary><b data-keep>${esc(r.word)}</b>${shown.map(t => { const T = r.teams[t], n = T.earned - T.spent; return `<span class="rvnet" style="color:${TEAM_TEXT[t]}">${shown.length > 1 ? `<i class="tdot sm" style="background:${TEAM_COLORS[t]}"></i>` : ''}${n < 0 ? '−' : '+'}${Math.abs(n)}</span>`; }).join('')}</summary>${reviewHead(r)}${shown.map(t => reviewTeam(t, r.teams[t])).join('')}</details>`).join('')}</details>`;
 }
 
 function roundEndScreen() {
@@ -1281,7 +1344,7 @@ function roundEndScreen() {
   const left = V.myTeam === null ? 0 : V.myTeam, shown = SOLO() ? [left] : [left, 1 - left];
   // The clues are the fun part: each team's clues get big tiles that pop in one after the other.
   return `<div class="stage">${topBar()}${hbars(left)}<div class="playrow">${vbar(left)}<div class="playmain">
-    <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">謎底是</div><div class="brand zhword" style="font-size:2.4rem;color:var(--accent-text)">${esc(r.word)}</div><div class="sec-read" style="justify-content:center">${(r.syl || []).map(s => `<span>${ph(s)}</span>`).join('')}</div></div>
+    <div class="center" style="margin:0 0 12px"><div class="sub" style="margin:0">謎底是</div><div class="brand zhword" data-keep style="font-size:2.4rem;color:var(--accent-text)">${esc(r.word)}</div><div class="sec-read" style="justify-content:center">${(r.syl || []).map(s => `<span>${ph(s)}</span>`).join('')}</div></div>
     ${shown.map((t, k) => { const T = r.teams[t], b = T.breakdown, clues = T.clues || Array(n).fill([]); return `<div class="res" style="--tc:${TEAM_COLORS[t]}">
       <h3 style="color:${TEAM_TEXT[t]}">${esc(V.names[t])} <span class="rstat"><small>${esc(statusLabel(t))}</small><b class="netbig${(T.earned - (T.spent || 0)) < 0 ? ' neg' : ''}">${netText(T)}</b></span></h3>
       <div class="cluepair">${clues.map((c, i) => `<div class="bigclue" style="animation-delay:${(k * n + i) * .3}s"><div class="tiles">${c.length ? c.map(tile).join('') : '<span class="skipped">沒補字</span>'}</div><small>${n === 1 ? '提示字' : '提示字 ' + (i + 1)}${c.length ? ` · ${c.length} 個字` : ''}</small></div>`).join('')}</div>
@@ -1312,7 +1375,7 @@ function climb(history) {
     return `<circle cx="${x}" cy="${y}" r="4.5" fill="${i === 0 ? '#1d2b2e' : miss ? '#c2392b' : '#2e8b57'}" stroke="#fff" stroke-width="1.5"/>
       ${i ? `<text x="${x}" y="${(+y - 8).toFixed(1)}" class="cn${miss ? ' miss' : ''}" text-anchor="middle">${p.net >= 0 ? '+' : '−'}${Math.abs(p.net)}</text>` : ''}
       ${i === 0 ? `<text x="${x}" y="${T + PH + 12}" class="cg" text-anchor="middle">起始</text>`
-        : `<text x="${(+x - 2).toFixed(1)}" y="${T + PH + 11}" class="cg${miss ? ' miss' : ''}" transform="rotate(45 ${(+x - 2).toFixed(1)} ${T + PH + 11})">${esc(label)}</text>`}`; }).join('');
+        : `<text x="${(+x - 2).toFixed(1)}" y="${T + PH + 11}" class="cg${miss ? ' miss' : ''}" data-keep transform="rotate(45 ${(+x - 2).toFixed(1)} ${T + PH + 11})">${esc(label)}</text>`}`; }).join('');
   return `<svg class="climb" viewBox="0 0 ${W} ${H}" role="img" aria-label="每個詞之後的分數">${bands}${ticks}
     <path d="${line}" fill="none" stroke="#1d2b2e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
 }
@@ -1514,6 +1577,7 @@ document.addEventListener('click', e => {
     case 'mode': return setDisplay({ mode: d.v });
     case 'skipFeedback': S.feedback = null; return render();
     case 'size': return setDisplay({ size: d.v });
+    case 'script': return setDisplay({ script: d.v });
     case 'phon': setDisplay({ phon: d.v || { py: 'zy', zy: 'both', both: 'py' }[DISPLAY.phon] }); if (V) render(); return;
     case 'passPlay': return send({ type: 'passAndPlay' });
     case 'help': $('help').classList.remove('hide'); safeSet('ykwimzh-help', '1'); render(); return;
