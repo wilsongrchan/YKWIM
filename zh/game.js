@@ -170,8 +170,11 @@
     return { label: r[1], quote: r[2], rank: RATINGS.length - 1 - RATINGS.indexOf(r), score, words };   // rank 4 = best, 0 = worst
   }
   const LEVEL_EVERY = 3;              // the word level goes up every this many words
+  const IDIOM_CAT = '成語與俗語';
   const LONG_WORD_MIN = 3;            // characters a word needs before it pays the long-word bonus
-  const longWordBonus = (base, level) => Math.round(base * 0.25 * (level - 1) / 5) * 5;
+  // bonuses on top of the reward (so 25 and 40 at the usual 100): a word of 3+ characters, or an idiom or saying instead (never both)
+  const longWordBonus = base => Math.round(base * 0.25 / 5) * 5;
+  const idiomBonus = base => Math.round(base * 0.4 / 5) * 5;
   const PASS_MS = 10000;              // how long the other team's Clue-giver 1 has to answer a request to pass a word
   const FEEDBACK_MS = 4000;          // pass-and-play: how long the guesser's result screen shows before the device is passed on
   const GRACE_MS = 1500;             // host waits this long past a writing deadline for the client's auto-submit
@@ -194,7 +197,7 @@
       players: {},                            // id -> { name, token, connected }
       seats: [[null, null, null], [null, null, null]],
       names: ['第一隊', '第二隊'],
-      scores: [0, 0], round: 0, used: new Set(), level: 1, longBonus: 0, card: null, teams: [null, null], firstCorrect: null, gaveUp: null, winner: null,
+      scores: [0, 0], round: 0, used: new Set(), level: 1, longBonus: 0, bonusKind: 'long', card: null, teams: [null, null], firstCorrect: null, gaveUp: null, winner: null,
       solo: false, history: [], record: [],   // record: every finished word with who wrote what, for the game-over review
       pass: null, passUsed: [false, false], passNote: null   // a request to pass the word: { from, to, expires, timer }; each team may ask once per word
     };
@@ -269,7 +272,9 @@
       let fresh = pool.filter(e => !G.used.has(e.word));
       if (!fresh.length) { pool.forEach(e => G.used.delete(e.word)); fresh = pool; }   // seen them all: start that level's list over
       G.card = fresh[Math.floor(Math.random() * fresh.length)]; G.used.add(G.card.word);
-      G.longBonus = G.card.len >= LONG_WORD_MIN ? longWordBonus(s.reward, G.level) : 0;   // only a long word pays it, whatever level it was drawn from
+      // an idiom or saying pays the idiom bonus; any other word pays the smaller long-word bonus if it has 3+ characters, otherwise nothing
+      G.bonusKind = G.card.cat === IDIOM_CAT ? 'idiom' : 'long';
+      G.longBonus = G.bonusKind === 'idiom' ? idiomBonus(s.reward) : G.card.len >= LONG_WORD_MIN ? longWordBonus(s.reward) : 0;
       G.firstCorrect = null; G.gaveUp = null; G.phase = 'round';
       if (G.pass) { clearT(G.pass.timer); G.pass = null; }
       G.teams = [newTeamState(), newTeamState()];
@@ -391,7 +396,7 @@
         const quick = Math.max(0, s.speedSecs - Math.floor((now() - T.guessStart) / 1000));
         // The first-to-guess bonus isn't paid yet: it only counts if the other team gets the word too (see endRound).
         T.guessMs = now() - T.guessStart;
-        T.breakdown = { base: s.reward, longWord: G.longBonus, first: 0, speed: quick, spent: T.spent };
+        T.breakdown = { base: s.reward, longWord: G.longBonus, kind: G.bonusKind, first: 0, speed: quick, spent: T.spent };
         finishTeam(t, 'correct', T.breakdown.base + T.breakdown.longWord + T.breakdown.speed);
         if (first) {
           G.firstCorrect = t;
@@ -593,7 +598,7 @@
 
       const mt = v.myTeam, roles = rolesOf(id);
       v.myRoles = roles; v.round = {
-        n: G.round, cat: G.card.cat, level: G.level, levelName: TIERS[G.level - 1].name, reward: G.settings.reward, longBonus: G.longBonus, blanks: [...G.card.word].map(() => 1),
+        n: G.round, cat: G.card.cat, level: G.level, levelName: TIERS[G.level - 1].name, reward: G.settings.reward, longBonus: G.longBonus, bonusKind: G.bonusKind, blanks: [...G.card.word].map(() => 1),
         teams: [0, 1].map(t => {
           const T = G.teams[t], mine = t === mt;
           const rem = T.deadline ? T.deadline - now() : T.guessDeadline ? T.guessDeadline - now() : null;
