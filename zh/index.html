@@ -1206,7 +1206,7 @@ function roundScreen() {
     }
   }
   const pa = r.pass && r.pass.toAnswer;
-  const askBar = pa ? `<div class="passask"><p><b>${esc(pa.by)}</b>（${esc(V.names[pa.team])}）不認識這個詞。兩隊一起跳過嗎？雙方都會換新詞，也還沒有人花點數。</p><p class="hint">冷門詞、專有名詞通常該同意；常識詞可以拒絕。</p><div class="row"><button data-act="answerPass" data-yes="1">好，跳過</button><button class="ghost" style="background:#e6e6ec;color:var(--ink)" data-act="answerPass" data-yes="0">不要</button></div></div>` : '';
+  const askBar = pa ? `<div class="passask"><p><b>${esc(pa.by)}</b>（${esc(V.names[pa.team])}）不認識這個詞。兩隊一起跳過嗎？雙方都會換新詞，也還沒有人花點數。</p><p class="hint">冷門詞、專有名詞建議同意跳過會更加好玩哦！</p><div class="row"><button data-act="answerPass" data-yes="1">好，跳過</button><button class="ghost" style="background:#e6e6ec;color:var(--ink)" data-act="answerPass" data-yes="0">不要</button></div></div>` : '';
   const mine = mt === null ? null : r.teams[mt];
   // clue-givers get a compact layout (their panel carries its own role label and timer); everyone else sees the clue slots
   const [bodyTop, bodyBottom] = Array.isArray(body) ? body : [body, ''];
