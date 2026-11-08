@@ -1,0 +1,22 @@
+Copyright (c) 2026 Wilson Chan (https://github.com/wilsongrchan)
+All rights reserved.
+
+YKWIM (and its Chinese edition, 字字珠璣) is published here so it can be played at:
+https://wilsongrchan.github.io/YKWIM/
+
+The source code is visible, but that does not grant a licence. Without written
+permission you may not copy, modify, redistribute, re-host or publish this code,
+or the game's name, rules, artwork or text, in whole or in part.
+
+You are welcome to play the game and share links to it. (GitHub's Terms of
+Service let other users view and fork public repositories on GitHub itself;
+nothing beyond that is granted.)
+
+Third-party material
+--------------------
+The items below are NOT covered by the notice above. They belong to their
+authors and stay under their own licences.
+
+- PeerJS (MIT), loaded at runtime from unpkg.com.
+- pinyin-pro (MIT) and opencc-js (Apache-2.0), loaded at runtime from
+  cdn.jsdelivr.net by the Chinese edition.
