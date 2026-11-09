@@ -455,7 +455,8 @@
   [data-tip] { cursor: help; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--navy); border: 2px solid var(--bad); color: var(--text);
     padding: 10px 18px; border-radius: 999px; font-weight: 500; z-index: 9; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
-  .foot { position: fixed; left: 0; right: 0; bottom: 8px; z-index: 2; text-align: center; font-size: .72rem; letter-spacing: .04em; color: var(--soft); opacity: .75; pointer-events: none; }
+  .foot { position: fixed; left: 0; right: 0; bottom: 8px; z-index: 2; text-align: center; font-size: .72rem; letter-spacing: .04em; color: var(--soft); pointer-events: none; }
+  .foot > span { opacity: .75; } .foot .grb { pointer-events: auto; }
   #wrap:not(.landing) ~ .foot { display: none; }   /* landing page only */
   #wrap.landing .stage.home { padding-bottom: 30px; }
   .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
@@ -648,6 +649,12 @@
   @media (prefers-reduced-motion: reduce) { .gname .gz.play, .gname .gz.slam.play, .gradehead:has(.gz.slam.play) { animation: none; opacity: 1; } .gname .imp { display: none; } }
   :root[data-script="sc"] .gradehead .logo, :root[data-script="sc"] .vsg .g { font-family: "Lilita One", "ZCOOL KuaiLe", var(--cjk); }   /* the grade names have simplified-only characters the logo face lacks, so one rounded simplified face carries the whole name */
   :root[data-script="sc"] { --cjk: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif; }
+  /* Game Rabbit mark: last item on the landing page, white on dark themes and black on light ones (see Game_Site/BRANDING.md) */
+  .grb { display: block; margin: 14px auto 0; width: max-content; opacity: .8; transition: opacity .15s; }
+  .grb:hover, .grb:focus-visible { opacity: 1; }
+  .grb .grm { display: block; height: 30px; width: auto; }
+  .grb .grm.lt { display: none; }
+  :root[data-mode="light"] .grb .grm.dk { display: none; } :root[data-mode="light"] .grb .grm.lt { display: block; }
 </style>
 </head>
 <body>
@@ -665,7 +672,7 @@
   </header>
   <div id="app"></div>
 </div>
-<footer class="foot">© 2026 YKWIM Chinese Version</footer>
+<footer class="foot"><span>© 2026 YKWIM Chinese Version</span><a class="grb" href="https://gamerabbit.io/" aria-label="Game Rabbit: more games" title="更多遊戲"><img class="grm lt" src="../assets/brand/gr-stack-dark.png" alt="Game Rabbit" width="93" height="30"><img class="grm dk" src="../assets/brand/gr-stack-light.png" alt="Game Rabbit" width="93" height="30"></a></footer>
 <div id="themes" class="modal hide">
   <div class="sheet">
     <button class="x" data-act="closeThemes" aria-label="關閉">✕</button>
