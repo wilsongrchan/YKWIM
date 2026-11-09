@@ -475,7 +475,8 @@
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--navy); border: 2px solid var(--bad); color: var(--text);
     padding: 10px 18px; border-radius: 999px; font-weight: 500; z-index: 9; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
   .foot { position: fixed; left: 0; right: 0; bottom: 8px; z-index: 2; text-align: center; font-size: .72rem; letter-spacing: .04em; color: var(--soft); pointer-events: none; }
-  .foot > span { opacity: .75; } .foot .grb { pointer-events: auto; }
+  .foot { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 12px; box-sizing: border-box; }   /* the mark sits left of the copyright line */
+  .foot > span { opacity: .75; text-align: left; } .foot .grb { pointer-events: auto; margin: 0; flex: none; }
   #wrap:not(.landing) ~ .foot { display: none; }   /* landing page only */
   #wrap.landing .stage.home { padding-bottom: 30px; }
   .ingame .masthead { padding-bottom: 4px; margin-bottom: 6px; } .ingame .masthead .mark small { display: none; } .ingame .masthead .mark { font-size: 1.45rem; }
@@ -691,7 +692,7 @@
   </header>
   <div id="app"></div>
 </div>
-<footer class="foot"><span>© 2026 YKWIM Chinese Version</span><a class="grb" href="https://gamerabbit.io/" aria-label="Game Rabbit: more games" title="更多遊戲"><img class="grm lt" src="../assets/brand/gr-stack-dark.png" alt="Game Rabbit" width="93" height="30"><img class="grm dk" src="../assets/brand/gr-stack-light.png" alt="Game Rabbit" width="93" height="30"></a></footer>
+<footer class="foot"><a class="grb" href="https://gamerabbit.io/" aria-label="Game Rabbit: more games" title="更多遊戲"><img class="grm lt" src="../assets/brand/gr-stack-dark.png" alt="Game Rabbit" width="93" height="30"><img class="grm dk" src="../assets/brand/gr-stack-light.png" alt="Game Rabbit" width="93" height="30"></a><span>© 2026 YKWIM Chinese Version</span></footer>
 <div id="themes" class="modal hide">
   <div class="sheet">
     <button class="x" data-act="closeThemes" aria-label="關閉">✕</button>
