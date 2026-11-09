@@ -6,6 +6,25 @@
 <link rel="icon" type="image/svg+xml" href="../icon.svg">
 <link rel="icon" type="image/png" sizes="512x512" href="../icon-512.png">
 <link rel="apple-touch-icon" href="../icon.png">
+<script>
+/* On a local or LAN address the tab icon is grey, so a local copy is never mistaken for the live site. */
+(function () {
+  var n = location.hostname;
+  if (!(['localhost', '127.0.0.1', ''].indexOf(n) >= 0 || /\.local$/.test(n) || /^(192\.168|10)\./.test(n) || /^172\.(1[6-9]|2\d|3[01])\./.test(n))) return;
+  var img = new Image();
+  img.onload = function () {
+    try {
+      var c = document.createElement('canvas'); c.width = c.height = 64; var x = c.getContext('2d'); x.drawImage(img, 0, 0, 64, 64);
+      var d = x.getImageData(0, 0, 64, 64), a = d.data;
+      for (var i = 0; i < a.length; i += 4) { var g = Math.round(a[i] * .3 + a[i + 1] * .59 + a[i + 2] * .11); a[i] = a[i + 1] = a[i + 2] = g; }
+      x.putImageData(d, 0, 0);
+      document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.remove(); });
+      var l = document.createElement('link'); l.rel = 'icon'; l.type = 'image/png'; l.href = c.toDataURL('image/png'); document.head.appendChild(l);
+    } catch (e) {}
+  };
+  img.src = "../icon-512.png";
+})();
+</script>
 <title>字字珠璣 · YKWIM Chinese Version</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
