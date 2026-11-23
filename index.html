@@ -591,6 +591,8 @@
 </style>
 <!-- Game Rabbit page views (anonymous, no cookies), shown on gamerabbit.io/admin; only runs on gamerabbit.io -->
 <script>(function(){if(/(^|\.)gamerabbit\.io$/.test(location.hostname)){var s=document.createElement('script');s.src='/t.js';s.defer=true;document.head.appendChild(s)}})()</script>
+<!-- smooth cross-fade between Game Rabbit pages (the hub opts in too) -->
+<style>@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto}}</style>
 </head>
 <body>
 <div id="wrap">
@@ -607,7 +609,7 @@
   </header>
   <div id="app"></div>
 </div>
-<footer class="foot"><a class="grb" href="https://gamerabbit.io/" aria-label="Game Rabbit: more games" title="More games"><img class="grm lt" src="assets/brand/gr-stack-dark.png" alt="Game Rabbit" width="93" height="30"><img class="grm dk" src="assets/brand/gr-stack-light.png" alt="Game Rabbit" width="93" height="30"></a><span>© 2026 YKWIM</span></footer>
+<footer class="foot"><a class="grb" href="https://www.gamerabbit.io/" aria-label="Game Rabbit: more games" title="More games"><img class="grm lt" src="assets/brand/gr-stack-dark.png" alt="Game Rabbit" width="93" height="30"><img class="grm dk" src="assets/brand/gr-stack-light.png" alt="Game Rabbit" width="93" height="30"></a><span>© 2026 YKWIM</span></footer>
 <div id="themes" class="modal hide">
   <div class="sheet">
     <button class="x" data-act="closeThemes" data-i18n-label="Close">✕</button>
